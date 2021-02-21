@@ -82,7 +82,7 @@ export default defineComponent({
       },
       {
         label: tm.t('videoList'),
-        to: '/video-list',
+        to: '/videos',
         icon: 'list'
       },
     ]

@@ -8,28 +8,42 @@
       <template #top-right>
         <q-btn @click="dialog = true" >{{$t('addNew')}}</q-btn>
       </template>
+      
+      <template #body-cell-actions="props">
+        <q-td :props="props">
+          <q-icon class="q-mr-sm" name='visibility' @click="viewVideo(props.row)"></q-icon>
+          <q-icon name='delete' @click="deleteVideo(props.row)"></q-icon>
+        </q-td>
+      </template>
+
     </q-table>
 
     <q-dialog v-model="dialog">
       <q-card class="full-width" style='max-width:500px' >
-        <q-card-section>
-          <q-file 
-          accept='.mp4'
-          filled bottom-slots v-model="file" label="Label" counter>
-          <template v-slot:prepend>
-            <q-icon name="cloud_upload" @click.stop />
-          </template>
-          <template v-slot:append>
-            <q-icon name="close" @click.stop="file = null" class="cursor-pointer" />
-          </template>
+        
+        <q-card-section class="q-gutter-md" >
+          <q-input v-model="name" :label='$t("name")' />
 
-          <template v-slot:hint>
-            Field hint
-          </template>
-        </q-file>
+          <q-file 
+            v-model="file"
+            accept='.mp4'
+            filled
+            bottom-slots
+            :label="$t('file')"
+            counter
+          >
+            <template #prepend>
+              <q-icon name="cloud_upload" @click.stop />
+            </template>
+            <template #append>
+              <q-icon name="close" class="cursor-pointer" @click.stop="file = null" />
+            </template>
+          </q-file>
         </q-card-section>
-        <q-card-actions>
-          <q-btn @click="addVideo" >{{$t("upload")}}</q-btn>
+
+        <q-card-actions class="justify-end" >
+          <q-btn :disabled='!name || !file' color='primary' 
+          @click="addVideo" >{{$t("upload")}}</q-btn>
           <q-btn @click="dialog = false" >{{$t("cancel")}}</q-btn>
         </q-card-actions>
 
@@ -39,22 +53,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
 
-import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router'
+import { api  } from 'boot/axios';
+
 type VideoRow = {
-  name: string
+  id: number;
+  name: string;
   path: string;
 }
+
 export default defineComponent({
   name: 'PageIndex',
   components: { },
   setup() {
     const tm = useI18n();
+    const router = useRouter();
 
-    const rows = reactive<VideoRow[]>([]);
+    const rows = ref<VideoRow[]>([]);
     const dialog = ref(false);
     const file = ref<File>();
+    const name = ref('');
 
     const columns = [
         {
@@ -69,34 +90,54 @@ export default defineComponent({
           field: 'path',
           align: 'left'
         },
+        {
+          name: 'actions',
+        },
       ];
 
-    const setVideos = () => {
-      for (let i = 0; i < 3; i++) {
-        rows.push({
-          name: `video-${i}`,
-          path: `/path/${i}`
-        })
-      }
+    const setVideos = async () => {
+      const { data } = await api.get<VideoRow[]>('videos');
+      rows.value = data
     }
 
-    setVideos();
+    onMounted(setVideos)
 
-    const addVideo = () => {
-      rows.push({
-        name: file.value?.name || tm.t('undefined'),
-        path: `path/${file.value?.name || '' }`
-      })
+    const addVideo = async () => {
+
+      if (!file.value) {
+        return;
+      }
+
+      const formData = new FormData()
+
+      formData.append('name', name.value)
+      formData.append('file', file.value)
+
+      await api.post('videos', formData);
+
+      await setVideos();
 
       dialog.value = false
     }
     
+    const viewVideo = async (item: VideoRow) => {
+        await router.push(`/videos/${item.id}`)
+    }
+    
+    const deleteVideo = async (item: VideoRow) => {
+        await api.delete(`videos/${item.id}`);
+        await setVideos()
+    }
+    
     return {
+      name,
       file,
       rows,
       columns,
       dialog,
-      addVideo
+      addVideo,
+      viewVideo,
+      deleteVideo
     };
   }
 });
