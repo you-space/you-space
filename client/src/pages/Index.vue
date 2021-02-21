@@ -8,10 +8,10 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'PageIndex',
-  components: { },
-  setup() {
-    return {};
-  }
+    name: 'PageIndex',
+    components: { },
+    setup() {
+        return {};
+    }
 });
 </script>

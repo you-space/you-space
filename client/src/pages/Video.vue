@@ -2,8 +2,8 @@
   <q-page class="row items-center justify-center q-pa-lg">
       <q-card class="col full-width full-height " style="max-width:1000px" >
            <q-video
-            :ratio="16/9"
-            class="col full-width full-height" v-if="videoSrc" :src='videoSrc'
+            v-if="videoSrc"
+            :ratio="16/9" class="col full-width full-height" :src='videoSrc'
             >
 
            </q-video>

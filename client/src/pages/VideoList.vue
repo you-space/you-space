@@ -66,79 +66,79 @@ type VideoRow = {
 }
 
 export default defineComponent({
-  name: 'PageIndex',
-  components: { },
-  setup() {
-    const tm = useI18n();
-    const router = useRouter();
+    name: 'PageIndex',
+    components: { },
+    setup() {
+        const tm = useI18n();
+        const router = useRouter();
 
-    const rows = ref<VideoRow[]>([]);
-    const dialog = ref(false);
-    const file = ref<File>();
-    const name = ref('');
+        const rows = ref<VideoRow[]>([]);
+        const dialog = ref(false);
+        const file = ref<File>();
+        const name = ref('');
 
-    const columns = [
-        {
-          label: tm.t('name'),
-          name: 'name',
-          field: 'name',
-          align: 'left'
-        },
-        {
-          label: tm.t('directory'),
-          name: 'directory',
-          field: 'path',
-          align: 'left'
-        },
-        {
-          name: 'actions',
-        },
-      ];
+        const columns = [
+            {
+                label: tm.t('name'),
+                name: 'name',
+                field: 'name',
+                align: 'left'
+            },
+            {
+                label: tm.t('directory'),
+                name: 'directory',
+                field: 'path',
+                align: 'left'
+            },
+            {
+                name: 'actions',
+            },
+        ];
 
-    const setVideos = async () => {
-      const { data } = await api.get<VideoRow[]>('videos');
-      rows.value = data
-    }
+        const setVideos = async () => {
+            const { data } = await api.get<VideoRow[]>('videos');
+            rows.value = data
+        }
 
-    onMounted(setVideos)
+        onMounted(setVideos)
 
-    const addVideo = async () => {
+        const addVideo = async () => {
 
-      if (!file.value) {
-        return;
-      }
+            if (!file.value) {
+                return;
+            }
 
-      const formData = new FormData()
+            const formData = new FormData()
 
-      formData.append('name', name.value)
-      formData.append('file', file.value)
+            formData.append('name', name.value)
+            formData.append('file', file.value)
 
-      await api.post('videos', formData);
+            await api.post('videos', formData);
 
-      await setVideos();
+            await setVideos();
 
-      dialog.value = false
-    }
+            dialog.value = false
+        }
     
-    const viewVideo = async (item: VideoRow) => {
-        await router.push(`/videos/${item.id}`)
-    }
+        const viewVideo = async (item: VideoRow) => {
+            await router.push(`/videos/${item.id}`)
+        }
     
-    const deleteVideo = async (item: VideoRow) => {
-        await api.delete(`videos/${item.id}`);
-        await setVideos()
-    }
+        const deleteVideo = async (item: VideoRow) => {
+            await api.delete(`videos/${item.id}`);
+            await setVideos()
+        }
     
-    return {
-      name,
-      file,
-      rows,
-      columns,
-      dialog,
-      addVideo,
-      viewVideo,
-      deleteVideo
-    };
-  }
+        return {
+            name,
+            file,
+            rows,
+            columns,
+            dialog,
+            addVideo,
+            viewVideo,
+            deleteVideo
+        };
+    }
 });
 </script>

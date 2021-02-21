@@ -37,10 +37,10 @@
 
         <template v-for="(item, index) in menuList" :key="index">
           <q-item
-            exact 
+            v-ripple 
+            exact
             :active="item.label === 'Outbox'"
-            :to='item.to'
-            v-ripple            
+            :to='item.to'            
           >
             <q-item-section avatar>
               <q-icon :name="item.icon" />
@@ -66,34 +66,34 @@ import { defineComponent, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
-  name: 'MainLayout',
+    name: 'MainLayout',
 
-  components: {},
+    components: {},
 
-  setup () {
-    const tm = useI18n();
+    setup () {
+        const tm = useI18n();
 
-    const leftDrawerOpen = ref(false);
-    const menuList = [
-      {
-        label: tm.t('home'),
-        to: '/',
-        icon: 'home'
-      },
-      {
-        label: tm.t('videoList'),
-        to: '/videos',
-        icon: 'list'
-      },
-    ]
+        const leftDrawerOpen = ref(false);
+        const menuList = [
+            {
+                label: tm.t('home'),
+                to: '/',
+                icon: 'home'
+            },
+            {
+                label: tm.t('videoList'),
+                to: '/videos',
+                icon: 'list'
+            },
+        ]
 
-    return {
-      menuList,
-      leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      }
+        return {
+            menuList,
+            leftDrawerOpen,
+            toggleLeftDrawer () {
+                leftDrawerOpen.value = !leftDrawerOpen.value
+            }
+        }
     }
-  }
 })
 </script>

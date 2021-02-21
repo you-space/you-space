@@ -78,6 +78,7 @@ module.exports = {
   // add your custom rules here
   rules: {
     'prefer-promise-reject-errors': 'off',
+    indent: ['error', 4],
 
     // TypeScript
     quotes: ['warn', 'single', { avoidEscape: true }],
