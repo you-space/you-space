@@ -8,6 +8,7 @@ export default class Videos extends BaseSchema {
       table.increments('id')
       table.string('name').notNullable()
       table.string('path').unique().notNullable()
+      table.string('extname').unique().notNullable()
       table.timestamps(true)
     })
   }

@@ -11,6 +11,9 @@ export default class Video extends BaseModel {
   @column()
   public path: string
 
+  @column()
+  public extname: string
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 

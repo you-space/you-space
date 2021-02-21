@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@adonisjs/assembler": "^3.0.6",
+    "@types/uuid": "^8.3.0",
     "adonis-preset-ts": "^2.0.0",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^7.2.0",
@@ -30,6 +31,7 @@
     "luxon": "^1.26.0",
     "proxy-addr": "^2.0.6",
     "reflect-metadata": "^0.1.13",
-    "source-map-support": "^0.5.19"
+    "source-map-support": "^0.5.19",
+    "uuid": "^8.3.2"
   }
 }

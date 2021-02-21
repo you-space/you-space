@@ -25,5 +25,6 @@ Route.get('/', async () => {
 })
 
 Route.get('videos', 'VideosController.index')
-
+Route.get('videos/:id', 'VideosController.show')
 Route.post('videos', 'VideosController.create')
+Route.delete('videos/:id', 'VideosController.remove')
