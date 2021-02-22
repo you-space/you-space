@@ -27,7 +27,7 @@ module.exports = {
   // Rules order is important, please avoid shuffling them
   extends: [
     // Base ESLint recommended rules
-    // 'eslint:recommended',
+    'eslint:recommended',
 
     // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#usage
     // ESLint typescript rules
@@ -79,9 +79,12 @@ module.exports = {
   rules: {
     'prefer-promise-reject-errors': 'off',
     indent: ['error', 4],
+    semi: ["error", "always"],
+    'object-property-newline': ['error', { allowMultiplePropertiesPerLine: true}],
+    "object-curly-newline": ["error", {"multiline": true}],
 
     // TypeScript
-    quotes: ['warn', 'single', { avoidEscape: true }],
+    quotes: ['error', 'single', { avoidEscape: true }],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
 
