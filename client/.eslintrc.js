@@ -27,7 +27,7 @@ module.exports = {
   // Rules order is important, please avoid shuffling them
   extends: [
     // Base ESLint recommended rules
-    'eslint:recommended',
+    // 'eslint:recommended',
 
     // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#usage
     // ESLint typescript rules
@@ -44,9 +44,9 @@ module.exports = {
 
     // https://github.com/prettier/eslint-config-prettier#installation
     // usage with Prettier, provided by 'eslint-config-prettier'.
-    'prettier',
-    'prettier/@typescript-eslint',
-    'prettier/vue'
+    // 'prettier',
+    // 'prettier/@typescript-eslint',
+    // 'prettier/vue'
   ],
 
   plugins: [
@@ -80,11 +80,31 @@ module.exports = {
     'prefer-promise-reject-errors': 'off',
     indent: ['error', 4],
     semi: ["error", "always"],
-    'object-property-newline': ['error', { allowMultiplePropertiesPerLine: true}],
-    "object-curly-newline": ["error", {"multiline": true}],
+    // 'object-property-newline': ['error', { allowMultiplePropertiesPerLine: true}],
+    "object-curly-newline": ["error", {
+        "ObjectPattern": {
+          "multiline": true,
+          "minProperties": 4,
+        },
+        "ObjectExpression": "always"
+      }
+    ],
+    "comma-spacing": ["error"],
+    // "object-curly-spacing": ["error", "always"],
+    'no-unsafe-assignment': 'off',
+    'no-unsafe-call': 'off',
+    'no-unsafe-member-access': 'off',
+    // quotes: ['error', 'single', { avoidEscape: true }],
+    // 'vue/max-attributes-per-line': ["error", {
+    //     singleLine: 1
+    //   }
+    // ],
+
+    '@typescript-eslint/no-unsafe-assignment': 'off',
+    '@typescript-eslint/no-unsafe-call': 'off',
+    '@typescript-eslint/no-unsafe-member-access': 'off',
 
     // TypeScript
-    quotes: ['error', 'single', { avoidEscape: true }],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
 

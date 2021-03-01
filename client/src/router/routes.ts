@@ -5,25 +5,33 @@ const routes: RouteRecordRaw[] = [
         path: '/ys-admin',
         component: () => import('layouts/DashboardLayout.vue'),
         children: [
-            {
+            { 
                 path: '',
-                name: 'dashboard',
-                component: () => import('pages/Index.vue')
+                name: 'admin',
+                component: () => import('pages/Index.vue') 
             },
             {
                 path: 'videos',
-                component: () => import('pages/VideoList.vue') 
+                name: 'admin-videos',
+                component: () => import('pages/AdminVideoList.vue') 
             },
             {
                 path: 'videos/:videoId',
-                component: () => import('pages/Video.vue') 
+                name: 'admin-video',
+                component: () => import('pages/AdminVideo.vue') 
             },
         ],
     },
     {
         path: '/',
         component: () => import('layouts/MainLayout.vue'),
-        children: [],
+        children: [
+            {
+                path: '',
+                name: 'home',
+                component: () => import('pages/Home.vue')
+            }
+        ],
     },
 
     // Always leave this as last one,
