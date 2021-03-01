@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="hHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
         <q-btn
@@ -13,9 +13,16 @@
 
         <q-toolbar-title>
           You space
+          <q-btn
+            color="white"
+            text-color="black"
+            size="sm"
+            class="q-ml-md"
+            :to="{ name: 'home' }"
+          >
+            {{ $t('viewChannel') }}
+          </q-btn>
         </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
@@ -26,21 +33,15 @@
       class="bg-grey-1"
     >
       <q-list>
-        <q-item-label
-          header
-          class="text-grey-8"
+        <template
+          v-for="(item, index) in menuList"
+          :key="index"
         >
-          {{$t('page', 1)}}
-        </q-item-label>
-
-        
-
-        <template v-for="(item, index) in menuList" :key="index">
           <q-item
             v-ripple 
             exact
             :active="item.label === 'Outbox'"
-            :to='item.to'            
+            :to="item.to"            
           >
             <q-item-section avatar>
               <q-icon :name="item.icon" />
@@ -50,8 +51,6 @@
             </q-item-section>
           </q-item>
         </template>
-
-
       </q-list>
     </q-drawer>
 
@@ -62,13 +61,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { defineComponent, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
     name: 'MainLayout',
 
-    components: {},
+    components: {
+    },
 
     setup () {
         const tm = useI18n();
@@ -76,24 +76,28 @@ export default defineComponent({
         const leftDrawerOpen = ref(false);
         const menuList = [
             {
-                label: tm.t('home'),
-                to: '/',
-                icon: 'home'
+                label: tm.t('dashboard'),
+                icon: 'home',
+                to: {
+                    name: 'admin' 
+                },
             },
             {
                 label: tm.t('videoList'),
-                to: '/videos',
+                to: {
+                    name: 'admin-videos' 
+                },
                 icon: 'list'
             },
-        ]
+        ];
 
         return {
             menuList,
             leftDrawerOpen,
             toggleLeftDrawer () {
-                leftDrawerOpen.value = !leftDrawerOpen.value
+                leftDrawerOpen.value = !leftDrawerOpen.value;
             }
-        }
+        };
     }
-})
+});
 </script>

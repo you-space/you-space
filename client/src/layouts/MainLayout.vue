@@ -1,6 +1,9 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+  <q-layout view="hHh Lpr lFf">
+    <q-header
+      bordered
+      class="bg-white text-primary"
+    >
       <q-toolbar>
         <q-btn
           flat
@@ -8,50 +11,54 @@
           round
           icon="menu"
           aria-label="Menu"
-          @click="toggleLeftDrawer"
+          @click="toggleDrawer"
         />
-
         <q-toolbar-title>
-          You space
+          channel name
         </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
     <q-drawer
-      v-model="leftDrawerOpen"
+      v-model="drawer"
       show-if-above
       bordered
-      class="bg-grey-1"
     >
       <q-list>
-        <q-item-label
-          header
-          class="text-grey-8"
+        <template
+          v-for="(item, index) in menuList"
+          :key="index"
         >
-          {{$t('page', 1)}}
-        </q-item-label>
-
-        
-
-        <template v-for="(item, index) in menuList" :key="index">
           <q-item
             v-ripple 
             exact
             :active="item.label === 'Outbox'"
-            :to='item.to'            
+            :to="item.to"            
           >
             <q-item-section avatar>
               <q-icon :name="item.icon" />
             </q-item-section>
             <q-item-section>
               {{ item.label }}
+              <template v-if="!item.to">
+                - not created
+              </template>
             </q-item-section>
           </q-item>
+
+
+          <q-separator
+            v-if="item.separator"
+            :key="`${index}-separator`"
+          />
         </template>
-
-
+      </q-list>
+      <q-separator />
+      
+      <q-list>
+        <q-item>
+          section 2 - Playlist
+        </q-item>
       </q-list>
     </q-drawer>
 
@@ -62,38 +69,54 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { defineComponent, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
     name: 'MainLayout',
-
-    components: {},
-
     setup () {
         const tm = useI18n();
 
-        const leftDrawerOpen = ref(false);
+        const drawer = ref(false);
         const menuList = [
             {
                 label: tm.t('home'),
-                to: '/',
+                to: {
+                    name: 'home'
+                },
                 icon: 'home'
             },
             {
-                label: tm.t('videoList'),
-                to: '/videos',
-                icon: 'list'
+                label: tm.t('favorites'),
+                icon: 'favorite',
             },
-        ]
+            {
+                label: tm.t('plalists'),
+                icon: 'list',
+                separator: true
+            },
+            {
+                label: tm.t('myChanel'),
+                icon: 'list',
+                to: {
+                    name: 'admin'
+                }
+            
+            },
+            {
+                label: tm.t('history'),
+                icon: 'history',
+            
+            },
+        ];
 
         return {
             menuList,
-            leftDrawerOpen,
-            toggleLeftDrawer () {
-                leftDrawerOpen.value = !leftDrawerOpen.value
+            drawer,
+            toggleDrawer () {
+                drawer.value = !drawer.value;
             }
-        }
+        };
     }
-})
+});
 </script>
