@@ -9,7 +9,7 @@ export default class Video extends BaseModel {
   public name: string
 
   @column()
-  public path: string
+  public filename: string
 
   @column()
   public extname: string

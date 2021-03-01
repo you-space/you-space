@@ -1,6 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Application from '@ioc:Adonis/Core/Application'
 import fs from 'fs'
-import path from 'path'
 import { promisify } from 'util'
 
 import Video from 'App/Models/Video'
@@ -17,10 +17,12 @@ export default class VideosController {
   public async show({ params, response }: HttpContextContract) {
     const video = await Video.findOrFail(params.id)
 
+    const videoPath = `${Application.tmpPath('uploads')}/${video.filename}`
+
     const readFile = promisify(fs.readFile)
 
-    response.safeHeader('Content-type', `video/${path.extname(video.path).replace('.', '')}`)
+    response.safeHeader('Content-type', `video/${video.extname}`)
 
-    return readFile(video.path)
+    return readFile(videoPath)
   }
 }

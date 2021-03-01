@@ -20,11 +20,16 @@
 
 import Route from '@ioc:Adonis/Core/Route'
 
-Route.get('/', async () => {
-  return { hello: 'world' }
-})
+Route.group(() => {
+  Route.get('/', async () => {
+    return { hello: 'world' }
+  })
 
-Route.get('videos', 'VideosController.index')
-Route.get('videos/:id', 'VideosController.show')
-Route.post('videos', 'VideosController.create')
-Route.delete('videos/:id', 'VideosController.remove')
+  Route.group(() => {
+    Route.resource('videos', 'AdminVideosController').apiOnly()
+  }).prefix('admin')
+
+  Route.get('videos/recommendations', 'VideosController.userRecommendations')
+  Route.get('videos/subscriptions', 'VideosController.userSubscriptions')
+  Route.get('videos/:id', 'VideosController.show')
+}).prefix('v1')

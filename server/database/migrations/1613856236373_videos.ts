@@ -7,8 +7,8 @@ export default class Videos extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.string('name').notNullable()
-      table.string('path').unique().notNullable()
-      table.string('extname').unique().notNullable()
+      table.string('filename').unique().notNullable()
+      table.string('extname').notNullable()
       table.timestamps(true)
     })
   }
