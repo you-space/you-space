@@ -31,6 +31,7 @@ module.exports = configure(function (/* ctx */) {
         boot: [
             'i18n',
             'axios',
+            'global-components'
         ],
 
         // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -90,7 +91,8 @@ module.exports = configure(function (/* ctx */) {
 
         // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
         framework: {
-            config: {},
+            config: {
+            },
 
             // iconSet: 'material-icons', // Quasar icon set
             // lang: 'en-US', // Quasar language pack
@@ -112,13 +114,14 @@ module.exports = configure(function (/* ctx */) {
 
         // https://quasar.dev/quasar-cli/developing-ssr/configuring-ssr
         ssr: {
-            pwa: false
+            pwa: false 
         },
 
         // https://quasar.dev/quasar-cli/developing-pwa/configuring-pwa
         pwa: {
             workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
-            workboxOptions: {}, // only for GenerateSW
+            workboxOptions: {
+            }, // only for GenerateSW
             manifest: {
                 name: 'you-space',
                 short_name: 'you-space',
@@ -164,7 +167,7 @@ module.exports = configure(function (/* ctx */) {
 
         // Full list of options: https://quasar.dev/quasar-cli/developing-capacitor-apps/configuring-capacitor
         capacitor: {
-            hideSplashscreen: true
+            hideSplashscreen: true 
         },
 
         // Full list of options: https://quasar.dev/quasar-cli/developing-electron-apps/configuring-electron
@@ -204,5 +207,5 @@ module.exports = configure(function (/* ctx */) {
             },
       
         }
-    }
+    };
 });
