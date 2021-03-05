@@ -24,6 +24,11 @@ const databaseConfig: DatabaseConfig & { orm: Partial<OrmConfig> } = {
   connection: Env.get('DB_CONNECTION', 'sqlite'),
 
   connections: {
+    postgres: {
+      client: 'pg',
+      connection: Env.get('POSTGRES_URL'),
+      healthCheck: false,
+    },
     /*
     |--------------------------------------------------------------------------
     | SQLite

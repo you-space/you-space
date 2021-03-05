@@ -6,7 +6,7 @@ export default class UserProviders extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
-      table.integer('origin_id').notNullable().references('id').inTable('origin')
+      table.integer('origin_id').notNullable().references('origins.id')
       table.integer('user_origin_id').notNullable()
       table.timestamps(true)
     })

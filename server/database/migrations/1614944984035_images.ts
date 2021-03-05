@@ -1,14 +1,13 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
-export default class VideoVisualizations extends BaseSchema {
-  protected tableName = 'video_visualizations'
+export default class Images extends BaseSchema {
+  protected tableName = 'images'
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
-      table.integer('video_id').references('videos.id')
-      table.integer('origin_id').references('origins.id')
-      table.bigInteger('count')
+      table.string('filename').notNullable().unique()
+      table.string('extname').notNullable()
       table.timestamps(true)
     })
   }
