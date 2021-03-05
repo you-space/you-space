@@ -23,7 +23,7 @@ export default defineComponent({
     setup(){
         const route = useRoute();
         const { videoId } = route.params;
-        const videoSrc = `${process.env.API_URL as string}/videos/${videoId as string}`;
+        const videoSrc = `${process.env.API_URL as string}/admin/videos/${videoId as string}`;
 
         return {
             videoSrc 

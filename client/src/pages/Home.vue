@@ -50,18 +50,18 @@ export default defineComponent({
             });
         }
         
-        async function setSubscriptionsVideos () {
-            const { data } = await api.get<Video[]>('videos/subscriptions');
+        async function setTrendingVideos () {
+            const { data } = await api.get<Video[]>('videos/trending');
             sections.value.push({
-                title: tm.t('subscriptions'),
+                title: tm.t('trending'),
                 videos: data
             });
         }
 
         async function load () {
+            await setTrendingVideos();
             await setNewVideos();
             await setRecomendedVideos();
-            await setSubscriptionsVideos();
         }
         
         onMounted(load);

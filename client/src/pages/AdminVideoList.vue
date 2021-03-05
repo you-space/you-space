@@ -12,6 +12,26 @@
         </q-btn>
       </template>
       
+      <template #body-cell-thumbnail="props">
+        <q-td :props="props">
+          <q-img
+            v-if="props.row.filename_thumbnail"
+            :src="getVideoThumbnailPath(props.row)"
+            width="100px"
+          />
+          <div
+            v-else
+            class="full-width text-center bg-grey flex items-center justify-center"
+            style="width:100px;height:50px"
+          >
+            <q-icon
+              size="md"
+              name="insert_photo"
+            />
+          </div>
+        </q-td>
+      </template>
+     
       <template #body-cell-actions="props">
         <q-td :props="props">
           <q-icon
@@ -26,71 +46,27 @@
         </q-td>
       </template>
     </q-table>
-
-    <q-dialog v-model="dialog">
-      <q-card
-        class="full-width"
-        style="max-width:500px"
-      >
-        <q-card-section class="q-gutter-md">
-          <q-input
-            v-model="name"
-            :label="$t('name')"
-          />
-
-          <q-file 
-            v-model="file"
-            accept=".mp4"
-            filled
-            bottom-slots
-            :label="$t('file')"
-            counter
-          >
-            <template #prepend>
-              <q-icon
-                name="cloud_upload"
-                @click.stop
-              />
-            </template>
-            <template #append>
-              <q-icon
-                name="close"
-                class="cursor-pointer"
-                @click.stop="file = null"
-              />
-            </template>
-          </q-file>
-        </q-card-section>
-
-        <q-card-actions class="justify-end">
-          <q-btn
-            :disabled="!name || !file"
-            color="primary" 
-            @click="addVideo"
-          >
-            {{ $t("upload") }}
-          </q-btn>
-          <q-btn @click="dialog = false">
-            {{ $t("cancel") }}
-          </q-btn>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    
+    <admin-video-upload-video
+      v-model="dialog"
+      @save="setVideos"
+    />
   </q-page>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
-
+import { defineComponent, ref, onMounted, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+
+import { getVideoThumbnailPath } from 'src/functionts';
 import { api  } from 'boot/axios';
 import { Video } from 'src/types/video';
 
 export default defineComponent({
     name: 'PageIndex',
     components: {
- 
+        AdminVideoUploadVideo: defineAsyncComponent(() => import('./AdminUploadVideo.vue'))
     },
     setup() {
         const tm = useI18n();
@@ -98,10 +74,14 @@ export default defineComponent({
 
         const rows = ref<Video[]>([]);
         const dialog = ref(false);
-        const file = ref<File>();
-        const name = ref('');
 
         const columns = [
+            {
+                label: tm.t('thumbnail'),
+                name: 'thumbnail',
+                align: 'left',
+                style: 'width:100px'
+            },
             {
                 label: tm.t('name'),
                 name: 'name',
@@ -126,23 +106,7 @@ export default defineComponent({
 
         onMounted(setVideos);
 
-        const addVideo = async () => {
-
-            if (!file.value) {
-                return;
-            }
-
-            const formData = new FormData();
-
-            formData.append('name', name.value);
-            formData.append('file', file.value);
-
-            await api.post('admin/videos', formData);
-
-            await setVideos();
-
-            dialog.value = false;
-        };
+        
     
         const viewVideo = async (item: Video) => {
             await router.push({
@@ -154,19 +118,18 @@ export default defineComponent({
         };
     
         const deleteVideo = async (item: Video) => {
-            await api.delete(`videos/${item.id}`);
+            await api.delete(`admin/videos/${item.id}`);
             await setVideos();
         };
     
         return {
-            name,
-            file,
             rows,
             columns,
             dialog,
-            addVideo,
             viewVideo,
-            deleteVideo
+            deleteVideo,
+            setVideos,
+            getVideoThumbnailPath
         };
     }
 });

@@ -1,12 +1,14 @@
 <template>
-  <div class="full-width full-height q-video">
-    <video 
-      v-if="videoSrc"
-      class="full-width full-height"
+  <q-card
+    dark
+    class="full-width full-height q-video"
+  >
+    <video
+      class="full-width full-height ys-video"
       controls
-      :src="videoSrc"
+      :src="src"
     />
-  </div>
+  </q-card>
 </template>
 
 <script lang='ts' >
@@ -15,17 +17,20 @@ import { defineComponent } from 'vue';
 export default defineComponent({
     name: 'Video',
     props: {
-        videoId: {
-            type: Number,
+        src: {
+            type: String,
             required: true
         }
     },
-    setup(props){
-        const videoSrc = `${process.env.API_URL as string}/videos/${props.videoId}`;
-
+    setup(){
         return {
-            videoSrc 
         };
     }
 });
 </script>
+
+<style lang="scss">
+.ys-video {
+    object-fit: fill;
+}
+</style>

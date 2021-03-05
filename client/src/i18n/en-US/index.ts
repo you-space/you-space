@@ -9,5 +9,6 @@ export default {
     directory: 'Directory',
     page: 'Page | Pages',
     videoList: 'Video list',
-    home: 'Home'
+    home: 'Home',
+    viewsCount: 'Views {0}'
 };

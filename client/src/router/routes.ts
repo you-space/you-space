@@ -30,7 +30,12 @@ const routes: RouteRecordRaw[] = [
                 path: '',
                 name: 'home',
                 component: () => import('pages/Home.vue')
-            }
+            },
+            {
+                path: 'video/:videoId',
+                name: 'video',
+                component: () => import('pages/Video.vue')
+            },
         ],
     },
 

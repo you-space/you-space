@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, HasOne, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import VideoVisualization from './VideoVisualization'
 
 export default class Video extends BaseModel {
   @column({ isPrimary: true })
@@ -11,8 +12,18 @@ export default class Video extends BaseModel {
   @column()
   public filename: string
 
+  @column({
+    columnName: 'filename_thumbnail',
+  })
+  public filenameThumbnail?: string
+
   @column()
   public extname: string
+
+  @hasOne(() => VideoVisualization, {
+    foreignKey: 'video_id',
+  })
+  public visualizations: HasOne<typeof VideoVisualization>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

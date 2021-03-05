@@ -6,7 +6,10 @@ export default class VideoValidator {
 
   public schema = schema.create({
     name: schema.string(),
-    file: schema.file({ extnames: ['mp4'], size: '1000mb' }),
+    video: schema.file({ extnames: ['mp4'], size: '1000mb' }),
+    thumbnail: schema.file.optional({
+      size: '2mb',
+      extnames: ['jpg', 'png', 'jpeg'],
+    }),
   })
-  public messages = {}
 }

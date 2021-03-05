@@ -29,7 +29,9 @@ Route.group(() => {
     Route.resource('videos', 'AdminVideosController').apiOnly()
   }).prefix('admin')
 
+  Route.get('videos/trending', 'VideosController.getTrendingVideos')
   Route.get('videos/recommendations', 'VideosController.userRecommendations')
   Route.get('videos/subscriptions', 'VideosController.userSubscriptions')
   Route.get('videos/:id', 'VideosController.show')
+  Route.get('thumbnails/:videoId', 'VideosController.showThumbnail')
 }).prefix('v1')
