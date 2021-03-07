@@ -5,6 +5,7 @@ import { promisify } from 'util'
 import { getVideoDurationInSeconds } from 'get-video-duration'
 
 import Video from 'App/Models/Video'
+import Image from 'App/Models/Image'
 
 const registerVisualizations: any[] = []
 
@@ -18,16 +19,11 @@ export default class VideosController {
       .orderBy('video_visualizations.count', 'desc')
       .limit(3)
 
-    return videos.map((video) => ({
-      id: video.id,
-      name: video.name,
-      hasThumbnail: !!video.filenameThumbnail,
-      visualizations: video.visualizations.count,
-    }))
+    return videos.map((video) => video.serialize())
   }
 
   public async userRecommendations() {
-    return Video.all()
+    return await Video.all()
   }
 
   public async userSubscriptions() {
@@ -36,8 +32,9 @@ export default class VideosController {
 
   public async showThumbnail({ params, response }: HttpContextContract) {
     const video = await Video.findOrFail(params.videoId)
+    const image = await Image.findOrFail(video.imageId)
 
-    const thumbnailPath = `${Application.tmpPath('thumbnails')}/${video.filenameThumbnail}`
+    const thumbnailPath = `${Application.tmpPath('images')}/${image.filename}`
 
     const readFile = promisify(fs.readFile)
 

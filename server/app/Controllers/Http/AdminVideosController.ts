@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid'
 
 import Video from 'App/Models/Video'
 import VideoValidator from 'App/Validators/VideoValidator'
+import Image from 'App/Models/Image'
 
 export default class VideosController {
   public async index() {
@@ -16,23 +17,32 @@ export default class VideosController {
     const { name, video, thumbnail } = await request.validate(VideoValidator)
 
     const videoFilename = `${uuid()}.${video.extname}`
-    let filenameThumbnail
+
+    let imageId
 
     await video.move(Application.tmpPath('videos'), {
       name: videoFilename,
     })
 
     if (thumbnail) {
-      filenameThumbnail = `${uuid()}.${video.extname}`
-      await thumbnail.move(Application.tmpPath('thumbnails'), {
+      const filenameThumbnail = `${uuid()}.${thumbnail.extname}`
+
+      await thumbnail.move(Application.tmpPath('images'), {
         name: filenameThumbnail,
       })
+
+      const image = await Image.create({
+        filename: filenameThumbnail,
+        extname: thumbnail.extname,
+      })
+
+      imageId = image.id
     }
 
     return Video.create({
       name: name,
       filename: videoFilename,
-      filenameThumbnail: filenameThumbnail,
+      imageId: imageId,
       extname: video.extname ? video.extname.replace('.', '') : undefined,
     })
   }
