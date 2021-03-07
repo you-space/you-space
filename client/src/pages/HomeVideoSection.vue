@@ -17,7 +17,7 @@
           @click="openVideo(video)"
         >
           <q-img
-            v-if="video.hasThumbnail"
+            v-if="video.image_id"
             :src="getVideoThumbnailPath(video)"
           />
           
@@ -38,11 +38,8 @@
             <div class="text-h6">
               {{ video.name }}
             </div>
-            <div
-              v-if="video.visualizations"
-              class="text-caption"
-            >
-              {{ $t('viewsCount', [video.visualizations]) }}
+            <div class="text-caption">
+              {{ $t('viewsCount', [video.visualizations_count]) }}
             </div>
           </q-card-actions>
         </q-card>
@@ -96,7 +93,7 @@ export default defineComponent({
   color: rgba($dark, .7);
   cursor: pointer;
 
-  .card-preview-thumb {
+  .card-preview-thumb, .q-img {
     background-color: rgba($dark, .1);
     height: 70%;
   }

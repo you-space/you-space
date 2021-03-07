@@ -15,7 +15,7 @@
       <template #body-cell-thumbnail="props">
         <q-td :props="props">
           <q-img
-            v-if="props.row.filename_thumbnail"
+            v-if="props.row.image_id"
             :src="getVideoThumbnailPath(props.row)"
             width="100px"
           />
