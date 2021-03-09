@@ -27,6 +27,7 @@ Route.group(() => {
 
   Route.group(() => {
     Route.resource('videos', 'AdminVideosController').apiOnly()
+    Route.resource('origins', 'AdminOriginsController').apiOnly()
   }).prefix('admin')
 
   Route.get('videos/trending', 'VideosController.getTrendingVideos')

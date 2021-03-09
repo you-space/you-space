@@ -11,16 +11,18 @@
     "App": "app",
     "Config": "config",
     "Database": "database",
-    "Contracts": "contracts"
+    "Contracts": "contracts",
+    "Providers": "providers"
   },
   "preloads": [
     "./start/routes",
     "./start/kernel"
   ],
   "providers": [
-    "./providers/AppProvider",
     "@adonisjs/core",
-    "@adonisjs/lucid"
+    "@adonisjs/lucid",
+    "./providers/AppProvider",
+    "./providers/YouTubeVideoProvider"
   ],
   "aceProviders": [
     "@adonisjs/repl"

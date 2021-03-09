@@ -1,16 +1,29 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Application from '@ioc:Adonis/Core/Application'
+import YouTubeProvider from '@ioc:Providers/YouTube'
+
 import fs from 'fs'
 import { promisify } from 'util'
 import { getVideoDurationInSeconds } from 'get-video-duration'
 
 import Video from 'App/Models/Video'
 import Image from 'App/Models/Image'
+import Origin from 'App/Models/Origin'
 
 const registerVisualizations: any[] = []
 
 export default class VideosController {
   public async getTrendingVideos() {
+    const origins = await Origin.query().where('type', 'you-tube')
+    let youTubeVideos: any[] = []
+
+    await Promise.all(
+      origins.map(async (o) => {
+        const originVideos = await YouTubeProvider.videos.index(o)
+        youTubeVideos = youTubeVideos.concat(originVideos)
+      })
+    )
+
     const videos = await Video.query()
       .has('visualizations')
       .preload('visualizations')
@@ -19,7 +32,7 @@ export default class VideosController {
       .orderBy('video_visualizations.count', 'desc')
       .limit(3)
 
-    return videos.map((video) => video.serialize())
+    return videos.map((video) => video.serialize()).concat(youTubeVideos)
   }
 
   public async userRecommendations() {

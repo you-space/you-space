@@ -15,15 +15,29 @@
 </template>
 
 <script lang='ts' >
-import { defineComponent } from 'vue';
+import { api } from 'src/boot/axios';
+import { Video } from 'src/types/video';
+import { defineComponent, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 export default defineComponent({
     name: 'Video',
     setup(){
         const route = useRoute();
-        const { videoId } = route.params;
-        const videoSrc = `${process.env.API_URL as string}/admin/videos/${videoId as string}`;
+        const { videoId, originId } = route.params;
+        const videoSrc = ref<string>('');
+        
+        const setVideoSrc = async () => {
+            const { data } = await api.get<Video>(`/admin/videos/${String(videoId)}`, {
+                params: {
+                    originId: originId !== 'main' ? originId : undefined
+                }
+            });
+            console.log(data);
+            videoSrc.value = data.src;
+        };
+        
+        onMounted(setVideoSrc);
 
         return {
             videoSrc 

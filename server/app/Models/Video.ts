@@ -16,7 +16,7 @@ import VideoVisualization from './VideoVisualization'
 import Image from './Image'
 
 export default class Video extends BaseModel {
-  @column({ isPrimary: true })
+  @column({ isPrimary: true, serializeAs: 'videoId' })
   public id: number
 
   @column()
@@ -45,16 +45,31 @@ export default class Video extends BaseModel {
   public visualizations: HasMany<typeof VideoVisualization>
 
   @hasOne(() => Image, {
-    foreignKey: 'image_id',
+    localKey: 'imageId',
+    foreignKey: 'id',
   })
   public thumbnail: HasOne<typeof Image>
 
   @computed()
-  public get visualizations_count() {
+  public get viewCount() {
     if (!this.visualizations) {
       return 0
     }
     return this.visualizations.reduce((count, v) => count + Number(v.count), 0)
+  }
+
+  @computed()
+  public get originId() {
+    return null
+  }
+
+  @computed()
+  public get src() {
+    return `${process.env.DOMAIN_URL}/v1/videos/${this.id}`
+  }
+  @computed()
+  public get thumbSrc() {
+    return `${process.env.DOMAIN_URL}/v1/thumbnails/${this.id}`
   }
 
   @beforeFetch()

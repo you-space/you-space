@@ -16,9 +16,14 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/AdminVideoList.vue') 
             },
             {
-                path: 'videos/:videoId',
+                path: 'videos/:originId/:videoId',
                 name: 'admin-video',
                 component: () => import('pages/AdminVideo.vue') 
+            },
+            {
+                path: 'origins',
+                name: 'admin-origins',
+                component: () => import('pages/AdminOriginList.vue') 
             },
         ],
     },

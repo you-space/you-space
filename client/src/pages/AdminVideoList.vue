@@ -15,7 +15,7 @@
       <template #body-cell-thumbnail="props">
         <q-td :props="props">
           <q-img
-            v-if="props.row.image_id"
+            v-if="props.row.thumbSrc"
             :src="getVideoThumbnailPath(props.row)"
             width="100px"
           />
@@ -112,13 +112,14 @@ export default defineComponent({
             await router.push({
                 name: 'admin-video',
                 params: {
-                    videoId: item.id 
+                    videoId: item.videoId,
+                    originId: item.originId || 'main'
                 }
             });
         };
     
         const deleteVideo = async (item: Video) => {
-            await api.delete(`admin/videos/${item.id}`);
+            await api.delete(`admin/videos/${item.videoId}`);
             await setVideos();
         };
     

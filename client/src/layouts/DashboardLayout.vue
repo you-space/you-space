@@ -84,10 +84,17 @@ export default defineComponent({
             },
             {
                 label: tm.t('videoList'),
+                icon: 'list',
                 to: {
                     name: 'admin-videos' 
                 },
-                icon: 'list'
+            },
+            {
+                label: tm.t('origins'),
+                icon: 'list',
+                to: {
+                    name: 'admin-origins' 
+                },
             },
         ];
 

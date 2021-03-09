@@ -7,10 +7,24 @@ import { v4 as uuid } from 'uuid'
 import Video from 'App/Models/Video'
 import VideoValidator from 'App/Validators/VideoValidator'
 import Image from 'App/Models/Image'
+import YouTubeProvider from '@ioc:Providers/YouTube'
+import Origin from 'App/Models/Origin'
+import { schema } from '@ioc:Adonis/Core/Validator'
 
 export default class VideosController {
   public async index() {
-    return Video.all()
+    const origins = await Origin.query().where('type', 'you-tube')
+    const videos = await Video.all()
+    let youTubeVideos: any[] = []
+
+    await Promise.all(
+      origins.map(async (o) => {
+        const originVideos = await YouTubeProvider.videos.index(o)
+        youTubeVideos = youTubeVideos.concat(originVideos)
+      })
+    )
+
+    return videos.concat(youTubeVideos)
   }
 
   public async store({ request }: HttpContextContract) {
@@ -47,16 +61,17 @@ export default class VideosController {
     })
   }
 
-  public async show({ params, response }: HttpContextContract) {
-    const video = await Video.findOrFail(params.id)
+  public async show({ params, request }: HttpContextContract) {
+    const { originId } = request.only(['originId'])
+    if (!originId) {
+      return await Video.findOrFail(params.id)
+    }
 
-    const videoPath = `${Application.tmpPath('videos')}/${video.filename}`
+    const origin = await Origin.findOrFail(originId)
 
-    const readFile = promisify(fs.readFile)
-
-    response.safeHeader('Content-type', `video/${video.extname}`)
-
-    return readFile(videoPath)
+    if (origin.type === 'you-tube') {
+      return YouTubeProvider.videos.show(origin, params.id)
+    }
   }
 
   public async destroy({ params }: HttpContextContract) {

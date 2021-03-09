@@ -1,7 +1,7 @@
 <template>
   <q-card
     flat
-    class="full-width"
+    class="full-width home-video-card"
   >
     <div class="text-h6">
       {{ title.toUpperCase() }}
@@ -17,8 +17,8 @@
           @click="openVideo(video)"
         >
           <q-img
-            v-if="video.image_id"
-            :src="getVideoThumbnailPath(video)"
+            v-if="video.thumbSrc"
+            :src="video.thumbSrc"
           />
           
           <div
@@ -35,7 +35,7 @@
             vertical
             align="left"
           >
-            <div class="text-h6">
+            <div class="text-h6 video-title">
               {{ video.name }}
             </div>
             <div class="text-caption">
@@ -52,7 +52,6 @@
 import { Video } from 'src/types/video';
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
-import { getVideoThumbnailPath } from 'src/functionts';
 
 export default defineComponent({
     props: {
@@ -74,22 +73,30 @@ export default defineComponent({
             return router.push({
                 name: 'video',
                 params: {
-                    videoId: video.id
+                    videoId: video.videoId
                 }
             });
         };
 
         return {
-            openVideo,
-            getVideoThumbnailPath
+            openVideo 
         };
     }
 });
 </script>
 <style lang="scss">
+.home-video-card {
+  .video-title {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 100%;
+  }
+}
+
 .card-preview {
-  height: auto;
   min-height: 230px;
+  max-height: 230px;
   color: rgba($dark, .7);
   cursor: pointer;
 
