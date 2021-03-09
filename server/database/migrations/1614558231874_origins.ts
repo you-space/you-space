@@ -7,8 +7,8 @@ export default class Origins extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').notNullable().primary()
       table.string('name').notNullable()
-      table.string('email').notNullable()
-      table.string('password').notNullable()
+      table.string('type').notNullable()
+      table.jsonb('config').notNullable()
       table.timestamps(true)
     })
   }
