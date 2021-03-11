@@ -1,85 +1,82 @@
 import Application from '@ioc:Adonis/Core/Application'
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import fs from 'fs'
 import { promisify } from 'util'
 import { v4 as uuid } from 'uuid'
 
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+
 import Video from 'App/Models/Video'
 import VideoValidator from 'App/Validators/VideoValidator'
-import Image from 'App/Models/Image'
-import YouTubeProvider from '@ioc:Providers/YouTube'
-import Origin from 'App/Models/Origin'
-import { schema } from '@ioc:Adonis/Core/Validator'
+import File, { FileTypes } from 'App/Models/File'
+import Origin, { OriginTypes } from 'App/Models/Origin'
 
 export default class VideosController {
   public async index() {
-    const origins = await Origin.query().where('type', 'you-tube')
-    const videos = await Video.all()
-    let youTubeVideos: any[] = []
-
-    await Promise.all(
-      origins.map(async (o) => {
-        const originVideos = await YouTubeProvider.videos.index(o)
-        youTubeVideos = youTubeVideos.concat(originVideos)
-      })
-    )
-
-    return videos.concat(youTubeVideos)
+    return Video.all()
   }
 
   public async store({ request }: HttpContextContract) {
     const { name, video, thumbnail } = await request.validate(VideoValidator)
 
+    const originMain = await Origin.firstOrCreate({
+      type: OriginTypes.Main,
+      name: 'local',
+    })
+
     const videoFilename = `${uuid()}.${video.extname}`
 
-    let imageId
-
-    await video.move(Application.tmpPath('videos'), {
+    await video.move(Application.tmpPath('uploads'), {
       name: videoFilename,
     })
 
-    if (thumbnail) {
-      const filenameThumbnail = `${uuid()}.${thumbnail.extname}`
+    const file = await File.create({
+      type: FileTypes.Video,
+      filename: videoFilename,
+      extname: video.extname,
+    })
 
-      await thumbnail.move(Application.tmpPath('images'), {
-        name: filenameThumbnail,
-      })
+    // if (thumbnail) {
+    //   const filenameThumbnail = `${uuid()}.${thumbnail.extname}`
 
-      const image = await Image.create({
-        filename: filenameThumbnail,
-        extname: thumbnail.extname,
-      })
+    //   await thumbnail.move(Application.tmpPath('uploads'), {
+    //     name: filenameThumbnail,
+    //   })
 
-      imageId = image.id
-    }
+    //   const image = await Image.create({
+    //     filename: filenameThumbnail,
+    //     extname: thumbnail.extname,
+    //   })
+
+    //   imageId = image.id
+    // }
 
     return Video.create({
-      name: name,
-      filename: videoFilename,
-      imageId: imageId,
-      extname: video.extname ? video.extname.replace('.', '') : undefined,
+      originId: originMain.id,
+      videoId: String(file.id),
+      originData: file.serialize(),
     })
   }
 
-  public async show({ params, request }: HttpContextContract) {
-    const { originId } = request.only(['originId'])
-    if (!originId) {
-      return await Video.findOrFail(params.id)
-    }
+  public async show({ params, response }: HttpContextContract) {
+    const video = await Video.findOrFail(params.id)
 
-    const origin = await Origin.findOrFail(originId)
-
-    if (origin.type === 'you-tube') {
-      return YouTubeProvider.videos.show(origin, params.id)
+    return {
+      ...video.serialize(),
+      src: `${process.env.DOMAIN_URL}/v1/admin/videos/embed/${video.id}`,
     }
   }
 
-  public async destroy({ params }: HttpContextContract) {
+  public async embed({ params, response }: HttpContextContract) {
     const video = await Video.findOrFail(params.id)
-    const removeFile = promisify(fs.unlink)
+    // const origin = await video.related('origin')
+    const file = await File.findOrFail(video.videoId)
 
-    await removeFile(`${Application.tmpPath('videos')}/${video.filename}`)
+    const readFile = promisify(fs.readFile)
 
-    await video.delete()
+    const videoPath = `${Application.tmpPath('uploads')}/${file.filename}`
+
+    response.safeHeader('Content-type', `video/${file.extname}`)
+
+    return readFile(videoPath)
   }
 }

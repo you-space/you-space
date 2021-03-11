@@ -112,7 +112,7 @@ export default defineComponent({
             await router.push({
                 name: 'admin-video',
                 params: {
-                    videoId: item.videoId,
+                    videoId: item.id,
                     originId: item.originId || 'main'
                 }
             });

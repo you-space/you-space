@@ -1,6 +1,10 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
+export enum OriginTypes {
+  YouTube = 'you-tube',
+  Main = 'main',
+}
 export default class Origin extends BaseModel {
   @column({ isPrimary: true })
   public id: number
@@ -9,7 +13,7 @@ export default class Origin extends BaseModel {
   public name: string
 
   @column()
-  public type: string
+  public type: OriginTypes
 
   @column()
   public config: any

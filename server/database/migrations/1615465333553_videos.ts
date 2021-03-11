@@ -1,14 +1,14 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
-export default class Videos extends BaseSchema {
+export default class VideosProviders extends BaseSchema {
   protected tableName = 'videos'
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
-      table.string('name').notNullable()
-      table.string('filename').unique().notNullable()
-      table.string('extname').notNullable()
+      table.increments('id').primary()
+      table.string('video_id').notNullable()
+      table.integer('origin_id').references('origins.id').notNullable()
+      table.jsonb('origin_data')
       table.timestamps(true)
     })
   }
