@@ -1,16 +1,11 @@
 <template>
   <q-page class="row items-center justify-center q-pa-lg">
-    <q-card
-      class="col full-width full-height "
-      style="max-width:1000px"
+    <div
+      class="col-6"
+      style="height:500px"
     >
-      <q-video
-        v-if="videoSrc"
-        :ratio="16/9"
-        class="col full-width full-height"
-        :src="videoSrc"
-      />
-    </q-card>
+      <y-video :src="videoSrc" />
+    </div>
   </q-page>
 </template>
 
