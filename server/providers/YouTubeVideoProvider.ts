@@ -2,9 +2,17 @@ import { ApplicationContract } from '@ioc:Adonis/Core/Application'
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import Origin from 'App/Models/Origin'
 
+export interface VideoIndexResponse {
+  pageInfo: {
+    totalResults: number | string
+  }
+  videos: any[]
+}
+
 export interface YouTubeProvider {
   videos: {
-    index(origin: Origin): Promise<any[]>
+    index(origin: Origin, page?: number): Promise<any>
+    registerOriginVideosByPage(origin: Origin, page?: number): Promise<VideoIndexResponse>
   }
 }
 
@@ -16,7 +24,7 @@ export interface YouTubeSearchParams {
 
 export default class YouTubeVideoProvider {
   public static needsApplication = true
-  public apiUrl = 'https://www.googleapis.com/youtube/v3'
+  public apiUrl = '' // 'https://www.googleapis.com/youtube/v3'
   public axios: AxiosInstance
 
   constructor(protected application: ApplicationContract) {
@@ -31,6 +39,7 @@ export default class YouTubeVideoProvider {
       (): YouTubeProvider => ({
         videos: {
           index: this.index.bind(this),
+          registerOriginVideosByPage: this.registerOriginVideosByPage.bind(this),
         },
       })
     )
@@ -42,7 +51,10 @@ export default class YouTubeVideoProvider {
         params: config.params,
       })
     } catch (error) {
-      console.log(error.response.data)
+      if (error.response) {
+        console.log(error.response.data)
+      }
+      return null
     }
   }
 
@@ -68,9 +80,19 @@ export default class YouTubeVideoProvider {
   }
 
   public async getVideos(params: YouTubeSearchParams) {
-    const { data: searchData } = await this.invoke<any>('search', {
+    const search = await this.invoke<any>('search', {
       params: params,
     })
+
+    if (!search) {
+      console.error('[you-tube-api] unvaliable')
+      return {
+        videos: [],
+        pageInfo: null,
+      }
+    }
+
+    const { data: searchData } = search
 
     const videos = searchData.items.filter((i) => i.id.kind === 'youtube#video')
 
@@ -84,7 +106,7 @@ export default class YouTubeVideoProvider {
       },
     })
 
-    return videos.map((i) => {
+    const videosWithStatistic = videos.map((i) => {
       const statisticItem = statisticsData.items.find((s) => s.id === i.id.videoId)
 
       return {
@@ -92,27 +114,77 @@ export default class YouTubeVideoProvider {
         statistics: statisticItem ? statisticItem.statistics : null,
       }
     })
+
+    return {
+      videos: videosWithStatistic,
+      pageInfo: {
+        ...searchData.pageInfo,
+        nextPageToken: searchData.nextPageToken,
+        prevPageToken: searchData.prevPageToken,
+      },
+    }
   }
 
-  public async index(origin: Origin) {
-    if (!origin.config.apiToken || origin.config.apiToken === '123') {
-      return []
+  public async registerOriginVideosByPage(origin: Origin, page = 1): Promise<VideoIndexResponse> {
+    const redis = (await import('@ioc:Adonis/Addons/Redis')).default
+    const Video = (await import('App/Models/Video')).default
+    const index = await this.index(origin, page)
+    if (!index.pageInfo) {
+      const totalItems = await redis.get(`origin:${origin.id}:totalItems`)
+      return {
+        videos: index.videos,
+        pageInfo: {
+          totalResults: totalItems || 0,
+        },
+      }
     }
 
+    return {
+      videos: index.videos,
+      pageInfo: index.pageInfo,
+    }
+  }
+
+  public async index(origin: Origin, page = 1): Promise<VideoIndexResponse> {
+    if (!origin.config.apiToken) {
+      throw new Error('invalid config')
+    }
+
+    const redis = (await import('@ioc:Adonis/Addons/Redis')).default
     const Video = (await import('App/Models/Video')).default
 
-    const items = await this.getVideos({
+    let pageToken
+
+    if (page > 1) {
+      pageToken = await redis.get(`origin:${origin.id}:pages:${page}`)
+    }
+
+    const { videos, pageInfo } = await this.getVideos({
       part: 'snippet',
       type: 'video',
       key: origin.config.apiToken,
       channelId: origin.config.channelId,
+      pageToken,
     })
 
-    const videos = this.serializeVideosResponse(origin, items)
+    const nextPage = page + 1
+    const prevPage = page - 1
+
+    if (pageInfo) {
+      await redis.set(`origin:${origin.id}:pages:${nextPage}`, pageInfo.nextPageToken)
+
+      if (prevPage && pageInfo.prevPageToken) {
+        await redis.set(`origin:${origin.id}:pages:${prevPage}`, pageInfo.prevPageToken)
+      }
+
+      await redis.set(`origin:${origin.id}:totalItems`, pageInfo.totalResults)
+    }
+
+    const serializedVideos = this.serializeVideosResponse(origin, videos)
 
     await Video.updateOrCreateMany(
       'id',
-      videos.map((i) => ({
+      serializedVideos.map((i) => ({
         id: `${origin.id}-${i.videoId}`,
         name: i.name,
         src: i.src,
@@ -123,6 +195,9 @@ export default class YouTubeVideoProvider {
       }))
     )
 
-    return videos
+    return {
+      videos: serializedVideos,
+      pageInfo,
+    }
   }
 }

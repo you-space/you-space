@@ -1,10 +1,13 @@
 <template>
   <q-page class="row items-start q-pa-lg">
-    <q-table 
+    <q-table
+      v-model:pagination="pagination"
+      :loading="loading"
       class="full-width"
       :columns="columns"
       :rows="rows"
       :rows-per-page-options="[10, 20, 0]"
+      @request="onRequestTable"
     >
       <template #top-right>
         <q-btn @click="dialog = true">
@@ -18,6 +21,7 @@
             v-if="props.row.thumbnailSrc"
             :src="props.row.thumbnailSrc"
             width="100px"
+            height="50px"
           />
           <div
             v-else
@@ -49,7 +53,7 @@
     
     <admin-video-upload-video
       v-model="dialog"
-      @save="setVideos"
+      @save="onRequestTable"
     />
   </q-page>
 </template>
@@ -63,8 +67,13 @@ import { getVideoThumbnailPath } from 'src/functionts';
 import { api  } from 'boot/axios';
 import { Video } from 'src/types/video';
 
+interface VideosResponse {
+  data: Video[]
+  meta: any
+}
+
 export default defineComponent({
-    name: 'PageIndex',
+    name: 'AdminVideoList',
     components: {
         AdminVideoUploadVideo: defineAsyncComponent(() => import('./AdminUploadVideo.vue'))
     },
@@ -74,6 +83,15 @@ export default defineComponent({
 
         const rows = ref<Video[]>([]);
         const dialog = ref(false);
+
+        const loading = ref(false);
+        const pagination = ref({
+            sortBy: 'desc',
+            descending: false,
+            page: 1,
+            rowsPerPage: 3,
+            rowsNumber: 10
+        });
 
         const columns = [
             {
@@ -88,9 +106,9 @@ export default defineComponent({
                 align: 'left'
             },
             {
-                label: tm.t('directory'),
-                name: 'directory',
-                field: 'path',
+                label: tm.t('origin'),
+                name: 'origin',
+                field: (row: Video) => row.origin.name,
                 align: 'left'
             },
             {
@@ -98,12 +116,44 @@ export default defineComponent({
             },
         ];
 
-        const setVideos = async () => {
-            const { data } = await api.get<Video[]>('admin/videos');
-            rows.value = data;
+        const getVideos = async (page = 1) => {
+            const { data } = await api.get<VideosResponse>('admin/videos', {
+                params: {
+                    page
+                }
+            });
+            return {
+                videos: data.data,
+                meta: data.meta
+            };
+
         };
 
-        onMounted(setVideos);
+        const onRequestTable = async (props: any = null) => {
+            loading.value = true;
+            let tablePagination = props ? props.pagination : pagination.value;
+
+            const {
+                page, rowsPerPage, sortBy, descending 
+            } = tablePagination;
+
+            const { videos } = await getVideos(page);
+            
+            rows.value = videos;
+
+            pagination.value.page = page;
+            pagination.value.rowsPerPage = rowsPerPage;
+            pagination.value.sortBy = sortBy;
+            pagination.value.descending = descending;
+
+            setTimeout(() => loading.value = false, 800);
+        };
+
+        onMounted(async () => {
+            const { videos, meta } = await getVideos();
+            pagination.value.rowsNumber = meta.total;
+            rows.value = videos;
+        });
 
         
     
@@ -118,18 +168,21 @@ export default defineComponent({
         };
     
         const deleteVideo = async (item: Video) => {
-            await api.delete(`admin/videos/${item.videoId}`);
-            await setVideos();
+            await api.delete(`admin/videos/${item.id}`);
+            await onRequestTable({
+                pagination: pagination.value 
+            });
         };
     
         return {
             rows,
             columns,
+            loading,
+            pagination,
             dialog,
             viewVideo,
             deleteVideo,
-            setVideos,
-            getVideoThumbnailPath
+            onRequestTable
         };
     }
 });

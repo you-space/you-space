@@ -1,4 +1,4 @@
-import { BaseModel, column, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, belongsTo, BelongsTo, column, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
 import { DateTime } from 'luxon'
 import Origin from './Origin'
 
@@ -24,8 +24,10 @@ export default class Video extends BaseModel {
   @column({ columnName: 'origin_data' })
   public originData: object
 
-  @hasOne(() => Origin)
-  public origin: HasOne<typeof Origin>
+  @belongsTo(() => Origin, {
+    foreignKey: 'originId',
+  })
+  public origin: BelongsTo<typeof Origin>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
