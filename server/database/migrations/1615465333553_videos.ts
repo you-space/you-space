@@ -5,9 +5,12 @@ export default class VideosProviders extends BaseSchema {
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id').primary()
+      table.string('id').primary()
       table.string('video_id').notNullable()
       table.integer('origin_id').references('origins.id').notNullable()
+      table.text('name').notNullable()
+      table.text('src')
+      table.text('thumbnail_src')
       table.jsonb('origin_data')
       table.timestamps(true)
     })

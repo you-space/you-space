@@ -24,16 +24,11 @@ export default defineComponent({
     name: 'Video',
     setup(){
         const route = useRoute();
-        const { videoId, originId } = route.params;
+        const { videoId } = route.params;
         const videoSrc = ref<string>('');
         
         const setVideoSrc = async () => {
-            const { data } = await api.get<Video>(`/admin/videos/${String(videoId)}`, {
-                params: {
-                    originId: originId !== 'main' ? originId : undefined
-                }
-            });
-            console.log(data);
+            const { data } = await api.get<Video>(`/admin/videos/${String(videoId)}`);
             videoSrc.value = data.src;
         };
         

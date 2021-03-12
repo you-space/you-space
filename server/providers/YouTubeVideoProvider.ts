@@ -1,13 +1,10 @@
 import { ApplicationContract } from '@ioc:Adonis/Core/Application'
-import { URLSearchParams } from 'url'
-import axios, { AxiosInstance } from 'axios'
-
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import Origin from 'App/Models/Origin'
 
 export interface YouTubeProvider {
   videos: {
     index(origin: Origin): Promise<any[]>
-    show(origin: Origin, videoId: string): Promise<any[]>
   }
 }
 
@@ -34,10 +31,19 @@ export default class YouTubeVideoProvider {
       (): YouTubeProvider => ({
         videos: {
           index: this.index.bind(this),
-          show: this.show.bind(this),
         },
       })
     )
+  }
+
+  public async invoke<T extends {}>(path: string, config: any): Promise<any> {
+    try {
+      return await this.axios.get<T>(path, {
+        params: config.params,
+      })
+    } catch (error) {
+      console.log(error.response.data)
+    }
   }
 
   public serializeVideosResponse(origin: Origin, items: any[]) {
@@ -62,7 +68,7 @@ export default class YouTubeVideoProvider {
   }
 
   public async getVideos(params: YouTubeSearchParams) {
-    const { data: searchData } = await this.axios.get<any>('search', {
+    const { data: searchData } = await this.invoke<any>('search', {
       params: params,
     })
 
@@ -70,7 +76,7 @@ export default class YouTubeVideoProvider {
 
     const videoIds = searchData.items.map((i) => i.id.videoId)
 
-    const { data: statisticsData } = await this.axios.get<any>('videos', {
+    const { data: statisticsData } = await this.invoke('videos', {
       params: {
         key: params.key,
         part: 'statistics',
@@ -88,43 +94,35 @@ export default class YouTubeVideoProvider {
     })
   }
 
-  public async show(origin: Origin, videoId) {
-    try {
-      const { data } = await this.axios.get<any>('videos', {
-        params: {
-          part: 'snippet, statistics',
-          key: origin.config.apiToken,
-          channelId: origin.config.channelId,
-          id: videoId,
-        },
-      })
-
-      const [video] = this.serializeVideosResponse(origin, data.items)
-
-      return video
-    } catch (error) {
-      console.log(error)
-      return null
-    }
-  }
-
   public async index(origin: Origin) {
     if (!origin.config.apiToken || origin.config.apiToken === '123') {
       return []
     }
 
-    try {
-      const items = await this.getVideos({
-        part: 'snippet',
-        type: 'snippet',
-        key: origin.config.apiToken,
-        channelId: origin.config.channelId,
-      })
+    const Video = (await import('App/Models/Video')).default
 
-      return this.serializeVideosResponse(origin, items)
-    } catch (error) {
-      console.log(error.response.data)
-      return []
-    }
+    const items = await this.getVideos({
+      part: 'snippet',
+      type: 'video',
+      key: origin.config.apiToken,
+      channelId: origin.config.channelId,
+    })
+
+    const videos = this.serializeVideosResponse(origin, items)
+
+    await Video.updateOrCreateMany(
+      'id',
+      videos.map((i) => ({
+        id: `${origin.id}-${i.videoId}`,
+        name: i.name,
+        src: i.src,
+        thumbnailSrc: i.thumbSrc,
+        videoId: i.videoId,
+        originId: origin.id,
+        originData: i,
+      }))
+    )
+
+    return videos
   }
 }

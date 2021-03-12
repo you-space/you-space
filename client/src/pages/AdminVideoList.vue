@@ -15,8 +15,8 @@
       <template #body-cell-thumbnail="props">
         <q-td :props="props">
           <q-img
-            v-if="props.row.thumbSrc"
-            :src="getVideoThumbnailPath(props.row)"
+            v-if="props.row.thumbnailSrc"
+            :src="props.row.thumbnailSrc"
             width="100px"
           />
           <div
@@ -77,7 +77,6 @@ export default defineComponent({
 
         const columns = [
             {
-                label: tm.t('thumbnail'),
                 name: 'thumbnail',
                 align: 'left',
                 style: 'width:100px'

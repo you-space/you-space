@@ -1,9 +1,10 @@
 import { BaseModel, column, hasOne, HasOne } from '@ioc:Adonis/Lucid/Orm'
+import { DateTime } from 'luxon'
 import Origin from './Origin'
 
 export default class Video extends BaseModel {
   @column({ isPrimary: true })
-  public id: number
+  public id: string
 
   @column({ columnName: 'video_id' })
   public videoId: string
@@ -11,9 +12,24 @@ export default class Video extends BaseModel {
   @column({ columnName: 'origin_id' })
   public originId: number
 
+  @column()
+  public name: string
+
+  @column()
+  public src: string
+
+  @column({ columnName: 'thumbnail_src', serializeAs: 'thumbnailSrc' })
+  public thumbnailSrc: string
+
   @column({ columnName: 'origin_data' })
   public originData: object
 
   @hasOne(() => Origin)
   public origin: HasOne<typeof Origin>
+
+  @column.dateTime({ autoCreate: true })
+  public createdAt: DateTime
+
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  public updatedAt: DateTime
 }

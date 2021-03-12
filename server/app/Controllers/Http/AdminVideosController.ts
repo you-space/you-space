@@ -9,9 +9,14 @@ import Video from 'App/Models/Video'
 import VideoValidator from 'App/Validators/VideoValidator'
 import File, { FileTypes } from 'App/Models/File'
 import Origin, { OriginTypes } from 'App/Models/Origin'
+import YoutubeProvider from '@ioc:Providers/YouTube'
 
 export default class VideosController {
   public async index() {
+    const origins = await Origin.query().where('type', OriginTypes.YouTube)
+
+    await Promise.all(origins.map(async (o) => YoutubeProvider.videos.index(o)))
+
     return Video.all()
   }
 
@@ -58,12 +63,7 @@ export default class VideosController {
   }
 
   public async show({ params, response }: HttpContextContract) {
-    const video = await Video.findOrFail(params.id)
-
-    return {
-      ...video.serialize(),
-      src: `${process.env.DOMAIN_URL}/v1/admin/videos/embed/${video.id}`,
-    }
+    return await Video.findOrFail(params.id)
   }
 
   public async embed({ params, response }: HttpContextContract) {
