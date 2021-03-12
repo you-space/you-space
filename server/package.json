@@ -27,6 +27,7 @@
   "dependencies": {
     "@adonisjs/core": "^5.0.4-preview-rc-2.1",
     "@adonisjs/lucid": "^10.0.0",
+    "@adonisjs/redis": "^5.0.9",
     "@adonisjs/repl": "^1.1.6",
     "axios": "^0.21.1",
     "get-video-duration": "^3.0.2",

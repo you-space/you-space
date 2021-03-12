@@ -21,6 +21,7 @@
   "providers": [
     "@adonisjs/core",
     "@adonisjs/lucid",
+    "@adonisjs/redis",
     "./providers/AppProvider",
     "./providers/YouTubeVideoProvider"
   ],
