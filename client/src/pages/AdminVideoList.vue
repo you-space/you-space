@@ -6,7 +6,7 @@
       class="full-width"
       :columns="columns"
       :rows="rows"
-      :rows-per-page-options="[10, 20, 0]"
+      :rows-per-page-options="[0]"
       @request="onRequestTable"
     >
       <template #top-right>
@@ -89,7 +89,7 @@ export default defineComponent({
             sortBy: 'desc',
             descending: false,
             page: 1,
-            rowsPerPage: 3,
+            rowsPerPage: 20,
             rowsNumber: 10
         });
 
@@ -137,9 +137,10 @@ export default defineComponent({
                 page, rowsPerPage, sortBy, descending 
             } = tablePagination;
 
-            const { videos } = await getVideos(page);
+            const { videos, meta } = await getVideos(page);
             
             rows.value = videos;
+            pagination.value.rowsNumber = meta.total;
 
             pagination.value.page = page;
             pagination.value.rowsPerPage = rowsPerPage;
