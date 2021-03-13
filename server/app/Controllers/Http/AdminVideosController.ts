@@ -15,15 +15,15 @@ import Env from '@ioc:Adonis/Core/Env'
 export default class VideosController {
   public async index({ request }: HttpContextContract) {
     const page = request.input('page', 1)
-    const limit = 5
+    const limit = 20
     const offset = (page - 1) * limit
     const origins = await Origin.query().where('type', OriginTypes.YouTube)
     let originsTotalItems = 0
 
     await Promise.all(
       origins.map(async (o) => {
-        const { pageInfo } = await YoutubeProvider.videos.registerOriginVideosByPage(o, page)
-        originsTotalItems += Number(pageInfo.totalResults)
+        const { meta } = await YoutubeProvider.registerOriginVideosByPage(o, Number(page))
+        originsTotalItems += meta.totalVideos
       })
     )
 
@@ -35,12 +35,19 @@ export default class VideosController {
       )
       .first()
 
-    const videos = await Video.query().preload('origin').offset(offset).limit(limit)
+    const videos = await Video.query()
+      .preload('origin')
+      .offset(offset)
+      .limit(limit)
+      .orderBy('created_at', 'desc')
+
+    const totalVideos = Number(count) + originsTotalItems
 
     return {
       data: videos,
       meta: {
-        total: Number(count) + originsTotalItems,
+        total: totalVideos,
+        pages: totalVideos / limit,
       },
     }
   }

@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@adonisjs/assembler": "^3.0.6",
+    "@types/lodash": "^4.14.168",
     "@types/uuid": "^8.3.0",
     "adonis-preset-ts": "^2.0.0",
     "eslint": "^7.20.0",
@@ -31,6 +32,7 @@
     "@adonisjs/repl": "^1.1.6",
     "axios": "^0.21.1",
     "get-video-duration": "^3.0.2",
+    "lodash": "^4.17.21",
     "luxon": "^1.26.0",
     "pg": "^8.5.1",
     "proxy-addr": "^2.0.6",

@@ -6,6 +6,15 @@ export enum OriginTypes {
   YouTube = 'you-tube',
   Main = 'main',
 }
+
+export interface YoutubeConfig {
+  apiToken: string
+  channelId: string
+  uploadPlaylistId: string
+}
+
+export type OriginConfig = YoutubeConfig | any
+
 export default class Origin extends BaseModel {
   @column({ isPrimary: true })
   public id: number
@@ -17,7 +26,7 @@ export default class Origin extends BaseModel {
   public type: OriginTypes
 
   @column()
-  public config: any
+  public config: OriginConfig
 
   @hasMany(() => Video, {
     foreignKey: 'originId',
