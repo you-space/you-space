@@ -15,10 +15,9 @@
       <template #body-cell-actions="props">
         <q-td :props="props">
           <q-icon
-            class="q-mr-sm"
-            name="visibility"
+            name="delete"
+            @click="deleteOrigin(props.row.id)"
           />
-          <q-icon name="delete" />
         </q-td>
       </template>
     </q-table>
@@ -69,6 +68,11 @@ export default defineComponent({
             const {data } = await api.get('/admin/origins');
             rows.value = data;
         };
+        
+        const deleteOrigin = async (id: number) => {
+            await api.delete(`/admin/origins/${id}`);
+            await setOrigins();
+        };
 
         onMounted(setOrigins);
     
@@ -76,6 +80,7 @@ export default defineComponent({
             rows,
             columns,
             dialog,
+            deleteOrigin,
             setOrigins
         };
     }

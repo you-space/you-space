@@ -8,6 +8,7 @@ export default class OriginsController {
   public async index() {
     return Origin.all()
   }
+
   public async store({ request }: HttpContextContract) {
     const { name, type, config } = await request.validate(OriginValidator)
 
@@ -20,5 +21,11 @@ export default class OriginsController {
       type,
       config,
     })
+  }
+
+  public async destroy({ params }: HttpContextContract) {
+    const origin = await Origin.findOrFail(params.id)
+    await origin.related('videos').query().delete()
+    await origin.delete()
   }
 }

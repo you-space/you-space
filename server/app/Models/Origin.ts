@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import Video from './Video'
 
 export enum OriginTypes {
   YouTube = 'you-tube',
@@ -17,6 +18,11 @@ export default class Origin extends BaseModel {
 
   @column()
   public config: any
+
+  @hasMany(() => Video, {
+    foreignKey: 'originId',
+  })
+  public videos: HasMany<typeof Video>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
