@@ -28,7 +28,12 @@ Route.group(() => {
   Route.group(() => {
     Route.resource('videos', 'AdminVideosController').apiOnly()
     Route.resource('origins', 'AdminOriginsController').apiOnly()
-    Route.get('videos/embed/:id', 'AdminVideosController.embed')
-    Route.get('files/embed/:id', 'AdminVideosController.showFile')
   }).prefix('admin')
+
+  Route.get('videos', 'VideosController.index')
+  Route.get('videos/trending', 'VideosController.trending')
+  Route.get('videos/:id', 'VideosController.show')
+
+  Route.get('videos/embed/:id', 'FilesController.embed')
+  Route.get('files/embed/:id', 'FilesController.showFile')
 }).prefix('v1')
