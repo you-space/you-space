@@ -1,5 +1,5 @@
 <template>
-  <q-page class="row items-start content-start justify-start q-pa-lg">
+  <q-page class="row items-center justify-center q-pa-lg">
     <div
       class="col-6"
       style="height:500px"
@@ -10,17 +10,27 @@
 </template>
 
 <script lang='ts' >
-import { defineComponent } from 'vue';
+import { api } from 'src/boot/axios';
+import { Video } from 'src/types/video';
+import { defineComponent, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 export default defineComponent({
+    name: 'Video',
     setup(){
         const route = useRoute();
         const { videoId } = route.params;
-        const videoSrc = `${process.env.API_URL as string}/videos/${videoId as string}`;
+        const videoSrc = ref<string>('');
         
+        const setVideoSrc = async () => {
+            const { data } = await api.get<Video>(`/admin/videos/${String(videoId)}`);
+            videoSrc.value = data.src;
+        };
+        
+        onMounted(setVideoSrc);
+
         return {
-            videoSrc
+            videoSrc 
         };
     }
 });

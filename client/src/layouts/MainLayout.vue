@@ -14,7 +14,16 @@
           @click="toggleDrawer"
         />
         <q-toolbar-title>
-          channel name
+          Channel
+          <q-btn
+            color="white"
+            text-color="black"
+            size="sm"
+            class="q-ml-md"
+            :to="{ name: 'admin' }"
+          >
+            {{ $t('viewAdminDashboard') }}
+          </q-btn>
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -53,13 +62,6 @@
           />
         </template>
       </q-list>
-      <q-separator />
-      
-      <q-list>
-        <q-item>
-          section 2 - Playlist
-        </q-item>
-      </q-list>
     </q-drawer>
 
     <q-page-container>
@@ -86,28 +88,27 @@ export default defineComponent({
                 },
                 icon: 'home'
             },
-            {
-                label: tm.t('favorites'),
-                icon: 'favorite',
-            },
-            {
-                label: tm.t('plalists'),
-                icon: 'list',
-                separator: true
-            },
-            {
-                label: tm.t('myChanel'),
-                icon: 'list',
-                to: {
-                    name: 'admin'
-                }
+            // {
+            //     label: tm.t('favorites'),
+            //     icon: 'favorite',
+            // },
+            // {
+            //     label: tm.t('plalists'),
+            //     icon: 'list',
+            //     separator: true
+            // },
+            // {
+            //     label: tm.t('myChanel'),
+            //     icon: 'list',
+            //     to: {
+            //         name: 'admin'
+            //     }
             
-            },
-            {
-                label: tm.t('history'),
-                icon: 'history',
-            
-            },
+            // },
+            // {
+            //     label: tm.t('history'),
+            //     icon: 'history',
+            // },
         ];
 
         return {

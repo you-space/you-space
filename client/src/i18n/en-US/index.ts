@@ -10,5 +10,9 @@ export default {
     page: 'Page | Pages',
     videoList: 'Video list',
     home: 'Home',
-    viewsCount: 'Views {0}'
+    viewsCount: 'Views {0}',
+    trending: 'Trending',
+    public: 'Public',
+    viewAdminDashboard: 'View administration dashboard',
+    viewChannel: 'View channel',
 };

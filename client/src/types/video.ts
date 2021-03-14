@@ -4,7 +4,7 @@ export interface Video {
     name: string;
     type: undefined | 'you-tube',
     src: string
-    thumbSrc?: string
+    thumbnailSrc?: string
     originId?: number
     origin: {
       name: string

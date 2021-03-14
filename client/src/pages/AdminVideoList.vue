@@ -63,7 +63,6 @@ import { defineComponent, ref, onMounted, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
-import { getVideoThumbnailPath } from 'src/functionts';
 import { api  } from 'boot/axios';
 import { Video } from 'src/types/video';
 
