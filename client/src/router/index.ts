@@ -4,6 +4,7 @@ import {
     createRouter,
     createWebHashHistory,
     createWebHistory,
+    Router
 } from 'vue-router';
 import { StateInterface } from '../store';
 import routes from './routes';
@@ -16,6 +17,7 @@ import routes from './routes';
  * async/await or return a Promise which resolves
  * with the Router instance.
  */
+let router: Router;
 
 export default route<StateInterface>(function (/* { store, ssrContext } */) {
     const createHistory =
@@ -39,5 +41,10 @@ export default route<StateInterface>(function (/* { store, ssrContext } */) {
         ),
     });
 
+    router = Router;
+
     return Router;
 });
+
+
+export { router };

@@ -1,8 +1,11 @@
-import { Video } from "src/types/video";
+import { Video } from './types/video';
+import { router } from 'src/router';
 
-export function getVideoThumbnailPath (video: Video) {
-    if (video.type === 'you-tube') {
-        return video.thumbSrc;
-    }
-    return `${process.env.API_URL as string}/thumbnails/${String(video.videoId)}`;
+export function openVideo (video: Video) {
+    return router.push({
+        name: 'video',
+        params: {
+            videoId: video.id
+        }
+    });
 }
