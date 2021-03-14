@@ -61,38 +61,17 @@
 </template>
 
 <script lang='ts' >
-import { openVideo } from 'src/functionts';
-import { Video } from 'src/types/video';
-import { defineComponent, ref, onMounted } from 'vue';
-import { api } from 'boot/axios';
-import lodash from 'lodash';
+import { openVideo, usePublicVideosInfiniteScroll } from 'src/functionts';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
     setup(){
-        const videos = ref<Video[]>([]);
-
-        async function setVideos () {
-            const request = await api.get<Video[]>('videos');
-            videos.value = lodash.get(request, 'data.data', []);
-        }
-        
-        async function addNextPage (index: number, done: () => void) {
-            const request = await api.get<Video[]>('videos', {
-                params: {
-                    page: index
-                }
-            });
-            const nextPage = lodash.get(request, 'data.data', []);
-            videos.value = videos.value.concat(nextPage);
-            done();
-        }
-
-        onMounted(setVideos);
+        const infiniteScroll = usePublicVideosInfiniteScroll();
 
         return {
-            videos,
+            videos: infiniteScroll.videos,
             openVideo,
-            addNextPage
+            addNextPage: infiniteScroll.addNextPage
         };
     }
 });
