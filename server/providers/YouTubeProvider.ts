@@ -210,7 +210,9 @@ export default class YouTubeProvider {
       name: lodash.get(i, 'snippet.title', null),
       videoId: lodash.get(i, 'id', null),
       src: `https://www.youtube.com/embed/${lodash.get(i, 'id', null)}`,
-      thumbnailSrc: lodash.get(i, 'snippet.thumbnails.default.url', null),
+      thumbnailSrc:
+        lodash.get(i, 'snippet.thumbnails.standard.url', null) ||
+        lodash.get(i, 'snippet.thumbnails.default.url', null),
       originId: origin.id,
       viewsCount: lodash.get(i, 'statistics.viewCount'),
     }))
