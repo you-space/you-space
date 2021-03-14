@@ -31,7 +31,6 @@ export default class VideosController {
       .preload('origin')
       .offset(offset)
       .limit(limit)
-      .has('views')
       .withCount('views', (query) => {
         query.sum('count').as('viewsCount')
       })

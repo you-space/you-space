@@ -93,9 +93,7 @@ export default class VideosController {
         extname: thumbnail.extname,
       })
 
-      thumbnailSrc = `${Env.get('DOMAIN_URL', 'http://localhost:3333')}/v1/admin/files/embed/${
-        image.id
-      }`
+      thumbnailSrc = `${Env.get('DOMAIN_URL', 'http://localhost:3333')}/v1/files/embed/${image.id}`
     }
 
     return await Video.create({
@@ -104,7 +102,7 @@ export default class VideosController {
       originId: originMain.id,
       name: name,
       thumbnailSrc,
-      src: `${Env.get('DOMAIN_URL', 'http://localhost:3333')}/v1/admin/videos/embed/${file.id}`,
+      src: `${Env.get('DOMAIN_URL', 'http://localhost:3333')}/v1/videos/embed/${file.id}`,
       originData: file.serialize(),
     })
   }
