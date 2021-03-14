@@ -15,14 +15,11 @@
         :key="video.id"
         class="col-12 col-sm-6 col-md-4 col-xl-2 q-pr-md q-pb-md"
       >
-        <q-card
-        
-          class="card-preview"
-          @click="openVideo(video)"
-        >
+        <q-card class="card-preview">
           <q-img
             v-if="video.thumbnailSrc"
             :src="video.thumbnailSrc"
+            @click="openVideo(video)"
           />
             
           <div
@@ -39,7 +36,10 @@
             vertical
             align="left"
           >
-            <div class="text-h6 video-title">
+            <div
+              class="text-h6 video-title"
+              @click="openVideo(video)"
+            >
               {{ video.name }}
             </div>
             <div class="text-caption">
@@ -80,17 +80,18 @@ export default defineComponent({
 .card-preview {
   height: 220px;
   color: rgba($dark, .7);
-  cursor: pointer;
    .video-title {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     max-width: 100%;
+    cursor: pointer;
   }
 
   .card-preview-thumb, .q-img {
     background-color: rgba($dark, .1);
     height: 60%;
+    cursor: pointer;
   }
 }
 </style>

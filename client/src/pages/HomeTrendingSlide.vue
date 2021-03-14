@@ -28,6 +28,7 @@
         fit="cover"
         height="100%"
         radio="16/9"
+        style="cursor:pointer"
         :src="video.thumbnailSrc"
       />
     </q-carousel-slide>
