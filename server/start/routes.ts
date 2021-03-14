@@ -25,10 +25,15 @@ Route.get('/', async () => {
 })
 
 Route.group(() => {
+  Route.post('/sign-up', 'AuthController.store')
+  Route.post('/login', 'AuthController.login')
+
   Route.group(() => {
     Route.resource('videos', 'AdminVideosController').apiOnly()
     Route.resource('origins', 'AdminOriginsController').apiOnly()
-  }).prefix('admin')
+  })
+    .prefix('admin')
+    .middleware('auth:api')
 
   Route.get('videos', 'VideosController.index')
   Route.get('videos/trending', 'VideosController.trending')
