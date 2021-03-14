@@ -1,10 +1,21 @@
 <template>
-  <q-page class="row items-center justify-center q-pa-lg">
+  <q-page class="row items-stretch q-pa-lg">
     <div
-      class="col-6"
+      class="col-8"
       style="height:500px"
     >
-      <y-video :src="videoSrc" />
+      <template v-if="video">
+        <y-video
+          :src="video.src"
+          class="q-mb-lg"
+        />
+        <h1 class="text-h4">
+          {{ video.name }}
+        </h1>
+      </template>
+    </div>
+    <div class="col-4 q-px-md full-height">
+      <video-sidebar />
     </div>
   </q-page>
 </template>
@@ -12,25 +23,34 @@
 <script lang='ts' >
 import { api } from 'src/boot/axios';
 import { Video } from 'src/types/video';
-import { defineComponent, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { defineComponent, defineAsyncComponent, ref, watch } from 'vue';
 
 export default defineComponent({
     name: 'Video',
-    setup(){
-        const route = useRoute();
-        const { videoId } = route.params;
-        const videoSrc = ref<string>('');
+    components: {
+        VideoSidebar: defineAsyncComponent(() => import('./VideoSidebar.vue'))
+    },
+    props: {
+        videoId: {
+            type: String,
+            default: null
+        }
+    },
+    setup(props){
+        const video = ref<Video | null>(null);
         
-        const setVideoSrc = async () => {
-            const { data } = await api.get<Video>(`/admin/videos/${String(videoId)}`);
-            videoSrc.value = data.src;
+        const setVideo = async (id: string) => {
+            video.value = null;
+            const { data } = await api.get<Video>(`/admin/videos/${id}`);
+            video.value = data;
         };
         
-        onMounted(setVideoSrc);
+        watch(() => props.videoId, setVideo, {
+            immediate: true
+        });
 
         return {
-            videoSrc 
+            video
         };
     }
 });

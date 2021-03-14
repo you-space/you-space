@@ -18,7 +18,8 @@ const routes: RouteRecordRaw[] = [
             {
                 path: 'videos/:videoId',
                 name: 'admin-video',
-                component: () => import('pages/AdminVideo.vue') 
+                component: () => import('pages/AdminVideo.vue'),
+                props: true
             },
             {
                 path: 'origins',
@@ -39,6 +40,7 @@ const routes: RouteRecordRaw[] = [
             {
                 path: 'video/:videoId',
                 name: 'video',
+                props: true,
                 component: () => import('pages/Video.vue')
             },
         ],

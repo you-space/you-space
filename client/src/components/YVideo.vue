@@ -3,7 +3,7 @@
     dark
     class="full-width full-height q-video"
   >
-    <iframe
+    <q-video
       class="full-width full-height ys-video"
       controls
       :src="src"
