@@ -25,7 +25,7 @@ export default class Origin extends BaseModel {
   @column()
   public type: OriginTypes
 
-  @column()
+  @column({ serializeAs: null })
   public config: OriginConfig
 
   @hasMany(() => Video, {

@@ -13,6 +13,7 @@ export interface OriginProviderVideo {
   thumbnailSrc: string
   src: string
   originId: number
+  viewsCount: number
 }
 
 export interface OriginProvideResponse {
@@ -124,6 +125,7 @@ export default class YouTubeProvider {
     page = 1
   ): Promise<OriginProvideResponse> {
     const redis = (await import('@ioc:Adonis/Addons/Redis')).default
+    const View = (await import('App/Models/View')).default
     const Video = (await import('App/Models/Video')).default
 
     const mainRedisKey = `origins:${origin.id}:provider`
@@ -185,6 +187,16 @@ export default class YouTubeProvider {
       }))
     )
 
+    await View.updateOrCreateMany(
+      'id',
+      serializedVideos.map((i) => ({
+        id: `${origin.id}-${origin.id}-${i.videoId}`,
+        videoId: `${origin.id}-${i.videoId}`,
+        originId: origin.id,
+        count: i.viewsCount,
+      }))
+    )
+
     return {
       meta: {
         totalVideos: Number(request.totalVideos) || 0,
@@ -200,6 +212,7 @@ export default class YouTubeProvider {
       src: `https://www.youtube.com/embed/${lodash.get(i, 'id', null)}`,
       thumbnailSrc: lodash.get(i, 'snippet.thumbnails.default.url', null),
       originId: origin.id,
+      viewsCount: lodash.get(i, 'statistics.viewCount'),
     }))
   }
 }

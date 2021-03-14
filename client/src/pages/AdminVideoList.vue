@@ -112,6 +112,12 @@ export default defineComponent({
                 align: 'left'
             },
             {
+                label: tm.t('views'),
+                name: 'viewsCount',
+                field: 'viewsCount',
+                align: 'left'
+            },
+            {
                 name: 'actions', 
             },
         ];

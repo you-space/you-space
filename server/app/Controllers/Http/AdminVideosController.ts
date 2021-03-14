@@ -39,15 +39,23 @@ export default class VideosController {
       .preload('origin')
       .offset(offset)
       .limit(limit)
+      .withCount('views', (query) => {
+        query.sum('count').as('viewsCount')
+      })
       .orderBy('created_at', 'desc')
 
     const totalVideos = Number(count) + originsTotalItems
 
+    const videosWithViews = videos.map((v) => ({
+      ...v.serialize(),
+      viewsCount: Number(v.$extras.viewsCount) || 0,
+    }))
+
     return {
-      data: videos,
+      data: videosWithViews,
       meta: {
         total: totalVideos,
-        pages: totalVideos / limit,
+        pages: Math.ceil(totalVideos / limit),
       },
     }
   }
