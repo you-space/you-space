@@ -11,10 +11,7 @@ export default class UsersAssignmentSeeder extends BaseSeeder {
     })
 
     const user = await User.firstOrCreate(
-      {
-        email: 'admin@ys.com',
-        password: '123456',
-      },
+      { email: 'admin@ys.com' },
       { email: 'admin@ys.com', password: '123456' }
     )
 
