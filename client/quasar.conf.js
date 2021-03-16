@@ -23,15 +23,16 @@ module.exports = configure(function (/* ctx */) {
         },
 
         // https://quasar.dev/quasar-cli/prefetch-feature
-        // preFetch: true,
+        preFetch: true,
 
         // app boot file (/src/boot)
         // --> boot files are part of "main.js"
         // https://quasar.dev/quasar-cli/boot-files
         boot: [
+            'authentication',
             'i18n',
             'axios',
-            'global-components'
+            'global-components',
         ],
 
         // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -105,7 +106,9 @@ module.exports = configure(function (/* ctx */) {
             // directives: [],
 
             // Quasar plugins
-            plugins: []
+            plugins: [
+                'Notify'
+            ]
         },
 
         // animations: 'all', // --- includes all animations

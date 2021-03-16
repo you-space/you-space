@@ -2,6 +2,10 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import User from 'App/Models/User'
 
 export default class AuthController {
+  public async show({ auth }: HttpContextContract) {
+    return auth.use('api').authenticate()
+  }
+
   public async store({ request }: HttpContextContract) {
     const email = request.input('email')
     const password = request.input('password')

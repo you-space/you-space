@@ -63,11 +63,22 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import lodash from 'lodash';
 
 export default defineComponent({
     name: 'MainLayout',
 
-    components: {
+    preFetch(options){
+        const store = options.store;
+        const redirect = options.redirect as any;
+        const isAuthenticaed = lodash.get(store, 'state.user.authenticated', false);
+
+        if (isAuthenticaed) {
+            return;
+        }
+        redirect({
+            name: 'login'
+        });
     },
 
     setup () {

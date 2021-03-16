@@ -1,10 +1,12 @@
 export interface ExampleStateInterface {
-  prop: boolean;
+  authenticated: boolean;
+  token: string | null;
 }
 
 function state(): ExampleStateInterface {
     return {
-        prop: false 
+        authenticated: false,
+        token: null
     };
 }
 
