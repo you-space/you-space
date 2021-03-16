@@ -52,7 +52,7 @@ export default class VideosController {
     }
   }
 
-  public async trending({ params, request }: HttpContextContract) {
+  public async trending({ request }: HttpContextContract) {
     const page = request.input('page', 1)
     const limit = 20
     const offset = (page - 1) * limit

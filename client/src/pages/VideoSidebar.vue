@@ -24,9 +24,11 @@
             class="row video-card"
             bordered
             flat
-            @click="openVideo(video)"
           >
-            <div class="col-5">
+            <div
+              class="col-5"
+              @click="openVideo(video)"
+            >
               <q-img
                 v-if="video.thumbnailSrc"
                 :src="video.thumbnailSrc"
@@ -45,7 +47,10 @@
             </div>
 
             <div class="col-7 q-px-md q-py-sm">
-              <div class="text-subtitle2">
+              <div
+                class="text-subtitle2 card-title"
+                @click="openVideo(video)"
+              >
                 {{ video.name }}
               </div>
               <div class="text-caption">
@@ -90,8 +95,12 @@ export default defineComponent({
   .video-card {
     --height: 110px;
     height: var(--height);
+    .card-title {
+      cursor: pointer;
+    }
     .q-img {
       height: calc(var(--height) - 2px);
+      cursor: pointer;
     }
   }
 }

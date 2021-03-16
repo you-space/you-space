@@ -41,7 +41,7 @@ export default defineComponent({
         
         const setVideo = async (id: string) => {
             video.value = null;
-            const { data } = await api.get<Video>(`/admin/videos/${id}`);
+            const { data } = await api.get<Video>(`/videos/${id}`);
             video.value = data;
         };
         
