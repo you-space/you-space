@@ -102,6 +102,12 @@ export default class VideosController {
   }
 
   public show({ params }: HttpContextContract) {
-    return Video.findOrFail(params.id)
+    return Video.query()
+      .where('id', params.id)
+      .preload('origin')
+      .withCount('views', (query) => {
+        query.sum('count').as('viewsCount')
+      })
+      .firstOrFail()
   }
 }

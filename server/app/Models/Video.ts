@@ -7,7 +7,7 @@ export default class Video extends BaseModel {
   @column({ isPrimary: true })
   public id: string
 
-  @column({ columnName: 'video_id' })
+  @column({ columnName: 'video_id', serializeAs: 'videoId' })
   public videoId: string
 
   @column({ columnName: 'origin_id' })

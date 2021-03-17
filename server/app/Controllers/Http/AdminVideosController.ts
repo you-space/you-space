@@ -107,10 +107,6 @@ export default class VideosController {
     })
   }
 
-  public async show({ params, response }: HttpContextContract) {
-    return Video.findOrFail(params.id)
-  }
-
   public async destroy({ params }: HttpContextContract) {
     const video = await Video.findOrFail(params.id)
     return video.delete()

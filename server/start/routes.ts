@@ -19,6 +19,7 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
+import './admin.routes'
 
 Route.get('/', async () => {
   return { hello: 'world' }
@@ -29,17 +30,10 @@ Route.group(() => {
   Route.post('/login', 'AuthController.login')
   Route.get('/who-i-am', 'AuthController.show')
 
-  Route.group(() => {
-    Route.resource('videos', 'AdminVideosController').apiOnly()
-    Route.resource('origins', 'AdminOriginsController').apiOnly()
-  })
-    .prefix('admin')
-    .middleware('auth:api')
-
   Route.get('videos', 'VideosController.index')
   Route.get('videos/trending', 'VideosController.trending')
   Route.get('videos/:id', 'VideosController.show')
 
-  Route.get('videos/embed/:id', 'FilesController.embed')
-  Route.get('files/embed/:id', 'FilesController.showFile')
+  Route.get('videos/embed/:id', 'FilesController.embed').middleware('acl')
+  Route.get('files/embed/:id', 'FilesController.showFile').middleware('acl')
 }).prefix('v1')
