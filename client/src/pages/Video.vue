@@ -6,7 +6,7 @@
     >
       <template v-if="video">
         <y-video
-          :src="video.src"
+          :src="videoSrc"
           class="q-mb-lg"
         />
         <h1 class="text-h4">
@@ -22,6 +22,7 @@
 
 <script lang='ts' >
 import { api } from 'src/boot/axios';
+import { setVideoSrc } from 'src/functionts';
 import { Video } from 'src/types/video';
 import { defineComponent, defineAsyncComponent, ref, watch } from 'vue';
 
@@ -38,11 +39,13 @@ export default defineComponent({
     },
     setup(props){
         const video = ref<Video | null>(null);
+        const videoSrc = ref('');
         
         const setVideo = async (id: string) => {
             video.value = null;
             const { data } = await api.get<Video>(`/videos/${id}`);
             video.value = data;
+            void setVideoSrc(videoSrc, video.value);
         };
         
         watch(() => props.videoId, setVideo, {
@@ -50,7 +53,8 @@ export default defineComponent({
         });
 
         return {
-            video
+            video,
+            videoSrc
         };
     }
 });

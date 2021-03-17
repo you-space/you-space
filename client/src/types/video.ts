@@ -8,6 +8,7 @@ export interface Video {
     originId?: number
     origin: {
       name: string
+      type: string
     }
   }
   

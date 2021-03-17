@@ -1,10 +1,11 @@
 import lodash from 'lodash';
 
-import { ref } from 'vue';
-import { api } from 'boot/axios';
+import { ref, Ref } from 'vue';
+import { api, axios } from 'boot/axios';
 
 import { Video } from './types/video';
 import { router } from 'src/router';
+import store from './store';
 
 interface VideoRequestParams {
     page?: number
@@ -19,6 +20,41 @@ export function openVideo (video: Video) {
     });
 }
 
+export function setVideoSrc (videoRef: Ref<string>, video: Video) {
+    if (video.origin.type !== 'main') {
+        videoRef.value = video.src;
+        return;
+    }
+
+    void api.get(`/videos/embed/${video.videoId}`, {
+        responseType: 'blob'
+    })
+        .then((response) => {
+            videoRef.value = URL.createObjectURL(response.data);
+        });
+}
+
+export async function getImgSrc (video: Video) {
+    if (video.origin.type !== 'main') {
+        return video.thumbnailSrc;
+    }
+    
+    if (!video.thumbnailSrc) {
+        return undefined;
+    }
+
+    const token = localStorage.getItem('token');
+
+    const request = await axios.get(video.thumbnailSrc, {
+        responseType: 'blob',
+        headers: {
+            'Authorization': `Bearer ${String(token)}`
+        }
+    });
+
+    return URL.createObjectURL(request.data);
+}
+
 export function usePublicVideosInfiniteScroll(){
     const videos = ref<Video[]>([]);
 
@@ -27,7 +63,12 @@ export function usePublicVideosInfiniteScroll(){
             params
         });
         
-        return lodash.get(request, 'data.data', []);
+        const videos: Video[] = lodash.get(request, 'data.data', []);
+
+        return await Promise.all(videos.map(async v => ({
+            ...v,
+            thumbnailSrc: await getImgSrc(v)
+        })));
     }
 
     async function addNextPage (index: number, callback: () => void) {

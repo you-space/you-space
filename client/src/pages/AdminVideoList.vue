@@ -65,6 +65,7 @@ import { useRouter } from 'vue-router';
 
 import { api  } from 'boot/axios';
 import { Video } from 'src/types/video';
+import { getImgSrc } from 'src/functionts';
 
 interface VideosResponse {
   data: Video[]
@@ -127,8 +128,14 @@ export default defineComponent({
                     page
                 }
             });
+            
+            const videos = await Promise.all(data.data.map(async v => ({
+                ...v,
+                thumbnailSrc: await getImgSrc(v)
+            })));
+
             return {
-                videos: data.data,
+                videos: videos,
                 meta: data.meta
             };
 
