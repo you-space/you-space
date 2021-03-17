@@ -30,6 +30,7 @@
           </q-card-section>
           <q-card-actions class="q-px-md">
             <q-btn
+              :loading="loading"
               unelevated
               color="primary"
               size="lg"
@@ -53,32 +54,39 @@ import { api } from 'src/boot/axios';
 export default defineComponent({
     name: 'Login',
     data () {
-        const email = ref('');
-        const password = ref('');
         const store = useStore();
         const router = useRouter();
 
-        console.log(store.state.user);
+        const email = ref('');
+        const password = ref('');
+        const loading = ref(false);
 
         const login = async () => {
+            loading.value = true;
+
             const request = await api.post('/login', {
                 email: email.value,
                 password: password.value
             });
 
             const token = request.data.token;
+            setTimeout(() => {
+                loading.value = false;              
+                store.commit('user/login', token);
+  
+                void router.push({
+                    name: 'admin'
+                });
 
-            store.commit('user/login', token);
+            }, 800);
 
-            return router.push({
-                name: 'admin'
-            });
         };
 
         return {
             email,
             password,
-            login
+            login,
+            loading
         };
     }
 });
