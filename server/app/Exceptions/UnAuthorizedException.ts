@@ -25,7 +25,7 @@ export default class UnAuthorizedException extends Exception {
   public async handle(error: this, { response }: HttpContextContract) {
     const errors = [
       {
-        message: 'Sorry you are not allowed to view this page',
+        message: error.message || 'Sorry you are not allowed to view this content',
       },
     ]
     response.status(error.status).json({

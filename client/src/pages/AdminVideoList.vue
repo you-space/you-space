@@ -2,13 +2,43 @@
   <q-page class="row items-start q-pa-lg">
     <q-table
       v-model:pagination="pagination"
+      v-model:selected="selected"
       :loading="loading"
       class="full-width"
       :columns="columns"
       :rows="rows"
       :rows-per-page-options="[0]"
+      row-key="id"
+      selection="multiple"
       @request="onRequestTable"
     >
+      <template #top-left>
+        <q-btn :label="$t('bulkActions')">
+          <q-menu style="min-width: 100px">
+            <q-list>
+              <q-item
+                v-close-popup
+                clickable
+                @click="updateVideosVisibility('public')"
+              >
+                <q-item-section>
+                  {{ $t('markAsPublic') }}
+                </q-item-section>
+              </q-item>
+              <q-item
+                v-close-popup
+                clickable
+                @click="updateVideosVisibility('private')"
+              >
+                <q-item-section>
+                  {{ $t('markAsPrivate') }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
+      </template>
+
       <template #top-right>
         <q-btn @click="dialog = true">
           {{ $t('addNew') }}
@@ -82,6 +112,8 @@ export default defineComponent({
         const router = useRouter();
 
         const rows = ref<Video[]>([]);
+        const selected = ref<Video[]>([]);
+
         const dialog = ref(false);
 
         const loading = ref(false);
@@ -192,15 +224,30 @@ export default defineComponent({
                 pagination: pagination.value 
             });
         };
+
+        const updateVideosVisibility = async (visibility: string) => {
+            const updateAll = selected.value.map(v => ({
+                id: v.id,
+                visibility_id: visibility === 'public' ? 2 : 1
+            }));
+
+            await api.patch('admin/videos/update-all', {
+                videos: updateAll
+            });
+
+            await onRequestTable();
+        };
     
         return {
-            rows,
             columns,
+            rows,
+            selected,
             loading,
             pagination,
             dialog,
             viewVideo,
             deleteVideo,
+            updateVideosVisibility,
             onRequestTable
         };
     }

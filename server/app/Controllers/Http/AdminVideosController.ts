@@ -1,4 +1,5 @@
 import Application from '@ioc:Adonis/Core/Application'
+import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import { v4 as uuid } from 'uuid'
 
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
@@ -106,6 +107,22 @@ export default class VideosController {
       src: `${Env.get('DOMAIN_URL', 'http://localhost:3333')}/v1/videos/embed/${file.id}`,
       originData: file.serialize(),
     })
+  }
+
+  public async updateAll({ request }: HttpContextContract) {
+    console.log('called')
+    const { videos } = await request.validate({
+      schema: schema.create({
+        videos: schema.array([rules.minLength(1)]).members(
+          schema.object().members({
+            id: schema.string(),
+            visibility_id: schema.number.optional(),
+          })
+        ),
+      }),
+    })
+
+    return await Video.updateOrCreateMany('id', videos)
   }
 
   public async destroy({ params }: HttpContextContract) {

@@ -34,6 +34,6 @@ Route.group(() => {
   Route.get('videos/trending', 'VideosController.trending')
   Route.get('videos/:id', 'VideosController.show')
 
-  Route.get('videos/embed/:id', 'FilesController.embed').middleware('acl')
-  Route.get('files/embed/:id', 'FilesController.showFile').middleware('acl')
+  Route.get('videos/embed/:id', 'FilesController.embed')
+  Route.get('files/embed/:id', 'FilesController.showFile')
 }).prefix('v1')

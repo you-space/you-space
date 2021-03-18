@@ -22,9 +22,10 @@
     "@adonisjs/core",
     "@adonisjs/lucid",
     "@adonisjs/redis",
+    "@adonisjs/auth",
     "./providers/AppProvider",
     "./providers/YouTubeProvider",
-    "@adonisjs/auth"
+    "./providers/VisibilityProvider"
   ],
   "aceProviders": [
     "@adonisjs/repl"

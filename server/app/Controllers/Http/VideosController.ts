@@ -2,6 +2,8 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Origin, { OriginTypes } from 'App/Models/Origin'
 import Video from 'App/Models/Video'
 import YouTubeProvider from '@ioc:Providers/YouTube'
+import VisibilityProvider from '@ioc:Providers/Visibility'
+import { DefaultVisibilities } from 'App/Models/Visibility'
 
 export default class VideosController {
   public async index({ request }: HttpContextContract) {
@@ -9,34 +11,24 @@ export default class VideosController {
     const limit = 20
     const offset = (page - 1) * limit
     const origins = await Origin.query().where('type', OriginTypes.YouTube)
-    let originsTotalItems = 0
 
     await Promise.all(
       origins.map(async (o) => {
-        const { meta } = await YouTubeProvider.registerOriginVideosByPage(o, Number(page))
-        originsTotalItems += meta.totalVideos
+        await YouTubeProvider.registerOriginVideosByPage(o, Number(page))
       })
     )
 
-    const { count } = await Video.query()
-      .count('*')
-      .has('views')
-      .whereNotIn(
-        'origin_id',
-        origins.map((o) => o.id)
-      )
-      .first()
-
     const videos = await Video.query()
       .preload('origin')
+      .whereHas('visibility', (query) => {
+        query.where('name', DefaultVisibilities.public)
+      })
       .offset(offset)
       .limit(limit)
       .withCount('views', (query) => {
         query.sum('count').as('viewsCount')
       })
       .orderBy('created_at', 'desc')
-
-    const totalVideos = Number(count) + originsTotalItems
 
     const videosWithViews = videos.map((v) => ({
       ...v.serialize(),
@@ -45,10 +37,7 @@ export default class VideosController {
 
     return {
       data: videosWithViews,
-      meta: {
-        total: totalVideos,
-        pages: Math.ceil(totalVideos / limit),
-      },
+      meta: {},
     }
   }
 
@@ -101,13 +90,19 @@ export default class VideosController {
     }
   }
 
-  public show({ params }: HttpContextContract) {
-    return Video.query()
+  public async show({ params, auth }: HttpContextContract) {
+    const video = await Video.query()
       .where('id', params.id)
       .preload('origin')
       .withCount('views', (query) => {
         query.sum('count').as('viewsCount')
       })
       .firstOrFail()
+
+    const visibility = await video.related('visibility').query().firstOrFail()
+
+    await VisibilityProvider.isAllowedToView(visibility, auth.user)
+
+    return video
   }
 }
