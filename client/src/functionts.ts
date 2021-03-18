@@ -57,6 +57,7 @@ export async function getImgSrc (video: Video) {
 
 export function usePublicVideosInfiniteScroll(){
     const videos = ref<Video[]>([]);
+    const disable = ref(false);
 
     async function getVideos (params?: VideoRequestParams) {
         const request = await api.get<Video[]>('videos', {
@@ -76,6 +77,9 @@ export function usePublicVideosInfiniteScroll(){
             page: index
         });
 
+        if (nextPage.length === 0) {
+            disable.value = true;
+        }
         
         setTimeout(() => {
             videos.value = videos.value.concat(nextPage);
@@ -85,6 +89,7 @@ export function usePublicVideosInfiniteScroll(){
 
     return {
         videos,
-        addNextPage
+        addNextPage,
+        disable
     };
 }

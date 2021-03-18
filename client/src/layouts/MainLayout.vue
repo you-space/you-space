@@ -25,6 +25,13 @@
             {{ $t('viewAdminDashboard') }}
           </q-btn>
         </q-toolbar-title>
+
+        <q-btn
+          v-if="$store.state.user.token"
+          @click="$store.commit('user/logout')"
+        >
+          {{ $t('logout') }}
+        </q-btn>
       </q-toolbar>
     </q-header>
 

@@ -7,9 +7,16 @@
   <q-infinite-scroll
     :offset="250"
     class="full-width"
+    :disable="disable"
     @load="addNextPage"
   >
-    <div class="row ">
+    <div class="row">
+      <div
+        v-if="videos.length === 0"
+        class="col-12 text-h6 text-grey text-center"
+      >
+        {{ $t('noVideos') }}
+      </div>
       <div
         v-for="video in videos"
         :key="video.id"
@@ -71,7 +78,8 @@ export default defineComponent({
         return {
             videos: infiniteScroll.videos,
             openVideo,
-            addNextPage: infiniteScroll.addNextPage
+            addNextPage: infiniteScroll.addNextPage,
+            disable: infiniteScroll.disable,
         };
     }
 });
