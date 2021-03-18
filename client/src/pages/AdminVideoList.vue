@@ -106,6 +106,12 @@ export default defineComponent({
                 align: 'left'
             },
             {
+                label: tm.t('visibility'),
+                name: 'visibility',
+                field: (row: Video) => row.visibility.name,
+                align: 'left'
+            },
+            {
                 label: tm.t('origin'),
                 name: 'origin',
                 field: (row: Video) => row.origin.name,

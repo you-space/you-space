@@ -35,6 +35,7 @@ export default class VideosController {
 
     const videos = await Video.query()
       .preload('origin')
+      .preload('visibility')
       .offset(offset)
       .limit(limit)
       .withCount('views', (query) => {

@@ -6,6 +6,9 @@ export interface Video {
     src: string
     thumbnailSrc?: string
     originId?: number
+    visibility: {
+      name: string
+    }
     origin: {
       name: string
       type: string

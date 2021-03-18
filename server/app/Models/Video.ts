@@ -2,6 +2,7 @@ import { BaseModel, belongsTo, BelongsTo, column, HasMany, hasMany } from '@ioc:
 import { DateTime } from 'luxon'
 import Origin from './Origin'
 import View from './View'
+import Visibility from './Visibility'
 
 export default class Video extends BaseModel {
   @column({ isPrimary: true })
@@ -12,6 +13,9 @@ export default class Video extends BaseModel {
 
   @column({ columnName: 'origin_id' })
   public originId: number
+
+  @column({ columnName: 'visibility_id', serializeAs: null })
+  public visibilityId: number
 
   @column()
   public name: string
@@ -29,6 +33,11 @@ export default class Video extends BaseModel {
     foreignKey: 'originId',
   })
   public origin: BelongsTo<typeof Origin>
+
+  @belongsTo(() => Visibility, {
+    // foreignKey: 'id',
+  })
+  public visibility: BelongsTo<typeof Visibility>
 
   @hasMany(() => View, {
     foreignKey: 'videoId',
