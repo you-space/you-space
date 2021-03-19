@@ -10,6 +10,7 @@ import File, { FileTypes } from 'App/Models/File'
 import Origin, { OriginTypes } from 'App/Models/Origin'
 import YoutubeProvider from '@ioc:Providers/YouTube'
 import Env from '@ioc:Adonis/Core/Env'
+import OriginMetadata from 'App/Models/OriginMetadata'
 
 export default class VideosController {
   public async index({ request }: HttpContextContract) {
@@ -17,22 +18,15 @@ export default class VideosController {
     const limit = 20
     const offset = (page - 1) * limit
     const origins = await Origin.query().where('type', OriginTypes.YouTube)
-    let originsTotalItems = 0
 
     await Promise.all(
       origins.map(async (o) => {
-        const { meta } = await YoutubeProvider.registerOriginVideosByPage(o, Number(page))
-        originsTotalItems += meta.totalVideos
+        await YoutubeProvider.registerOriginVideosByPage(o, Number(page))
       })
     )
 
-    const { count } = await Video.query()
-      .count('*')
-      .whereNotIn(
-        'origin_id',
-        origins.map((o) => o.id)
-      )
-      .first()
+    const allMetadata = await OriginMetadata.all()
+    const totalVideos = allMetadata.reduce((all, m) => all + m.totalVideos, 0)
 
     const videos = await Video.query()
       .preload('origin')
@@ -43,8 +37,6 @@ export default class VideosController {
         query.sum('count').as('viewsCount')
       })
       .orderBy('created_at', 'desc')
-
-    const totalVideos = Number(count) + originsTotalItems
 
     const videosWithViews = videos.map((v) => ({
       ...v.serialize(),
@@ -98,7 +90,7 @@ export default class VideosController {
       thumbnailSrc = `${Env.get('DOMAIN_URL', 'http://localhost:3333')}/v1/files/embed/${image.id}`
     }
 
-    return await Video.create({
+    const create = await Video.create({
       id: `${originMain.id}-${file.id}`,
       videoId: String(file.id),
       originId: originMain.id,
@@ -107,10 +99,20 @@ export default class VideosController {
       src: `${Env.get('DOMAIN_URL', 'http://localhost:3333')}/v1/videos/embed/${file.id}`,
       originData: file.serialize(),
     })
+
+    const { count } = await originMain.related('videos').query().count('id').first()
+
+    await originMain.related('metadata').updateOrCreate(
+      {
+        originId: originMain.id,
+      },
+      { originId: originMain.id, totalVideos: count }
+    )
+
+    return create
   }
 
   public async updateAll({ request }: HttpContextContract) {
-    console.log('called')
     const { videos } = await request.validate({
       schema: schema.create({
         videos: schema.array([rules.minLength(1)]).members(

@@ -4,6 +4,7 @@ import Video from 'App/Models/Video'
 import YouTubeProvider from '@ioc:Providers/YouTube'
 import VisibilityProvider from '@ioc:Providers/Visibility'
 import { DefaultVisibilities } from 'App/Models/Visibility'
+import OriginMetadata from 'App/Models/OriginMetadata'
 
 export default class VideosController {
   public async index({ request }: HttpContextContract) {
@@ -17,6 +18,9 @@ export default class VideosController {
         await YouTubeProvider.registerOriginVideosByPage(o, Number(page))
       })
     )
+
+    const allMetadata = await OriginMetadata.all()
+    const totalVideos = allMetadata.reduce((all, m) => all + m.totalVideos, 0)
 
     const videos = await Video.query()
       .preload('origin')
@@ -37,7 +41,10 @@ export default class VideosController {
 
     return {
       data: videosWithViews,
-      meta: {},
+      meta: {
+        total: totalVideos,
+        pages: Math.ceil(totalVideos / limit),
+      },
     }
   }
 

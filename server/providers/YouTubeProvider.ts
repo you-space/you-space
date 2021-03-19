@@ -164,6 +164,14 @@ export default class YouTubeProvider {
     )
 
     await redis.set(cacheKeys.totalVideos, request.totalVideos)
+
+    await origin
+      .related('metadata')
+      .updateOrCreate(
+        { originId: origin.id },
+        { originId: origin.id, totalVideos: request.totalVideos }
+      )
+
     await redis.set(cacheKeys.pageItems, JSON.stringify(request.videos))
 
     await redis.set(cacheKeys.nextPageToken, request.nextPageToken)
