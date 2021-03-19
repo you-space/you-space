@@ -1,6 +1,10 @@
 <template>
   <q-layout view="hHh Lpr lFf">
-    <q-header elevated>
+    <q-header
+      bordered
+      class="bg-white text-blue-grey-5"
+      height="30px"
+    >
       <q-toolbar>
         <q-btn
           flat
@@ -14,11 +18,13 @@
         <q-toolbar-title>
           You space
           <q-btn
-            color="white"
-            text-color="black"
+            color="text-blue-grey-5"
+            text-color="primary"
             size="sm"
             class="q-ml-md"
             :to="{ name: 'home' }"
+            flat
+            icon-right="chevron_right"
           >
             {{ $t('viewChannel') }}
           </q-btn>
@@ -30,9 +36,8 @@
       v-model="leftDrawerOpen"
       show-if-above
       bordered
-      class="bg-grey-1"
     >
-      <q-list>
+      <q-list class="text-blue-grey-5">
         <template
           v-for="(item, index) in menuList"
           :key="index"
@@ -40,8 +45,8 @@
           <q-item
             v-ripple 
             exact
-            :active="item.label === 'Outbox'"
-            :to="item.to"            
+            active-class="text-blue-grey-5 bg-blue-grey-1"
+            :to="item.to"
           >
             <q-item-section avatar>
               <q-icon :name="item.icon" />
@@ -54,7 +59,7 @@
       </q-list>
     </q-drawer>
 
-    <q-page-container>
+    <q-page-container class="bg-grey-1">
       <router-view />
     </q-page-container>
   </q-layout>
@@ -95,14 +100,14 @@ export default defineComponent({
             },
             {
                 label: tm.t('videoList'),
-                icon: 'list',
+                icon: 'play_circle',
                 to: {
                     name: 'admin-videos' 
                 },
             },
             {
                 label: tm.t('origins'),
-                icon: 'list',
+                icon: 'view_in_ar',
                 to: {
                     name: 'admin-origins' 
                 },
