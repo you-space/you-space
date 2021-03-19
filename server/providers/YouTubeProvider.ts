@@ -1,5 +1,5 @@
 import { ApplicationContract } from '@ioc:Adonis/Core/Application'
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import Origin from 'App/Models/Origin'
 import lodash from 'lodash'
 
@@ -131,11 +131,11 @@ export default class YouTubeProvider {
     const mainRedisKey = `origins:${origin.id}:provider`
 
     const cacheKeys = {
-      pageItems: `${mainRedisKey}:pages:${page}:items`,
-      totalVideos: `${mainRedisKey}:totalVideos`,
-      currentPageToken: `${mainRedisKey}:pages:${page}:pageToken`,
-      nextPageToken: `${mainRedisKey}:pages:${page + 1}:pageToken`,
-      prevPageToken: `${mainRedisKey}:pages:${page - 1}:pageToken`,
+      pageItems: `${mainRedisKey}:videos:pages:${page}`,
+      currentPageToken: `${mainRedisKey}:videos:pages:${page}:pageToken`,
+      nextPageToken: `${mainRedisKey}:videos:pages:${page + 1}:pageToken`,
+      prevPageToken: `${mainRedisKey}:videos:pages:${page - 1}:pageToken`,
+      totalVideos: `${mainRedisKey}:videos:totalVideos`,
     }
 
     const cacheItems = await redis.get(cacheKeys.pageItems)
@@ -224,5 +224,74 @@ export default class YouTubeProvider {
       originId: origin.id,
       viewsCount: lodash.get(i, 'statistics.viewCount'),
     }))
+  }
+
+  public serializeYoutubeComments(origin: Origin, items: any[]) {
+    return items.map((i) => ({
+      username: lodash.get(i, 'snippet.topLevelComment.snippet.authorDisplayName', null),
+      avatarSrc: lodash.get(i, 'snippet.topLevelComment.snippet.authorProfileImageUrl', null),
+      content: lodash.get(i, 'snippet.topLevelComment.snippet.textDisplay', null),
+      likeCount: lodash.get(i, 'snippet.topLevelComment.snippet.likeCount', 0),
+      replies: lodash.get(i, 'replies.comments', []).map((r) => ({
+        username: lodash.get(r, 'snippet.authorDisplayName', null),
+        avatarSrc: lodash.get(r, 'snippet.authorProfileImageUrl', null),
+        content: lodash.get(r, 'snippet.textDisplay', null),
+        likeCount: lodash.get(r, 'snippet.likeCount', 0),
+        originData: r,
+      })),
+      originData: i,
+      originId: origin.id,
+    }))
+  }
+
+  public async getVideoComments(origin: Origin, videoId: string, page = 1) {
+    const redis = (await import('@ioc:Adonis/Addons/Redis')).default
+
+    const mainRedisKey = `origins:${origin.id}:provider:${videoId}`
+
+    const cacheKeys = {
+      pageItems: `${mainRedisKey}:comments:pages:${page}`,
+      currentPageToken: `${mainRedisKey}:comments:pages:${page}:pageToken`,
+      nextPageToken: `${mainRedisKey}:comments:pages:${page + 1}:pageToken`,
+      prevPageToken: `${mainRedisKey}:comments:pages:${page - 1}:pageToken`,
+    }
+
+    const cacheItems = await redis.get(cacheKeys.pageItems)
+
+    if (cacheItems) {
+      return this.serializeYoutubeComments(origin, JSON.parse(cacheItems))
+    }
+
+    let pageToken = await redis.get(cacheKeys.currentPageToken)
+
+    if (page > 1 && !pageToken) {
+      throw new Error('[youtube-provider] page still not registered')
+    }
+
+    const request = await this.invoke('/commentThreads', {
+      params: {
+        key: origin.config.apiToken,
+        part: 'snippet, replies',
+        textFormat: 'plainText',
+        videoId,
+        maxResults: 50,
+      },
+    })
+
+    const comments = lodash.get(request, 'data.items', [])
+    const nextPageToken = lodash.get(request, 'data.nextPageToken', null)
+    const prevPageToken = lodash.get(request, 'data.prevPageToken', null)
+
+    await redis.set(cacheKeys.pageItems, JSON.stringify(comments))
+
+    if (nextPageToken) {
+      await redis.set(cacheKeys.nextPageToken, nextPageToken)
+    }
+
+    if (prevPageToken) {
+      await redis.set(cacheKeys.prevPageToken, prevPageToken)
+    }
+
+    return this.serializeYoutubeComments(origin, comments)
   }
 }

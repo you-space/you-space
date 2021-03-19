@@ -1,0 +1,60 @@
+<template>
+  <div>
+    <video-comment 
+      v-for="(comment, index) in comments"
+      :key="index"
+      :comment="comment"
+      bordered
+      flat
+      class="q-mb-md"
+    >
+      <q-card-section v-if="comment.replies.length">
+        <video-comment
+          v-for="(reply, ri) in comment.replies"
+          :key="ri"
+          class="q-mb-md"
+          style="margin-left:56px"
+          :comment="reply"
+        />
+      </q-card-section>
+    </video-comment>
+  </div>
+</template>
+
+<script lang='ts'>
+import faker from 'faker';
+import { api } from 'src/boot/axios';
+import { defineComponent, defineAsyncComponent, ref, onMounted } from 'vue';
+
+
+
+export default defineComponent({
+    components: {
+        VideoComment: defineAsyncComponent(() => import('./VideoCommentSectionItem.vue'))
+    },
+    props: {
+        videoId: {
+            type: String,
+            required: true,
+        }
+    },
+    setup(props){
+        const comments = ref<Comment[]>([]);
+
+        const setComments = async () => {
+            const request = await api.get<Comment[]>(`/comments/${props.videoId}`);
+            comments.value = request.data;
+        };
+
+        onMounted(setComments);
+        
+        return {
+            comments
+        };
+    }
+});
+</script>
+
+<style>
+
+</style>

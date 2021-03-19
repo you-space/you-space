@@ -110,6 +110,9 @@ export default class VideosController {
 
     await VisibilityProvider.isAllowedToView(visibility, auth.user)
 
-    return video
+    return {
+      ...video.serialize(),
+      viewsCount: Number(video.$extras.viewsCount) || 0,
+    }
   }
 }

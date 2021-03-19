@@ -12,9 +12,14 @@
     <q-infinite-scroll
       :offset="250"
       class="full-width"
+      :disable="disable"
+      :scroll-target="$refs.content"
       @load="addNextPage"
     >
-      <div class="row ">
+      <div
+        ref="content"
+        class="row"
+      >
         <div
           v-for="video in videos"
           :key="video.id"
@@ -25,9 +30,9 @@
             bordered
             flat
           >
-            <div
+            <router-link
               class="col-5"
-              @click="openVideo(video)"
+              :to="getVideoPath(video)"
             >
               <q-img
                 v-if="video.thumbnailSrc"
@@ -44,15 +49,15 @@
                   name="insert_photo"
                 />
               </div>
-            </div>
+            </router-link>
 
             <div class="col-7 q-px-md q-py-sm">
-              <div
+              <router-link
                 class="text-subtitle2 card-title"
-                @click="openVideo(video)"
+                :to="getVideoPath(video)"
               >
                 {{ video.name }}
-              </div>
+              </router-link>
               <div class="text-caption">
                 {{ $t('viewsCount', [video.viewsCount]) }}
               </div>
@@ -73,18 +78,20 @@
 </template>
 
 <script lang='ts' >
-import { openVideo, usePublicVideosInfiniteScroll } from 'src/functionts';
+import { openVideo, getVideoPath, usePublicVideosInfiniteScroll } from 'src/functionts';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'Video',
     setup(){
-        const { videos, addNextPage } = usePublicVideosInfiniteScroll();
+        const { videos, addNextPage, disable } = usePublicVideosInfiniteScroll();
 
         return {
             videos,
             addNextPage,
-            openVideo
+            openVideo,
+            disable,
+            getVideoPath
         };
     }
 });

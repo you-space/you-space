@@ -14,4 +14,9 @@ export interface Video {
       type: string
     }
   }
-  
+export interface Comment {
+    username: string;
+    content: string
+    avatarSrc: string
+    replies?: Comment[]
+}

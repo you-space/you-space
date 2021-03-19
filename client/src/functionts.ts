@@ -5,10 +5,17 @@ import { api, axios } from 'boot/axios';
 
 import { Video } from './types/video';
 import { router } from 'src/router';
-import store from './store';
 
 interface VideoRequestParams {
     page?: number
+}
+
+interface VideoResponse {
+    meta: {
+        totalVideo: number
+        pages: number
+    },
+    data: Video
 }
 
 export function openVideo (video: Video) {
@@ -18,6 +25,15 @@ export function openVideo (video: Video) {
             videoId: video.id
         }
     });
+}
+
+export function getVideoPath (video: Video) {
+    return {
+        name: 'video',
+        params: {
+            videoId: video.id
+        }
+    };
 }
 
 export function setVideoSrc (videoRef: Ref<string>, video: Video) {
@@ -57,12 +73,15 @@ export async function getImgSrc (video: Video) {
 
 export function usePublicVideosInfiniteScroll(){
     const videos = ref<Video[]>([]);
+    const pages = ref<number | null>(null);
     const disable = ref(false);
 
     async function getVideos (params?: VideoRequestParams) {
-        const request = await api.get<Video[]>('videos', {
+        const request = await api.get<VideoResponse>('videos', {
             params
         });
+
+        pages.value = request.data.meta.pages;
         
         const videos: Video[] = lodash.get(request, 'data.data', []);
 
@@ -72,14 +91,17 @@ export function usePublicVideosInfiniteScroll(){
         })));
     }
 
-    async function addNextPage (index: number, callback: () => void) {
+    async function addNextPage (index: number, callback: () => void) {     
+        if (pages.value && index === pages.value) {
+            disable.value = true;
+            callback();
+            return;
+        }
+
         const nextPage = await getVideos({
             page: index
         });
 
-        if (nextPage.length === 0) {
-            disable.value = true;
-        }
         
         setTimeout(() => {
             videos.value = videos.value.concat(nextPage);

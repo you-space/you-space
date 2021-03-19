@@ -11,6 +11,7 @@ export default {
     videoList: 'Video list',
     home: 'Home',
     viewsCount: 'Views {0}',
+    likeCount: 'Likes {0}',
     trending: 'Trending',
     public: 'Public',
     viewAdminDashboard: 'View administration dashboard',
