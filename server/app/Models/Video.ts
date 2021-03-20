@@ -1,5 +1,6 @@
 import { BaseModel, belongsTo, BelongsTo, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import { DateTime } from 'luxon'
+import Comment from './Comment'
 import Origin from './Origin'
 import View from './View'
 import Visibility from './Visibility'
@@ -21,6 +22,9 @@ export default class Video extends BaseModel {
   public name: string
 
   @column()
+  public description: string
+
+  @column()
   public src: string
 
   @column({ columnName: 'thumbnail_src', serializeAs: 'thumbnailSrc' })
@@ -34,10 +38,11 @@ export default class Video extends BaseModel {
   })
   public origin: BelongsTo<typeof Origin>
 
-  @belongsTo(() => Visibility, {
-    // foreignKey: 'id',
-  })
+  @belongsTo(() => Visibility)
   public visibility: BelongsTo<typeof Visibility>
+
+  @hasMany(() => Comment)
+  public comments: HasMany<typeof Comment>
 
   @hasMany(() => View, {
     foreignKey: 'videoId',

@@ -6,6 +6,17 @@ export default class CommentsController {
   public async showVideoComments({ params }: HttpContextContract) {
     const video = await Video.query().preload('origin').where('id', params.videoId).firstOrFail()
 
-    return YouTubeProvider.getVideoComments(video.origin, video.videoId)
+    await YouTubeProvider.getVideoComments(video.origin, video.videoId)
+
+    const comments = await video
+      .related('comments')
+      .query()
+      .preload('user')
+      .preload('replies', (builder) => {
+        builder.preload('user')
+      })
+      .whereNull('parentCommentId')
+
+    return await comments
   }
 }

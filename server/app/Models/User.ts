@@ -12,10 +12,25 @@ import UserAssignment from './UserAssignment'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
-  public id: number
+  public id: string
+
+  @column({ columnName: 'origin_id' })
+  public originId?: number
+
+  @column({ columnName: 'origin_user_id' })
+  public originUserId?: number
 
   @column()
-  public email: string
+  public email?: string
+
+  @column()
+  public username?: string
+
+  @column({ columnName: 'display_username' })
+  public displayUsername?: string
+
+  @column({ columnName: 'avatar_src', serializeAs: 'avatarSrc' })
+  public avatarSrc?: string
 
   @column({ serializeAs: null })
   public password: string

@@ -11,12 +11,11 @@
           <q-card-section>
             <q-form class="q-gutter-md">
               <q-input
-                v-model="email"
+                v-model="emailOrUsername"
                 square
                 filled
                 clearable
-                type="email"
-                label="email"
+                label="username/email"
               />
               <q-input
                 v-model="password"
@@ -57,7 +56,7 @@ export default defineComponent({
         const store = useStore();
         const router = useRouter();
 
-        const email = ref('');
+        const emailOrUsername = ref('');
         const password = ref('');
         const loading = ref(false);
 
@@ -65,9 +64,9 @@ export default defineComponent({
             loading.value = true;
 
             const request = await api.post('/login', {
-                email: email.value,
+                emailOrUsername: emailOrUsername.value,
                 password: password.value
-            });
+            }).catch(() => loading.value = false);
 
             const token = request.data.token;
             setTimeout(() => {
@@ -83,7 +82,7 @@ export default defineComponent({
         };
 
         return {
-            email,
+            emailOrUsername,
             password,
             login,
             loading

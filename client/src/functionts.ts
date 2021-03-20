@@ -92,16 +92,16 @@ export function usePublicVideosInfiniteScroll(){
     }
 
     async function addNextPage (index: number, callback: () => void) {     
-        if (pages.value && index === pages.value) {
+        
+        const nextPage = await getVideos({
+            page: index
+        });
+        
+        if (nextPage.length === 0) {
             disable.value = true;
             callback();
             return;
         }
-
-        const nextPage = await getVideos({
-            page: index
-        });
-
         
         setTimeout(() => {
             videos.value = videos.value.concat(nextPage);

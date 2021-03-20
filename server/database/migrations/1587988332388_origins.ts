@@ -6,7 +6,7 @@ export default class Origins extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
-      table.string('name').notNullable()
+      table.string('name').notNullable().unique()
       table.enum('type', ['you-tube', 'main']).notNullable()
       table.jsonb('config').notNullable().defaultTo('{}')
       table.timestamps(true)

@@ -3,7 +3,7 @@
     <div class="col-8">
       <div class="row">
         <div
-          class="col-12 q-mb-sm"
+          class="col-12 q-mb-md"
           style="min-height:500px"
         >
           <y-video
@@ -26,9 +26,26 @@
             <h1 class="text-h4 q-my-none q-mb-sm">
               {{ video.name }}
             </h1>
-            <h4 class="text-caption q-my-none">
+            <h4 class="text-caption q-my-none q-mb-sm">
               {{ $t('viewsCount', [video.viewsCount]) }}
             </h4>
+
+            <q-card
+              flat
+            >
+              <q-expansion-item
+                header-class="text-h6"
+                :label="$t('description')"
+                default-opened
+              >
+                <q-card-section>
+                  <p
+                    style="white-space: pre;"
+                    v-text="video.description"
+                  />
+                </q-card-section>
+              </q-expansion-item>
+            </q-card>
           </template>
 
           <template v-else>

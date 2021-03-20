@@ -9,7 +9,7 @@ export default class UserAssignment extends BaseModel {
   public roleId: number
 
   @column({ columnName: 'user_id' })
-  public userId: number
+  public userId: string
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

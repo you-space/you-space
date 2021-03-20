@@ -16,4 +16,7 @@ export default {
     public: 'Public',
     viewAdminDashboard: 'View administration dashboard',
     viewChannel: 'View channel',
+    showReplies: 'Show replies {0}',
+    description: 'Description',
+    comments: 'Comments',
 };

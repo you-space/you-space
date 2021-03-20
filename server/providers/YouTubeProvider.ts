@@ -12,6 +12,7 @@ export interface OriginProviderVideo {
   videoId: string
   thumbnailSrc: string
   src: string
+  description: string
   originId: number
   viewsCount: number
 }
@@ -189,6 +190,7 @@ export default class YouTubeProvider {
         name: i.name,
         src: i.src,
         thumbnailSrc: i.thumbnailSrc,
+        description: i.description,
         videoId: i.videoId,
         originId: origin.id,
         originData: request.videos.find((v) => v.id === i.videoId),
@@ -218,6 +220,7 @@ export default class YouTubeProvider {
       name: lodash.get(i, 'snippet.title', null),
       videoId: lodash.get(i, 'id', null),
       src: `https://www.youtube.com/embed/${lodash.get(i, 'id', null)}`,
+      description: lodash.get(i, 'snippet.description', null),
       thumbnailSrc:
         lodash.get(i, 'snippet.thumbnails.standard.url', null) ||
         lodash.get(i, 'snippet.thumbnails.default.url', null),
@@ -227,12 +230,18 @@ export default class YouTubeProvider {
   }
 
   public serializeYoutubeComments(origin: Origin, items: any[]) {
-    return items.map((i) => ({
+    const comments = items.map((i) => ({
+      commentId: lodash.get(i, 'snippet.topLevelComment.id', null),
+      parentCommentId: undefined,
+      userChannelId: lodash.get(i, 'snippet.topLevelComment.snippet.authorChannelId.value', null),
       username: lodash.get(i, 'snippet.topLevelComment.snippet.authorDisplayName', null),
       avatarSrc: lodash.get(i, 'snippet.topLevelComment.snippet.authorProfileImageUrl', null),
       content: lodash.get(i, 'snippet.topLevelComment.snippet.textDisplay', null),
       likeCount: lodash.get(i, 'snippet.topLevelComment.snippet.likeCount', 0),
       replies: lodash.get(i, 'replies.comments', []).map((r) => ({
+        commentId: lodash.get(r, 'id', null),
+        parentCommentId: lodash.get(i, 'snippet.topLevelComment.id', null),
+        userChannelId: lodash.get(r, 'snippet.authorChannelId.value', null),
         username: lodash.get(r, 'snippet.authorDisplayName', null),
         avatarSrc: lodash.get(r, 'snippet.authorProfileImageUrl', null),
         content: lodash.get(r, 'snippet.textDisplay', null),
@@ -242,6 +251,35 @@ export default class YouTubeProvider {
       originData: i,
       originId: origin.id,
     }))
+
+    const topLevelComment = comments.map((c) => ({
+      commentId: c.commentId,
+      parentCommentId: c.parentCommentId,
+      userChannelId: c.userChannelId,
+      username: c.username,
+      avatarSrc: c.avatarSrc,
+      content: c.content,
+      likeCount: c.likeCount,
+      originId: origin.id,
+      originData: c.originData,
+    }))
+
+    const replies = comments
+      .map((c) => c.replies)
+      .reduce((all, r) => all.concat(r), [])
+      .map((c) => ({
+        commentId: c.commentId,
+        parentCommentId: c.parentCommentId,
+        userChannelId: c.userChannelId,
+        username: c.username,
+        avatarSrc: c.avatarSrc,
+        content: c.content,
+        likeCount: c.likeCount,
+        originId: origin.id,
+        originData: c.originData,
+      }))
+
+    return { topLevelComment, replies }
   }
 
   public async getVideoComments(origin: Origin, videoId: string, page = 1) {
@@ -292,6 +330,52 @@ export default class YouTubeProvider {
       await redis.set(cacheKeys.prevPageToken, prevPageToken)
     }
 
-    return this.serializeYoutubeComments(origin, comments)
+    const { topLevelComment, replies } = this.serializeYoutubeComments(origin, comments)
+
+    const usersToCreate = lodash
+      .unionBy(topLevelComment.concat(replies), 'userChannelId')
+      .map((c) => ({
+        id: `${origin.id}-${c.userChannelId}`,
+        originUserId: c.userChannelId,
+        originId: c.originId,
+        displayUsername: c.username,
+        avatarSrc: c.avatarSrc,
+      }))
+
+    const users = await origin.related('users').updateOrCreateMany(usersToCreate, 'id')
+
+    const commentsToCreateOrUpdate = topLevelComment.map((c) => {
+      const user = users.find((u) => u.originUserId === c.userChannelId)
+      return {
+        id: `${origin.id}-${c.commentId}`,
+        originCommentId: c.commentId,
+        userId: user ? user.id : undefined,
+        videoId: `${origin.id}-${videoId}`,
+        originId: origin.id,
+        content: c.content,
+        originLikeCount: c.likeCount,
+        originUnlikeCount: 0,
+        originData: c.originData,
+      }
+    })
+
+    const repliesToCreateOrUpdate = replies.map((c) => {
+      const user = users.find((u) => u.originUserId === c.userChannelId)
+      return {
+        id: `${origin.id}-${c.commentId}`,
+        originCommentId: c.commentId,
+        userId: user ? user.id : undefined,
+        parentCommentId: `${origin.id}-${c.parentCommentId}`,
+        videoId: `${origin.id}-${videoId}`,
+        originId: origin.id,
+        content: c.content,
+        originLikeCount: c.likeCount,
+        originUnlikeCount: 0,
+        originData: c.originData,
+      }
+    })
+
+    await origin.related('comments').updateOrCreateMany(commentsToCreateOrUpdate, 'id')
+    await origin.related('comments').updateOrCreateMany(repliesToCreateOrUpdate, 'id')
   }
 }

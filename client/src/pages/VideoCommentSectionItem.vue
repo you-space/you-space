@@ -5,8 +5,15 @@
   >
     <q-item>
       <q-item-section avatar>
-        <q-avatar>
-          <img :src="comment.avatarSrc">
+        <q-avatar class="bg-blue-grey-1">
+          <img
+            v-if="comment.user && comment.user.avatarSrc"
+            :src="comment.user.avatarSrc"
+          >
+          <q-icon
+            v-else
+            name="person"
+          />
         </q-avatar>
       </q-item-section>
 
@@ -23,14 +30,14 @@
             color="blue-grey-3"
             icon="thumb_up"
             size="sm"
-            :label="comment.likeCount || undefined"
+            :label="comment.totalLikeCount || undefined"
           />
           <q-btn
             flat
             color="blue-grey-3"
             icon="thumb_down"
             size="sm"
-            :label="comment.unlikeCount || undefined"
+            :label="comment.totalUnlikeCount || undefined"
           />
         </q-item-label>
       </q-item-section>

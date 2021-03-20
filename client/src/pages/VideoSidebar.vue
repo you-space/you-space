@@ -13,13 +13,9 @@
       :offset="250"
       class="full-width"
       :disable="disable"
-      :scroll-target="$refs.content"
       @load="addNextPage"
     >
-      <div
-        ref="content"
-        class="row"
-      >
+      <div class="row">
         <div
           v-for="video in videos"
           :key="video.id"
