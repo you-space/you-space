@@ -7,8 +7,8 @@
       <q-item-section avatar>
         <q-avatar class="bg-blue-grey-1">
           <img
-            v-if="comment.user && comment.user.avatarSrc"
-            :src="comment.user.avatarSrc"
+            v-if="comment.avatarSrc"
+            :src="comment.avatarSrc"
           >
           <q-icon
             v-else

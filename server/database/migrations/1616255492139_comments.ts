@@ -8,7 +8,7 @@ export default class Comments extends BaseSchema {
       table.string('id').primary()
 
       table.integer('origin_id').notNullable().references('origins.id')
-      table.string('origin_comment_id')
+      table.string('comment_id')
 
       table
         .string('parent_comment_id')
@@ -18,8 +18,6 @@ export default class Comments extends BaseSchema {
 
       table.string('user_id').notNullable().references('users.id')
       table.string('video_id').notNullable().references('videos.id')
-
-      table.text('content').notNullable()
 
       table.integer('like_count').notNullable().defaultTo(0)
       table.integer('unlike_count').notNullable().defaultTo(0)

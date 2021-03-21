@@ -8,6 +8,22 @@ export interface OriginVideo {
   videoId: string
   data: any
 }
+export interface OriginComment {
+  commentId: string
+  userId: string
+  data: any
+  replies: OriginComment[]
+}
+
+export interface CommentSerialized {
+  commentId: string
+  userId: string
+  username: string
+  avatarSrc: string
+  content: string
+  likeCount: number
+  unlikeCount: number
+}
 
 export interface VideoSerialized {
   videoId: string
@@ -23,5 +39,7 @@ export interface OriginVideoProvider {
   getTotalVideos(): Promise<number>
   getVideos(page: number): Promise<OriginVideo[]>
   serializeVideo(data: any): VideoSerialized
-  //   serializeComment(data: any): Comment
+
+  getVideoComments(videoId: string, page: number): Promise<OriginComment[]>
+  serializeComment(data: any): CommentSerialized
 }

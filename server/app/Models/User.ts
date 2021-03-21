@@ -15,10 +15,10 @@ export default class User extends BaseModel {
   public id: string
 
   @column({ columnName: 'origin_id' })
-  public originId?: number
+  public originId: number
 
-  @column({ columnName: 'origin_user_id' })
-  public originUserId?: number
+  @column({ columnName: 'user_id' })
+  public userId?: string
 
   @column()
   public email?: string
@@ -26,17 +26,14 @@ export default class User extends BaseModel {
   @column()
   public username?: string
 
-  @column({ columnName: 'display_username' })
-  public displayUsername?: string
-
-  @column({ columnName: 'avatar_src', serializeAs: 'avatarSrc' })
-  public avatarSrc?: string
-
   @column({ serializeAs: null })
-  public password: string
+  public password?: string
 
   @column()
   public rememberMeToken?: string
+
+  @column({ columnName: 'origin_data' })
+  public originData?: any
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

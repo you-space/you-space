@@ -23,14 +23,11 @@ export default class Comment extends BaseModel {
   @column({ columnName: 'origin_id' })
   public originId: number
 
-  @column({ columnName: 'origin_comment_id' })
-  public originCommentId: string
+  @column({ columnName: 'comment_id' })
+  public commentId: string
 
   @column({ columnName: 'parent_comment_id' })
   public parentCommentId: string
-
-  @column()
-  public content: string
 
   @column({ columnName: 'like_count' })
   public likeCount: number

@@ -8,15 +8,15 @@ export default class UsersSchema extends BaseSchema {
       table.string('id').primary()
 
       table.integer('origin_id').references('origins.id')
-      table.string('origin_user_id')
+      table.string('user_id')
 
       table.string('username', 255).unique()
-      table.string('display_username', 255)
-      table.string('avatar_src')
-
       table.string('email', 255).unique()
       table.string('password', 180)
       table.string('remember_me_token').nullable()
+
+      table.jsonb('origin_data')
+
       table.timestamps(true)
     })
   }

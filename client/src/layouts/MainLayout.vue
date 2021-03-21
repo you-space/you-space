@@ -37,7 +37,6 @@
 
     <q-drawer
       v-model="drawer"
-      show-if-above
       bordered
     >
       <q-list>
@@ -78,15 +77,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
     name: 'MainLayout',
     setup () {
+        const route = useRoute();
         const tm = useI18n();
+        
+        const drawer = ref(true);
 
-        const drawer = ref(false);
         const menuList = [
             {
                 label: tm.t('home'),
@@ -117,6 +119,15 @@ export default defineComponent({
             //     icon: 'history',
             // },
         ];
+
+        watch(() => route.name, name => {
+            if (name === 'video') {
+                drawer.value = false;
+            }
+        }, {
+            immediate: true 
+        });
+
 
         return {
             menuList,

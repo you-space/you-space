@@ -4,7 +4,7 @@
       <div class="row">
         <div
           class="col-12 q-mb-md"
-          style="min-height:500px"
+          style="min-height:700px"
         >
           <y-video
             v-if="video"

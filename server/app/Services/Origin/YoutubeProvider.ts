@@ -136,4 +136,67 @@ export default class YoutubeProvider extends OriginHelper implements OriginVideo
       thumbnailSrc: standardThumb || defaultThumb,
     }
   }
+
+  public async getVideoComments(videoId: string, page: number) {
+    const { config } = this.origin
+    const metadata = await this.getMetadata()
+    let pageToken
+
+    if (page > 1) {
+      pageToken = metadata[`${videoId}:comments:${page - 1}`]
+    }
+
+    if (page > 1 && !pageToken) {
+      return []
+    }
+
+    const request = await api.get('/commentThreads', {
+      params: {
+        key: config.apiKey,
+        part: 'snippet, replies',
+        textFormat: 'plainText',
+        videoId,
+        maxResults: 50,
+      },
+    })
+
+    const comments = lodash.get(request, 'data.items', [])
+    const nextPageToken = lodash.get(request, 'data.nextPageToken', null)
+    const prevPageToken = lodash.get(request, 'data.prevPageToken', null)
+
+    await this.saveMetadata({
+      ...metadata,
+      [`${videoId}:comments:${page - 1}`]: prevPageToken,
+      [`${videoId}:comments:${page + 1}`]: nextPageToken,
+    })
+
+    return comments.map((c) => {
+      const comment = lodash.get(c, 'snippet.topLevelComment', null)
+      const replies = lodash.get(c, 'replies.comments', []).map((r) => ({
+        commentId: lodash.get(r, 'id', null),
+        userId: lodash.get(r, 'snippet.authorChannelId.value', null),
+        data: r,
+      }))
+
+      return {
+        commentId: lodash.get(comment, 'id', null),
+        userId: lodash.get(comment, 'snippet.authorChannelId.value', null),
+        data: comment,
+        replies,
+      }
+    })
+  }
+
+  public serializeComment(data: any) {
+    return {
+      commentId: lodash.get(data, `id`, null),
+      parentCommentId: undefined,
+      userId: lodash.get(data, `snippet.authorChannelId.value`, null),
+      username: lodash.get(data, `snippet.authorDisplayName`, null),
+      avatarSrc: lodash.get(data, `snippet.authorProfileImageUrl`, null),
+      content: lodash.get(data, `snippet.textDisplay`, null),
+      likeCount: lodash.get(data, `snippet.likeCount`, 0),
+      unlikeCount: lodash.get(data, `snippet.unlikeCount`, 0),
+    }
+  }
 }
