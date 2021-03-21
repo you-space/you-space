@@ -8,8 +8,11 @@ export default class OriginMetadata extends BaseModel {
   @column({ columnName: 'origin_id' })
   public originId: number
 
-  @column({ columnName: 'total_videos' })
+  @column({ columnName: 'total_videos', serializeAs: 'totalVideos' })
   public totalVideos: number
+
+  @column({ columnName: 'registered_videos', serializeAs: 'registeredVideos' })
+  public registeredVideos: number
 
   @column({ columnName: 'total_subscribers' })
   public totalSubscribers: number

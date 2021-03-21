@@ -30,6 +30,7 @@
 </template>
 
 <script lang="ts">
+import lodash from 'lodash';
 import { defineComponent, ref, defineAsyncComponent, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -57,6 +58,18 @@ export default defineComponent({
                 label: tm.t('type'),
                 name: 'type',
                 field: 'type',
+                align: 'left'
+            },
+            {
+                label: tm.t('totalVideos'),
+                name: 'totalVideos',
+                field: (row: any) => lodash.get(row, 'metadata.totalVideos', 0),
+                align: 'left'
+            },
+            {
+                label: tm.t('registeredVideos'),
+                name: 'totalVideos',
+                field: (row: any) => lodash.get(row, 'metadata.registeredVideos', 0),
                 align: 'left'
             },
             {

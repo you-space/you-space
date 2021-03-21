@@ -1,14 +1,13 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
-import Origin, { OriginTypes } from 'App/Models/Origin'
+import Origin, { OriginConfig, OriginTypes } from 'App/Models/Origin'
+import OriginProvider from 'App/Services/Origin/OriginProvider'
 import OriginValidator from 'App/Validators/OriginValidator'
 import OriginYouTubeValidator from 'App/Validators/OriginYouTubeValidator'
-import YoutubeProvider from '@ioc:Providers/YouTube'
-import lodash from 'lodash'
 
 export default class OriginsController {
   public async index() {
-    return Origin.all()
+    return Origin.query().preload('metadata')
   }
 
   public async store({ request }: HttpContextContract) {
@@ -22,17 +21,12 @@ export default class OriginsController {
       await request.validate(OriginYouTubeValidator)
     }
 
-    const channel = await YoutubeProvider.finChannelDetails(config.apiToken, config.channelId)
-
-    console.log(channel)
+    await OriginProvider.checkConfig(config as OriginConfig)
 
     return Origin.create({
       name,
       type,
-      config: {
-        ...config,
-        uploadPlaylistId: lodash.get(channel, 'contentDetails.relatedPlaylists.uploads'),
-      },
+      config: config as OriginConfig,
     })
   }
 

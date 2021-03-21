@@ -18,8 +18,8 @@
         />
         <template v-if="type === 'you-tube'">
           <q-input            
-            v-model="config.apiToken"
-            :label="$t('apiToken')"
+            v-model="config.apiKey"
+            :label="$t('apiKey')"
           />
           
           <q-input            

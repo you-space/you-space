@@ -5,7 +5,7 @@ export default class OriginYouTubeValidator {
   constructor(protected ctx: HttpContextContract) {}
   public schema = schema.create({
     config: schema.object().members({
-      apiToken: schema.string(),
+      apiKey: schema.string(),
       channelId: schema.string(),
     }),
   })

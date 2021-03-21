@@ -24,7 +24,6 @@
     "@adonisjs/redis",
     "@adonisjs/auth",
     "./providers/AppProvider",
-    "./providers/YouTubeProvider",
     "./providers/VisibilityProvider"
   ],
   "aceProviders": [

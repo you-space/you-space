@@ -159,7 +159,7 @@ export default class YouTubeProvider {
     }
 
     const request = await this.getPlaylistItemsWithStatistics(
-      origin.config.apiToken,
+      origin.config.apiKey,
       origin.config.uploadPlaylistId,
       pageToken || undefined
     )
@@ -308,7 +308,7 @@ export default class YouTubeProvider {
 
     const request = await this.invoke('/commentThreads', {
       params: {
-        key: origin.config.apiToken,
+        key: origin.config.apiKey,
         part: 'snippet, replies',
         textFormat: 'plainText',
         videoId,

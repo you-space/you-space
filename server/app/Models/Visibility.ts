@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import Video from './Video'
 
 export enum DefaultVisibilities {
   public = 'public',
@@ -12,6 +13,9 @@ export default class Visibility extends BaseModel {
 
   @column()
   public name: keyof typeof DefaultVisibilities
+
+  @hasMany(() => Video)
+  public videos: HasMany<typeof Video>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

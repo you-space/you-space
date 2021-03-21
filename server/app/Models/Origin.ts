@@ -20,12 +20,12 @@ export enum OriginTypes {
 }
 
 export interface YoutubeConfig {
-  apiToken: string
+  apiKey: string
   channelId: string
   uploadPlaylistId: string
 }
 
-export type OriginConfig = YoutubeConfig | any
+export type OriginConfig = YoutubeConfig
 
 export default class Origin extends BaseModel {
   @column({ isPrimary: true })

@@ -8,8 +8,8 @@ import Video from 'App/Models/Video'
 import VideoValidator from 'App/Validators/VideoValidator'
 import File, { FileTypes } from 'App/Models/File'
 import Origin, { OriginTypes } from 'App/Models/Origin'
-import YoutubeProvider from '@ioc:Providers/YouTube'
 import Env from '@ioc:Adonis/Core/Env'
+import OriginProvider from 'App/Services/Origin/OriginProvider'
 import OriginMetadata from 'App/Models/OriginMetadata'
 
 export default class VideosController {
@@ -19,14 +19,10 @@ export default class VideosController {
     const offset = (page - 1) * limit
     const origins = await Origin.query().where('type', OriginTypes.YouTube)
 
-    await Promise.all(
-      origins.map(async (o) => {
-        await YoutubeProvider.registerOriginVideosByPage(o, Number(page))
-      })
-    )
+    await Promise.all(origins.map(async (o) => OriginProvider.register(o, page)))
 
-    const allMetadata = await OriginMetadata.all()
-    const totalVideos = allMetadata.reduce((all, m) => all + m.totalVideos, 0)
+    const { sum } = await OriginMetadata.query().sum('total_videos').firstOrFail()
+    const totalVideos = Number(sum) || 0
 
     const videos = await Video.query()
       .preload('origin')
@@ -34,13 +30,13 @@ export default class VideosController {
       .offset(offset)
       .limit(limit)
       .withCount('views', (query) => {
-        query.sum('count').as('viewsCount')
+        query.sum('count').as('totalViews')
       })
       .orderBy('created_at', 'desc')
 
     const videosWithViews = videos.map((v) => ({
-      ...v.serialize(),
-      viewsCount: Number(v.$extras.viewsCount) || 0,
+      ...OriginProvider.serializeVideo(v.origin, v),
+      totalViews: Number(v.$extras.totalViews) || 0,
     }))
 
     return {

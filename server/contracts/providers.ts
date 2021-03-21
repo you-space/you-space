@@ -1,10 +1,10 @@
-declare module '@ioc:Providers/YouTube' {
-  import YouTubeProvider from 'providers/YouTubeProvider'
+// declare module '@ioc:Providers/YouTube' {
+//   import YouTubeProvider from 'providers/YouTubeProvider'
 
-  const provider: YouTubeProvider
+//   const provider: YouTubeProvider
 
-  export default provider
-}
+//   export default provider
+// }
 
 declare module '@ioc:Providers/Visibility' {
   import VisibilityProvider from 'providers/VisibilityProvider'
