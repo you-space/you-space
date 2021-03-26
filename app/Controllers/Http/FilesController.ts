@@ -29,4 +29,6 @@ export default class FilesController {
 
     return readFile(path)
   }
+
+  public async showStatic() {}
 }

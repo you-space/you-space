@@ -32,8 +32,15 @@
   ],
   "metaFiles": [
     {
+      "pattern": "public/dist/spa/*",
+      "reloadServer": false
+    },
+    {
       "pattern": "resources/views/**/*.edge",
       "reloadServer": false
     }
-  ]
+  ],
+  "directories": {
+    "public": "public/dist/spa"
+  }
 }
