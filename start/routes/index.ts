@@ -20,3 +20,4 @@
 
 import './admin'
 import './videos'
+import './auth'
