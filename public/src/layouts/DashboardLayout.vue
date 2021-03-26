@@ -74,16 +74,16 @@ export default defineComponent({
     name: 'MainLayout',
 
     preFetch(options){
-        const store = options.store;
-        const redirect = options.redirect as any;
-        const isAuthenticaed = lodash.get(store, 'state.user.authenticated', false);
+        // const store = options.store;
+        // const redirect = options.redirect as any;
+        // const isAuthenticaed = lodash.get(store, 'state.user.authenticated', false);
 
-        if (isAuthenticaed) {
-            return;
-        }
-        redirect({
-            name: 'login'
-        });
+        // if (isAuthenticaed) {
+        //     return;
+        // }
+        // redirect({
+        //     name: 'login'
+        // });
     },
 
     setup () {
@@ -95,21 +95,21 @@ export default defineComponent({
                 label: tm.t('dashboard'),
                 icon: 'home',
                 to: {
-                    name: 'admin' 
+                    name: 'home'
                 },
             },
             {
                 label: tm.t('videoList'),
                 icon: 'play_circle',
                 to: {
-                    name: 'admin-videos' 
+                    name: 'videos' 
                 },
             },
             {
                 label: tm.t('origins'),
                 icon: 'view_in_ar',
                 to: {
-                    name: 'admin-origins' 
+                    name: 'origins' 
                 },
             },
         ];

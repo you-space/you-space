@@ -20,7 +20,7 @@ const staticConfig: AssetsConfig = {
   |
   |
   */
-  enabled: true,
+  enabled: false,
 
   /*
   |--------------------------------------------------------------------------

@@ -2,61 +2,43 @@ import { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
     {
-        path: '/ys-admin',
+        path: '/',
         component: () => import('layouts/DashboardLayout.vue'),
         children: [
             { 
                 path: '',
-                name: 'admin',
+                name: 'home',
                 component: () => import('pages/Index.vue') 
             },
             {
                 path: 'videos',
-                name: 'admin-videos',
-                component: () => import('pages/AdminVideoList.vue') 
+                name: 'videos',
+                component: () => import('pages/VideoList.vue') 
             },
             {
                 path: 'videos/:videoId',
-                name: 'admin-video',
-                component: () => import('pages/AdminVideo.vue'),
+                name: 'video',
+                component: () => import('pages/Video.vue'),
                 props: true
             },
             {
                 path: 'origins',
-                name: 'admin-origins',
-                component: () => import('pages/AdminOriginList.vue') 
+                name: 'origins',
+                component: () => import('pages/OriginList.vue') 
+            },
+            {
+                path: '/login',
+                component: () => import('layouts/EmptyLayout.vue'),
+                children: [
+                    {
+                        path: '',
+                        name: 'login',
+                        component: () => import('pages/Login.vue')
+                    }
+                ]
             },
         ],
     },
-    {
-        path: '/login',
-        component: () => import('layouts/EmptyLayout.vue'),
-        children: [
-            {
-                path: '',
-                name: 'login',
-                component: () => import('pages/Login.vue')
-            }
-        ]
-    },
-    {
-        path: '/',
-        component: () => import('layouts/MainLayout.vue'),
-        children: [
-            {
-                path: '',
-                name: 'home',
-                component: () => import('pages/Home.vue')
-            },
-            {
-                path: 'video/:videoId',
-                name: 'video',
-                props: true,
-                component: () => import('pages/Video.vue')
-            },
-        ],
-    },
-
     // Always leave this as last one,
     // but you can also remove it
     {

@@ -10,7 +10,7 @@ declare module '@vue/runtime-core' {
 }
 
 const api = axios.create({
-    baseURL: process.env.API_URL 
+    baseURL: '/api/v1'
 });
 
 api.interceptors.response.use(function (response) {

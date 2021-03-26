@@ -81,7 +81,7 @@
       </template>
     </q-table>
     
-    <admin-video-upload-video
+    <video-upload-video
       v-model="dialog"
       @save="onRequestTable"
     />
@@ -105,7 +105,7 @@ interface VideosResponse {
 export default defineComponent({
     name: 'AdminVideoList',
     components: {
-        AdminVideoUploadVideo: defineAsyncComponent(() => import('./AdminUploadVideo.vue'))
+        VideoUploadVideo: defineAsyncComponent(() => import('./UploadVideo.vue'))
     },
     setup() {
         const tm = useI18n();

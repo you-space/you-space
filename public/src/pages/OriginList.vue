@@ -22,7 +22,7 @@
       </template>
     </q-table>
     
-    <admin-origin-list-dialog
+    <origin-list-dialog
       v-model="dialog"
       @save="setOrigins"
     />
@@ -38,7 +38,7 @@ import { api  } from 'boot/axios';
 
 export default defineComponent({
     components: {
-        AdminOriginListDialog: defineAsyncComponent(() => import('./AdminOriginListDialog.vue'))
+        OriginListDialog: defineAsyncComponent(() => import('./OriginListDialog.vue'))
     },
     setup() {
         const tm = useI18n();

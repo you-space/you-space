@@ -1,78 +1,10 @@
 <template>
-  <q-page class="row items-stretch q-pa-lg">
-    <div class="col-8">
-      <div class="row">
-        <div
-          class="col-12 q-mb-md"
-          style="min-height:700px"
-        >
-          <y-video
-            v-if="video"
-            :src="videoSrc"
-            class="q-mb-lg"
-          />
-          <q-skeleton
-            v-else
-            style="height:100%"
-            square
-          />
-        </div>
-
-        <div
-          class="col-12 q-mb-md"
-          style="min-height:30px"
-        >
-          <template v-if="video">
-            <h1 class="text-h4 q-my-none q-mb-sm">
-              {{ video.name }}
-            </h1>
-            <h4 class="text-caption q-my-none q-mb-sm">
-              {{ $t('viewsCount', [video.viewsCount]) }}
-            </h4>
-
-            <q-card
-              flat
-            >
-              <q-expansion-item
-                header-class="text-h6"
-                :label="$t('description')"
-                default-opened
-              >
-                <q-card-section>
-                  <p
-                    style="white-space: pre;"
-                    v-text="video.description"
-                  />
-                </q-card-section>
-              </q-expansion-item>
-            </q-card>
-          </template>
-
-          <template v-else>
-            <q-skeleton
-              style="height:30px"
-              class="full-width"
-              type="text"
-            />
-            <q-skeleton
-              style="height:30px;max-width:50%"
-              class="full-width"
-              type="text"
-            />
-          </template>
-        </div>
-        
-
-        <video-comment-section
-          v-if="video"
-          :video-id="video.id"
-          class="col-12"
-        />
-      </div>
-    </div>
-    
-    <div class="col-4 q-px-md full-height">
-      <video-sidebar />
+  <q-page class="row items-center justify-center q-pa-lg">
+    <div
+      class="col-6"
+      style="height:500px"
+    >
+      <y-video :src="videoSrc" />
     </div>
   </q-page>
 </template>
@@ -81,38 +13,27 @@
 import { api } from 'src/boot/axios';
 import { setVideoSrc } from 'src/functionts';
 import { Video } from 'src/types/video';
-import { defineComponent, defineAsyncComponent, ref, watch } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default defineComponent({
     name: 'Video',
-    components: {
-        VideoSidebar: defineAsyncComponent(() => import('./VideoSidebar.vue')),
-        VideoCommentSection: defineAsyncComponent(() => import('./VideoCommentSection.vue'))
-    },
-    props: {
-        videoId: {
-            type: String,
-            default: null
-        }
-    },
-    setup(props){
+    setup(){
+        const route = useRoute();
+        const { videoId } = route.params;
         const video = ref<Video | null>(null);
-        const videoSrc = ref('');
+        const videoSrc = ref<string>('');
         
-        const setVideo = async (id: string) => {
-            video.value = null;
-            const { data } = await api.get<Video>(`/videos/${id}`);
+        const setVideo = async () => {
+            const { data } = await api.get<Video>(`/videos/${String(videoId)}`);
             video.value = data;
             void setVideoSrc(videoSrc, video.value);
         };
         
-        watch(() => props.videoId, setVideo, {
-            immediate: true
-        });
+        onMounted(setVideo);
 
         return {
-            video,
-            videoSrc
+            videoSrc 
         };
     }
 });

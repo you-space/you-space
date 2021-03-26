@@ -56,7 +56,8 @@ module.exports = configure(function (/* ctx */) {
 
         // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
         build: {
-            vueRouterMode: 'history', // available values: 'hash', 'history'
+            vueRouterMode: 'history', // available values: 'hash', 'history',
+            publicPath: process.env.NODE_ENV === 'development' ? '/' : '/ys-admin',
 
             // transpile: false,
 
@@ -88,6 +89,16 @@ module.exports = configure(function (/* ctx */) {
             https: false,
             port: 8080,
             open: false, // opens browser window automatically
+            proxy: {
+                // proxy all requests starting with /api to jsonplaceholder
+                '/api': {
+                    target: 'http://localhost:3333/api',
+                    changeOrigin: true,
+                    pathRewrite: {
+                        '^/api': ''
+                    }
+                }
+            }
         },
 
         // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
@@ -193,7 +204,7 @@ module.exports = configure(function (/* ctx */) {
             builder: {
                 // https://www.electron.build/configuration/configuration
 
-                appId: 'you-space'
+                appId: 'you-space',
             },
 
             // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
