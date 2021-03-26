@@ -1,20 +1,36 @@
 import lodash from 'lodash'
 import Video from 'App/Models/Video'
-import Origin, { OriginConfig } from 'App/Models/Origin'
-import YoutubeProvider from './YoutubeProvider'
+import Origin, { OriginConfig, OriginTypes } from 'App/Models/Origin'
+import YoutubeProvider from 'App/Services/Origin/video-providers/Youtube'
+import LocalProvider from 'App/Services/Origin/video-providers/Local'
 import { OriginVideoProvider, VideoSerialized } from './types'
 import Redis from '@ioc:Adonis/Addons/Redis'
 import View from 'App/Models/View'
 import Comment from 'App/Models/Comment'
 
+interface AllVideoProviders {
+  [prop: string]: (origin: Origin, redisKey: string) => OriginVideoProvider
+}
 class OriginProvider {
+  public allProviders: AllVideoProviders
+
+  constructor() {
+    this.allProviders = {
+      [OriginTypes.YouTube]: (origin, redisKey) => new YoutubeProvider(origin, redisKey),
+      [OriginTypes.Main]: (origin, redisKey) => new LocalProvider(origin, redisKey),
+    }
+  }
   public async checkConfig(config: OriginConfig) {
     await YoutubeProvider.checkConfig(config)
   }
 
   public getProvider = (origin: Origin): OriginVideoProvider => {
+    if (!this.allProviders[origin.type]) {
+      throw new Error('[origin-provider] provider not found')
+    }
     const redisKey = `origin:${origin.id}`
-    return new YoutubeProvider(origin, redisKey)
+
+    return this.allProviders[origin.type](origin, redisKey)
   }
 
   public registerOriginStatus = async (origin: Origin) => {

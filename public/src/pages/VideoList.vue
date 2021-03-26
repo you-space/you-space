@@ -71,13 +71,16 @@
           <q-btn
             class="q-mr-sm"
             icon="visibility"
-            size="sm"
+            size="xs"
             flat
             round
             :to="getVideoPath(props.row)"
           />
-          <q-icon
-            name="delete"
+          <q-btn
+            icon="delete"
+            size="xs"
+            flat
+            round
             @click="deleteVideo(props.row)"
           />
         </q-td>
@@ -170,10 +173,7 @@ export default defineComponent({
                 }
             });
             
-            const videos = await Promise.all(data.data.map(async v => ({
-                ...v,
-                thumbnailSrc: await getImgSrc(v)
-            })));
+            const videos = data.data;
 
             return {
                 videos: videos,

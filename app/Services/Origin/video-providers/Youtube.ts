@@ -1,7 +1,7 @@
 import lodash from 'lodash'
 import axios, { AxiosInstance } from 'axios'
-import { OriginVideoProvider } from './types'
-import { OriginHelper } from './helpers'
+import { OriginVideoProvider } from 'App/Services/Origin/types'
+import { OriginHelper } from 'App/Services/Origin/helpers'
 import { OriginConfig } from 'App/Models/Origin'
 
 const api = axios.create({

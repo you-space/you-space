@@ -18,18 +18,6 @@ export default class Video extends BaseModel {
   @column({ columnName: 'visibility_id', serializeAs: null })
   public visibilityId: number
 
-  @column()
-  public name: string
-
-  @column()
-  public description: string
-
-  @column()
-  public src: string
-
-  @column({ columnName: 'thumbnail_src', serializeAs: 'thumbnailSrc' })
-  public thumbnailSrc: string
-
   @column({ columnName: 'origin_data', serializeAs: null })
   public originData: object
 

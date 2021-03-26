@@ -8,7 +8,6 @@ import Video from 'App/Models/Video'
 import VideoValidator from 'App/Validators/VideoValidator'
 import File, { FileTypes } from 'App/Models/File'
 import Origin, { OriginTypes } from 'App/Models/Origin'
-import Env from '@ioc:Adonis/Core/Env'
 import OriginProvider from 'App/Services/Origin/OriginProvider'
 import OriginMetadata from 'App/Models/OriginMetadata'
 
@@ -68,7 +67,7 @@ export default class VideosController {
       extname: video.extname,
     })
 
-    let thumbnailSrc
+    let image: File | null = null
 
     if (thumbnail) {
       const filenameThumbnail = `${uuid()}.${thumbnail.extname}`
@@ -77,23 +76,22 @@ export default class VideosController {
         name: filenameThumbnail,
       })
 
-      const image = await File.create({
+      image = await File.create({
         type: FileTypes.Image,
         filename: filenameThumbnail,
         extname: thumbnail.extname,
       })
-
-      thumbnailSrc = `${Env.get('DOMAIN_URL', 'http://localhost:3333')}/v1/files/embed/${image.id}`
     }
 
     const create = await Video.create({
       id: `${originMain.id}-${file.id}`,
       videoId: String(file.id),
       originId: originMain.id,
-      name: name,
-      thumbnailSrc,
-      src: `${Env.get('DOMAIN_URL', 'http://localhost:3333')}/v1/videos/embed/${file.id}`,
-      originData: file.serialize(),
+      originData: {
+        ...file.serialize(),
+        name,
+        thumbnail: image ? image.serialize() : undefined,
+      },
     })
 
     const { count } = await originMain.related('videos').query().count('id').first()
