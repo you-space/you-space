@@ -24,9 +24,16 @@
     "@adonisjs/redis",
     "@adonisjs/auth",
     "./providers/AppProvider",
-    "./providers/VisibilityProvider"
+    "./providers/VisibilityProvider",
+    "@adonisjs/view"
   ],
   "aceProviders": [
     "@adonisjs/repl"
+  ],
+  "metaFiles": [
+    {
+      "pattern": "resources/views/**/*.edge",
+      "reloadServer": false
+    }
   ]
 }

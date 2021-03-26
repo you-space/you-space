@@ -21,10 +21,6 @@
 import Route from '@ioc:Adonis/Core/Route'
 import './admin.routes'
 
-Route.get('/', async () => {
-  return { hello: 'world' }
-})
-
 Route.group(() => {
   Route.post('/sign-up', 'AuthController.store')
   Route.post('/login', 'AuthController.login')
@@ -38,4 +34,6 @@ Route.group(() => {
 
   Route.get('videos/embed/:id', 'FilesController.embed')
   Route.get('files/embed/:id', 'FilesController.showFile')
-}).prefix('v1')
+})
+  .prefix('v1')
+  .prefix('api')
