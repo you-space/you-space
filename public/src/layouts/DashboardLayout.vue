@@ -17,17 +17,6 @@
 
         <q-toolbar-title>
           You space
-          <q-btn
-            color="text-blue-grey-5"
-            text-color="primary"
-            size="sm"
-            class="q-ml-md"
-            :to="{ name: 'home' }"
-            flat
-            icon-right="chevron_right"
-          >
-            {{ $t('viewChannel') }}
-          </q-btn>
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -74,16 +63,16 @@ export default defineComponent({
     name: 'MainLayout',
 
     preFetch(options){
-        // const store = options.store;
-        // const redirect = options.redirect as any;
-        // const isAuthenticaed = lodash.get(store, 'state.user.authenticated', false);
+        const store = options.store;
+        const redirect = options.redirect as any;
+        const isAuthenticaed = lodash.get(store, 'state.user.authenticated', false);
 
-        // if (isAuthenticaed) {
-        //     return;
-        // }
-        // redirect({
-        //     name: 'login'
-        // });
+        if (isAuthenticaed) {
+            return;
+        }
+        redirect({
+            name: 'login'
+        });
     },
 
     setup () {

@@ -6,11 +6,14 @@ import { Notify } from 'quasar';
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
     $axios: AxiosInstance;
+    $api: AxiosInstance;
   }
 }
 
+const baseURL = '/api/v1';
+
 const api = axios.create({
-    baseURL: '/api/v1'
+    baseURL
 });
 
 api.interceptors.response.use(function (response) {
@@ -34,9 +37,9 @@ api.interceptors.response.use(function (response) {
 
 export default boot(async ({ app, store }) => {
     let token = lodash.get(store, 'state.user.token', null);
-
-    await axios.get('/who-i-am', {
-        baseURL: process.env.API_URL,
+    
+    await axios.get('who-i-am', {
+        baseURL: baseURL,
         headers: {
             Authorization: `Bearer ${String(token)}`
         }

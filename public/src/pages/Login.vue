@@ -74,7 +74,7 @@ export default defineComponent({
                 store.commit('user/login', token);
   
                 void router.push({
-                    name: 'admin'
+                    name: 'home'
                 });
 
             }, 800);

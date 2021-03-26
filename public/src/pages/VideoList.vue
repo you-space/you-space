@@ -68,10 +68,13 @@
      
       <template #body-cell-actions="props">
         <q-td :props="props">
-          <q-icon
+          <q-btn
             class="q-mr-sm"
-            name="visibility"
-            @click="viewVideo(props.row)"
+            icon="visibility"
+            size="sm"
+            flat
+            round
+            :to="getVideoPath(props.row)"
           />
           <q-icon
             name="delete"
@@ -95,7 +98,7 @@ import { useRouter } from 'vue-router';
 
 import { api  } from 'boot/axios';
 import { Video } from 'src/types/video';
-import { getImgSrc } from 'src/functionts';
+import { getImgSrc, getVideoPath } from 'src/functionts';
 
 interface VideosResponse {
   data: Video[]
@@ -205,18 +208,6 @@ export default defineComponent({
             pagination.value.rowsNumber = meta.total;
             rows.value = videos;
         });
-
-        
-    
-        const viewVideo = async (item: Video) => {
-            await router.push({
-                name: 'admin-video',
-                params: {
-                    videoId: item.id,
-                    originId: item.originId || 'main'
-                }
-            });
-        };
     
         const deleteVideo = async (item: Video) => {
             await api.delete(`admin/videos/${item.id}`);
@@ -245,10 +236,10 @@ export default defineComponent({
             loading,
             pagination,
             dialog,
-            viewVideo,
             deleteVideo,
             updateVideosVisibility,
-            onRequestTable
+            onRequestTable,
+            getVideoPath
         };
     }
 });
