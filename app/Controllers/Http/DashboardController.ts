@@ -9,24 +9,20 @@ export default class DashboardController {
     const filename = request.url().replace('/ys-admin', '')
     const extname = path.extname(filename).replace('.', '')
 
-    if (filename === '/' || filename === '') {
-      const html = await promisify(fs.readFile)(`${appPath}/index.html`, 'utf-8')
-      response.safeHeader('Content-type', 'text/html')
-
-      return html
-    }
-
     const headers = {
       js: 'text/javascript',
       css: 'text/css',
+      png: 'image/png',
+      woff: 'text',
     }
 
     if (headers[extname]) {
       response.safeHeader('Content-type', headers[extname])
+      return await promisify(fs.readFile)(`${appPath}${filename}`)
     }
 
-    const file = await promisify(fs.readFile)(`${appPath}${filename}`)
+    response.safeHeader('Content-type', 'text/html')
 
-    return file
+    return await promisify(fs.readFile)(`${appPath}/index.html`, 'utf-8')
   }
 }

@@ -1,4 +1,3 @@
-import Video from 'App/Models/Video'
 import Origin from 'App/Models/Origin'
 import Redis from '@ioc:Adonis/Addons/Redis'
 export class OriginHelper {

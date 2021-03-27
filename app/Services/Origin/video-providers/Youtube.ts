@@ -1,5 +1,5 @@
 import lodash from 'lodash'
-import axios, { AxiosInstance } from 'axios'
+import axios from 'axios'
 import { OriginVideoProvider } from 'App/Services/Origin/types'
 import { OriginHelper } from 'App/Services/Origin/helpers'
 import { OriginConfig } from 'App/Models/Origin'

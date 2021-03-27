@@ -32,7 +32,7 @@
   ],
   "metaFiles": [
     {
-      "pattern": "public/dist/spa/*",
+      "pattern": "public/dist/spa/**",
       "reloadServer": false
     },
     {

@@ -13,7 +13,7 @@ export default class ThemeController {
   }
 
   public showStatic({ request, response }: HttpContextContract) {
-    const themePath = Application.makePath('content/themes/vue-ssr/setup')
+    // const themePath = Application.makePath('content/themes/vue-ssr/setup')
 
     const filename = request.url().replace('/theme/static/', '')
     const filePath = Application.makePath('content/themes/vue-ssr/dist', filename)

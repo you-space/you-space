@@ -3,7 +3,7 @@ import { promisify } from 'util'
 
 import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import File, { FileTypes } from 'App/Models/File'
+import File from 'App/Models/File'
 
 export default class FilesController {
   public async embed({ params, response }: HttpContextContract) {

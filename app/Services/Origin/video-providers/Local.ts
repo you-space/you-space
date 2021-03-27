@@ -1,8 +1,6 @@
 import { OriginVideoProvider } from 'App/Services/Origin/types'
 import lodash from 'lodash'
 import { OriginHelper } from 'App/Services/Origin/helpers'
-import { OriginConfig } from 'App/Models/Origin'
-import Env from '@ioc:Adonis/Core/Env'
 
 export default class LocalProvider extends OriginHelper implements OriginVideoProvider {
   public async getTotalVideos() {
