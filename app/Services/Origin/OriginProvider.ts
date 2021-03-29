@@ -102,13 +102,7 @@ class OriginProvider {
   }
 
   public serializeVideo = (origin: Origin, video: Video) => {
-    const provider = this.getProvider(origin)
-    const normalSerialize = video.serialize()
-    const originSerialize = provider.serializeVideo(video.originData)
-    return {
-      ...normalSerialize,
-      ...originSerialize,
-    }
+    return this.getProvider(origin).serializeVideo(video.originData)
   }
 
   public async registerVideoComments(origin: Origin, videoId: string, page: number) {

@@ -23,23 +23,10 @@ export default class VideosController {
     const { sum } = await OriginMetadata.query().sum('total_videos').firstOrFail()
     const totalVideos = Number(sum) || 0
 
-    const videos = await Video.query()
-      .preload('origin')
-      .preload('visibility')
-      .offset(offset)
-      .limit(limit)
-      .withCount('views', (query) => {
-        query.sum('count').as('totalViews')
-      })
-      .orderBy('created_at', 'desc')
-
-    const videosWithViews = videos.map((v) => ({
-      ...OriginProvider.serializeVideo(v.origin, v),
-      totalViews: Number(v.$extras.totalViews) || 0,
-    }))
+    const videos = await Video.query().offset(offset).limit(limit).orderBy('created_at', 'desc')
 
     return {
-      data: videosWithViews,
+      data: videos,
       meta: {
         total: totalVideos,
         pages: Math.ceil(totalVideos / limit),
