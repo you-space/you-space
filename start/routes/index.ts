@@ -21,3 +21,5 @@
 import './admin'
 import './videos'
 import './auth'
+
+import './theme'

@@ -6,7 +6,8 @@
   "exclude": [
     "node_modules",
     "build",
-    "public"
+    "public",
+    "content"
   ],
   "compilerOptions": {
     "outDir": "build",

@@ -36,8 +36,8 @@
       "reloadServer": false
     },
     {
-      "pattern": "resources/views/**/*.edge",
-      "reloadServer": false
+      "pattern": "content/themes/**/**/*.edge",
+      "reloadServer": true
     }
   ]
 }

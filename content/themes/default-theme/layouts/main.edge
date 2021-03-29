@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <meta name="description" content="">
+      <meta name="keywords" content="">
+      <link href="https://unpkg.com/tailwindcss@next/dist/tailwind.min.css" rel="stylesheet">
+      <!--Replace with your tailwind.css once created-->
+      <style>
+         @import url('https://fonts.googleapis.com/css?family=Lato');
+         html { font-family: 'Lato', sans-serif; }
+      </style>
+      @!section('meta-tags')
+   </head>
+   
+   <body class="flex flex-col h-screen bg-gray-100 tracking-wider tracking-normal">
+      
+      <div class="flex-shrink-0">
+        @!section('navbar')
+      </div>
+
+      <!--Container-->
+      <div class="w-full h-full overflow-y-auto flex flex-wrap mx-auto ">
+        @!section('sidebar')
+        
+        <div class="w-full lg:w-4/5 text-gray-700 mx-auto p-4 leading-normal">
+            @!section('content')
+        </div>
+
+      </div>
+       
+      <!--footer-->
+      <footer class="flex-shrink-0 border-t border-gray-200 px-4 self-end w-full bg-white">
+        footer
+      </footer>
+
+   </body>
+
+</html>

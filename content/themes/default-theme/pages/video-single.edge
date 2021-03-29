@@ -1,0 +1,50 @@
+@layout('default-theme::layouts/main')
+
+@section('meta-tags')
+  <title>{{ video.name }}</title>
+@endsection
+
+@section('navbar')
+
+  @!component('default-theme::components/navbar', { title: pageTitle })
+
+@endsection
+
+@section('sidebar')
+
+  @!component('default-theme::components/sidebar', { links })
+
+@endsection
+
+@section('content')
+
+<div class="flex">
+  
+  <div class="video-container flex-1">
+      <iframe 
+        src="{{video.src}}"
+        class="w-full mb-4"
+        style="height:30rem"
+      ></iframe>
+    <hr>
+    <div class="w-full py-4 mb-4" >
+      <h1 class="text-xl font-bold mb-2" >{{video.name}}</h1>
+      <h3>{{video.description}}</h3>
+    </div>
+
+    <hr>
+    <div class="py-4">
+      <h4 class="text-xl font-bold mb-2">
+        Comments
+      </h4>
+    </div>
+  </div>
+
+  <div class="video-sidebar w-4/12 pl-4">
+    <div class="bg-white border border-gray-200 h-full" >
+      sidebar
+    </div>
+  </div>
+</div>
+
+@endsection
