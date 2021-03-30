@@ -34,9 +34,27 @@
 
     <hr>
     <div class="py-4">
-      <h4 class="text-xl font-bold mb-2">
+      <h4 class="text-xl font-bold mb-4">
         Comments
       </h4>
+        <ul>
+          @each(comment in comments)          
+            @component('default-theme::components/comment', { comment })
+              @slot('beforeContent')
+                @if(comment.replies.length > 0)
+                
+                  <ul class="py-2">
+                    @each(reply in comment.replies)
+                      @!component('default-theme::components/comment', { comment: reply })                  
+                    @endeach
+                  </ul>
+                
+                @endif
+              @endslot
+            
+            @endcomponent
+          @endeach
+        </ul>
     </div>
   </div>
 

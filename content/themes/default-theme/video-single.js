@@ -6,9 +6,13 @@ module.exports = {
                 href: '/'
             }
         ]
+        
+        const comments = await machine.comments(video.id)
+
         return machine.render(machine.getThemePath( 'pages', 'video-single.edge'), {
             pageTitle: 'Video single',
-            video: video,
+            comments,
+            video,
             links
         })
     }
