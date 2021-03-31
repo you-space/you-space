@@ -33,14 +33,14 @@
     </div>
 
     <hr>
-    <div class="py-4">
+    <div class="py-4 comment-section">
       <h4 class="text-xl font-bold mb-4">
         Comments
       </h4>
         <ul>
           @each(comment in comments)          
             @component('default-theme::components/comment', { comment })
-              @slot('beforeContent')
+              @slot('replies')
                 @if(comment.replies.length > 0)
                 
                   <ul class="py-2">

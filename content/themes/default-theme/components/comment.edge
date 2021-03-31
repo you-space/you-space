@@ -1,4 +1,4 @@
-<li class="py-2 mb-2 flex text-sm">
+<li class="py-2 mb-2 flex text-sm comment">
     <img class="w-10 h-10 rounded-full mr-4" src="{{comment.avatarSrc}}">
     <div class="w-11/12">
       <span class="font-bold">{{ comment.username }}</span>
@@ -11,8 +11,16 @@
           <i class="fas fa-thumbs-down mr-2"></i>
           {{comment.totalUnlikeCount}}
       </button>
-      @if($slots.beforeContent)
-        {{{ $slots.beforeContent() }}}
+      
+      @if(comment.replies && comment.replies.length > 0)
+        <button class="font-bold toggle-replies p-1 text-gray-400" style="font-size:12px">
+          <i class="fas fa-chevron-down mr-2"></i>
+          show replies {{comment.replies.length}}
+        </button>
+        <div class="comment-replies hidden">
+          {{{ $slots.replies() }}}
+        </div>
       @endif
+
     </div>    
 </li>

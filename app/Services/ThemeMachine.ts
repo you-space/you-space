@@ -9,6 +9,7 @@ import { VideoSerialized, CommentSerialized } from './Origin/types'
 import OriginProvider from './Origin/OriginProvider'
 
 const exists = promisify(fs.exists)
+const readFile = promisify(fs.readFile)
 
 interface ThemeDataProvider {
   getThemePath: () => string
@@ -83,6 +84,23 @@ export async function getThemeTemplate(
   return require(getThemePath(themeName, 'index.js'))
 }
 
+export async function getThemeStaticFile(
+  themeName: string,
+  fileName: string
+): Promise<string | null> {
+  const filePath = getThemePath(themeName, fileName)
+
+  const fileExist = await exists(filePath)
+
+  if (fileExist) {
+    return await readFile(filePath, 'utf-8')
+  }
+
+  Logger.error(`[theme-machine] static file not found: ${fileName}`)
+
+  return null
+}
+
 export async function getThemeMachine() {
   const themeName = 'default-theme'
   const themePath = getThemePath(themeName)
@@ -98,6 +116,7 @@ export async function getThemeMachine() {
 
   return {
     getTemplate: (template: string) => getThemeTemplate(themeName, template),
+    getThemeStaticFile: (filename: string) => getThemeStaticFile(themeName, filename),
     ...themeDataProvider,
   }
 }
