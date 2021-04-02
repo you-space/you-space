@@ -54,7 +54,7 @@ class OriginProvider {
     )
   }
 
-  public register = async (origin: Origin, page: number) => {
+  public registerVideos = async (origin: Origin, page: number) => {
     const provider: OriginVideoProvider = this.getProvider(origin)
     const videosKey = `origin:${origin.id}:videos:page:${page}`
 

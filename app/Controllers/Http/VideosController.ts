@@ -4,8 +4,8 @@ import ContentVideo from 'App/Services/Content/ContentVideos'
 export default class VideosController {
   public async index({ request, auth }: HttpContextContract) {
     const filter = {
-      page: request.input('page', 1),
-      limit: request.input('limit', 1),
+      page: Number(request.input('page', 1)),
+      limit: Number(request.input('limit', 20)),
     }
 
     const videos = await ContentVideo.index(filter, auth.user)

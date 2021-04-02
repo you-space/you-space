@@ -1,4 +1,5 @@
 import Origin, { OriginTypes } from 'App/Models/Origin'
+import { pickBy } from 'lodash'
 import User from 'App/Models/User'
 import Video from 'App/Models/Video'
 import Visibility from 'App/Models/Visibility'
@@ -16,7 +17,7 @@ export default class ContentVideo {
   static async registerOrigins(page: number) {
     const origins = await Origin.query().where('type', OriginTypes.YouTube)
 
-    await Promise.all(origins.map(async (o) => OriginProvider.register(o, page)))
+    await Promise.all(origins.map(async (o) => OriginProvider.registerVideos(o, page)))
   }
 
   static async getUserAllowedVisibilities(user?: User) {
@@ -41,7 +42,7 @@ export default class ContentVideo {
       limit: 20,
       orderBy: ['created_at', 'desc'],
       visibility: 1,
-      ...args,
+      ...pickBy(args, (v) => v !== undefined),
     }
 
     const visibility = await this.getUserAllowedVisibilities(user)

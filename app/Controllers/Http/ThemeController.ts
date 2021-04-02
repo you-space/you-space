@@ -2,6 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import path from 'path'
 import Video from 'App/Models/Video'
 import { getThemeMachine } from 'App/Services/ThemeMachine'
+import ContentVideo from 'App/Services/Content/ContentVideos'
 
 export default class ThemeController {
   public async show({ params, request, response }: HttpContextContract) {
@@ -38,14 +39,15 @@ export default class ThemeController {
     return file || '404'
   }
 
-  public async showSingle({ params, request, response }: HttpContextContract) {
-    const video = await Video.find(params.id)
+  public async showSingle({ params, auth }: HttpContextContract) {
+    const video = await ContentVideo.show(params.id, auth.user)
+
     const templateName = video ? 'video-single' : '404'
 
     const machine = await getThemeMachine()
 
     const template = await machine.getTemplate(templateName)
 
-    return template.render(machine, video ? video.serialize() : null)
+    return template.render(machine, video)
   }
 }
