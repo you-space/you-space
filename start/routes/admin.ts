@@ -6,12 +6,12 @@ Route.group(() => {
 }).prefix('ys-admin')
 
 Route.group(() => {
-  Route.resource('videos', 'AdminVideosController').apiOnly()
-  Route.patch('videos/update-all', 'AdminVideosController.updateAll')
-  Route.resource('origins', 'AdminOriginsController').apiOnly()
+  Route.resource('videos', 'Admin/VideosController').apiOnly()
+  Route.patch('videos/update-all', 'Admin/VideosController.updateAll')
+  Route.resource('origins', 'Admin/OriginsController').apiOnly()
 })
   .prefix('admin')
   .prefix('v1')
   .prefix('api')
-// .middleware('auth:api')
-// .middleware('acl:admin')
+  .middleware('auth:api')
+  .middleware('acl:admin')
