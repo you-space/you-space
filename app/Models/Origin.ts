@@ -71,7 +71,6 @@ export default class Origin extends BaseModel {
 
   @beforeDelete()
   public static async beforeDelete(origin: Origin) {
-    console.log('delete')
     await origin.related('metadata').query().delete()
 
     await origin.related('comments').query().delete()

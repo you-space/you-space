@@ -8,28 +8,26 @@ import Video from 'App/Models/Video'
 import VideoValidator from 'App/Validators/VideoValidator'
 import File, { FileTypes } from 'App/Models/File'
 import Origin, { OriginTypes } from 'App/Models/Origin'
-import OriginProvider from 'App/Services/Origin/OriginProvider'
 import OriginMetadata from 'App/Models/OriginMetadata'
+import ContentVideo from 'App/Services/Content/ContentVideos'
 
 export default class VideosController {
-  public async index({ request }: HttpContextContract) {
-    const page = request.input('page', 1)
-    const limit = 20
-    const offset = (page - 1) * limit
-    const origins = await Origin.query().where('type', OriginTypes.YouTube)
+  public async index({ request, auth }: HttpContextContract) {
+    const filter = {
+      page: request.input('page', 1),
+      limit: request.input('limit', 20),
+    }
 
-    await Promise.all(origins.map(async (o) => OriginProvider.register(o, page)))
-
-    const { sum } = await OriginMetadata.query().sum('total_videos').firstOrFail()
+    const { sum } = await OriginMetadata.query().sum('total_videos').first()
     const totalVideos = Number(sum) || 0
 
-    const videos = await Video.query().offset(offset).limit(limit).orderBy('created_at', 'desc')
+    const videos = await ContentVideo.index(filter, auth.user)
 
     return {
       data: videos,
       meta: {
         total: totalVideos,
-        pages: Math.ceil(totalVideos / limit),
+        pages: Math.ceil(totalVideos / filter.limit),
       },
     }
   }

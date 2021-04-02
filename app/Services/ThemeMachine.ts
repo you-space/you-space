@@ -4,17 +4,16 @@ import Application from '@ioc:Adonis/Core/Application'
 import Logger from '@ioc:Adonis/Core/Logger'
 import View from '@ioc:Adonis/Core/View'
 import Video from 'App/Models/Video'
-import Comment from 'App/Models/Comment'
-import { VideoSerialized, CommentSerialized } from './Origin/types'
 import OriginProvider from './Origin/OriginProvider'
+import ContentVideo from './Content/ContentVideos'
 
 const exists = promisify(fs.exists)
 const readFile = promisify(fs.readFile)
 
 interface ThemeDataProvider {
   getThemePath: () => string
-  videos: () => Promise<VideoSerialized[]>
-  comments: (videoId: string, args: any) => Promise<CommentSerialized[]>
+  videos: (page: number, limit: number) => Promise<any[]>
+  comments: (videoId: string, args: any) => Promise<any[]>
   render: typeof View.render
 }
 
@@ -28,10 +27,11 @@ export function getThemePath(themeName: string, ...args: string[]) {
 
 export function getThemeDataProvider(themeName: string): ThemeDataProvider {
   return {
-    videos: async (page = 1, limit = 20) => {
-      const offset = (page - 1) * limit
-      const videos = await Video.query().limit(limit).offset(offset).orderBy('created_at')
-      return videos.map((v) => v.serialize())
+    videos: async (page: number, limit: number) => {
+      return await ContentVideo.index({
+        page,
+        limit,
+      })
     },
     comments: async (videoId: string, args: any) => {
       const filters = {
