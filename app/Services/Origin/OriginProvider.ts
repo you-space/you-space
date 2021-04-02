@@ -35,9 +35,9 @@ class OriginProvider {
 
   public registerOriginStatus = async (origin: Origin) => {
     const provider = await this.getProvider(origin)
-    const videosRegistered = await Video.query()
-      .where('originId', origin.id)
-      .count('*')
+    const { $extras } = await Origin.query()
+      .withCount('videos')
+      .where('id', origin.id)
       .firstOrFail()
 
     const totalVideos = await provider.getTotalVideos()
@@ -49,7 +49,7 @@ class OriginProvider {
       {
         originId: origin.id,
         totalVideos: totalVideos,
-        registeredVideos: videosRegistered.count,
+        registeredVideos: Number($extras.videos_count) || 0,
       }
     )
   }
