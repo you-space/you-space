@@ -1,15 +1,15 @@
 <template>
-  <q-page class="row items-center justify-center q-pa-lg">
-    <div
-      class="col-6"
-      style="height:500px"
-    >
-      <y-video
-        v-if="video"
-        :src="video.src"
-      />
-    </div>
-  </q-page>
+    <q-page class="row items-center justify-center q-pa-lg">
+        <div
+            class="col-6"
+            style="height:500px"
+        >
+            <y-video
+                v-if="video"
+                :src="video.src"
+            />
+        </div>
+    </q-page>
 </template>
 
 <script lang='ts' >
@@ -32,9 +32,7 @@ export default defineComponent({
         
         void setVideo();
 
-        return {
-            video 
-        };
+        return {video};
     }
 });
 </script>

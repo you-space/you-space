@@ -94,17 +94,14 @@ module.exports = configure(function (/* ctx */) {
                 '/api': {
                     target: 'http://localhost:3333/api',
                     changeOrigin: true,
-                    pathRewrite: {
-                        '^/api': ''
-                    }
+                    pathRewrite: {'^/api': ''}
                 }
             }
         },
 
         // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
         framework: {
-            config: {
-            },
+            config: {},
 
             // iconSet: 'material-icons', // Quasar icon set
             // lang: 'en-US', // Quasar language pack
@@ -127,15 +124,12 @@ module.exports = configure(function (/* ctx */) {
         animations: [],
 
         // https://quasar.dev/quasar-cli/developing-ssr/configuring-ssr
-        ssr: {
-            pwa: false 
-        },
+        ssr: {pwa: false},
 
         // https://quasar.dev/quasar-cli/developing-pwa/configuring-pwa
         pwa: {
             workboxPluginMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
-            workboxOptions: {
-            }, // only for GenerateSW
+            workboxOptions: {}, // only for GenerateSW
             manifest: {
                 name: 'you-space',
                 short_name: 'you-space',
@@ -180,9 +174,7 @@ module.exports = configure(function (/* ctx */) {
         },
 
         // Full list of options: https://quasar.dev/quasar-cli/developing-capacitor-apps/configuring-capacitor
-        capacitor: {
-            hideSplashscreen: true 
-        },
+        capacitor: {hideSplashscreen: true},
 
         // Full list of options: https://quasar.dev/quasar-cli/developing-electron-apps/configuring-electron
         electron: {

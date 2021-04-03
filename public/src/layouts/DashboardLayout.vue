@@ -1,57 +1,57 @@
 <template>
-  <q-layout view="hHh Lpr lFf">
-    <q-header
-      bordered
-      class="bg-white text-blue-grey-5"
-      height="30px"
-    >
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-
-        <q-toolbar-title>
-          You space
-        </q-toolbar-title>
-      </q-toolbar>
-    </q-header>
-
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
-      <q-list class="text-blue-grey-5">
-        <template
-          v-for="(item, index) in menuList"
-          :key="index"
+    <q-layout view="hHh Lpr lFf">
+        <q-header
+            bordered
+            class="bg-white text-blue-grey-5"
+            height="30px"
         >
-          <q-item
-            v-ripple 
-            exact
-            active-class="text-blue-grey-5 bg-blue-grey-1"
-            :to="item.to"
-          >
-            <q-item-section avatar>
-              <q-icon :name="item.icon" />
-            </q-item-section>
-            <q-item-section>
-              {{ item.label }}
-            </q-item-section>
-          </q-item>
-        </template>
-      </q-list>
-    </q-drawer>
+            <q-toolbar>
+                <q-btn
+                    flat
+                    dense
+                    round
+                    icon="menu"
+                    aria-label="Menu"
+                    @click="toggleLeftDrawer"
+                />
 
-    <q-page-container class="bg-grey-1">
-      <router-view />
-    </q-page-container>
-  </q-layout>
+                <q-toolbar-title>
+                    You space
+                </q-toolbar-title>
+            </q-toolbar>
+        </q-header>
+
+        <q-drawer
+            v-model="leftDrawerOpen"
+            show-if-above
+            bordered
+        >
+            <q-list class="text-blue-grey-5">
+                <template
+                    v-for="(item, index) in menuList"
+                    :key="index"
+                >
+                    <q-item
+                        v-ripple 
+                        exact
+                        active-class="text-blue-grey-5 bg-blue-grey-1"
+                        :to="item.to"
+                    >
+                        <q-item-section avatar>
+                            <q-icon :name="item.icon" />
+                        </q-item-section>
+                        <q-item-section>
+                            {{ item.label }}
+                        </q-item-section>
+                    </q-item>
+                </template>
+            </q-list>
+        </q-drawer>
+
+        <q-page-container class="bg-grey-1">
+            <router-view />
+        </q-page-container>
+    </q-layout>
 </template>
 
 <script lang="ts">
@@ -70,9 +70,7 @@ export default defineComponent({
         if (isAuthenticaed) {
             return;
         }
-        redirect({
-            name: 'login'
-        });
+        redirect({name: 'login'});
     },
 
     setup () {
@@ -83,23 +81,17 @@ export default defineComponent({
             {
                 label: tm.t('dashboard'),
                 icon: 'home',
-                to: {
-                    name: 'home'
-                },
+                to: {name: 'home'},
             },
             {
                 label: tm.t('videoList'),
                 icon: 'play_circle',
-                to: {
-                    name: 'videos' 
-                },
+                to: {name: 'videos'},
             },
             {
                 label: tm.t('origins'),
                 icon: 'view_in_ar',
-                to: {
-                    name: 'origins' 
-                },
+                to: {name: 'origins'},
             },
         ];
 

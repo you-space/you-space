@@ -1,5 +1,7 @@
 import { boot } from 'quasar/wrappers';
-export default boot(({ store, redirect, urlPath }) => {
+export default boot(({
+    store, redirect, urlPath 
+}) => {
     const token = localStorage.getItem('token');
     if (!token) {
         return;
@@ -8,9 +10,7 @@ export default boot(({ store, redirect, urlPath }) => {
     store.commit('user/login', token);
 
     if (urlPath === "/login") {
-        redirect({
-            name: 'home'
-        });
+        redirect({name: 'home'});
     }
     
     

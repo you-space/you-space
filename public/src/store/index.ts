@@ -23,9 +23,7 @@ export interface StateInterface {
 
 export default store(function (/* { ssrContext } */) {
     const Store = createStore<StateInterface>({
-        modules: {
-            user
-        },
+        modules: {user},
 
         // enable strict mode (adds overhead!)
         // for dev mode and --debug builds only

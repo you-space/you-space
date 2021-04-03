@@ -12,9 +12,7 @@ declare module '@vue/runtime-core' {
 
 const baseURL = '/api/v1';
 
-const api = axios.create({
-    baseURL
-});
+const api = axios.create({baseURL});
 
 api.interceptors.response.use(function (response) {
     return response;
@@ -40,9 +38,7 @@ export default boot(async ({ app, store }) => {
     
     await axios.get('who-i-am', {
         baseURL: baseURL,
-        headers: {
-            Authorization: `Bearer ${String(token)}`
-        }
+        headers: {Authorization: `Bearer ${String(token)}`}
     })
         .catch(() => {
             store.commit('user/logout');

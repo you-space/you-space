@@ -1,14 +1,14 @@
 <template>
-  <q-card
-    dark
-    class="full-width full-height q-video"
-  >
-    <q-video
-      class="full-width full-height ys-video"
-      controls
-      :src="src"
-    />
-  </q-card>
+    <q-card
+        dark
+        class="full-width full-height q-video"
+    >
+        <q-video
+            class="full-width full-height ys-video"
+            controls
+            :src="src"
+        />
+    </q-card>
 </template>
 
 <script lang='ts' >
@@ -23,8 +23,7 @@ export default defineComponent({
         }
     },
     setup(){
-        return {
-        };
+        return {};
     }
 });
 </script>
