@@ -1,6 +1,5 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import path from 'path'
-import Video from 'App/Models/Video'
 import { getThemeMachine } from 'App/Services/ThemeMachine'
 import ContentVideo from 'App/Services/Content/ContentVideos'
 
@@ -12,6 +11,10 @@ export default class ThemeController {
     }
 
     const templateName = staticRoutes[request.url()] || '404'
+
+    if (templateName === '404') {
+      response.status(404)
+    }
 
     const machine = await getThemeMachine()
 
