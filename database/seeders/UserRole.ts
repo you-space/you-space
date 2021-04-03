@@ -4,9 +4,9 @@ import { v4 as uuid } from 'uuid'
 import Origin, { OriginTypes } from 'App/Models/Origin'
 import Role from 'App/Models/Role'
 import User from 'App/Models/User'
-import UserAssignment from 'App/Models/UserAssignment'
+import UserRole from 'App/Models/UserRole'
 
-export default class UsersAssignmentSeeder extends BaseSeeder {
+export default class UserRolesSeeder extends BaseSeeder {
   public async run() {
     const originMain = await Origin.firstOrCreate({
       name: 'main',
@@ -27,7 +27,7 @@ export default class UsersAssignmentSeeder extends BaseSeeder {
       }
     )
 
-    await UserAssignment.firstOrCreate({
+    await UserRole.firstOrCreate({
       roleId: role.id,
       userId: user.id,
     })

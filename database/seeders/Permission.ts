@@ -3,7 +3,9 @@ import Permission from 'App/Models/Permission'
 
 export default class PermissionSeeder extends BaseSeeder {
   public async run() {
-    // Write your database queries inside the run method
-    await Permission.updateOrCreateMany('name', [{ name: 'admin' }])
+    await Permission.updateOrCreateMany('name', [
+      { name: 'admin' },
+      { name: 'view-private-videos' },
+    ])
   }
 }

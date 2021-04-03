@@ -8,7 +8,7 @@ import {
   HasManyThrough,
 } from '@ioc:Adonis/Lucid/Orm'
 import Role from './Role'
-import UserAssignment from './UserAssignment'
+import RolePermission from './UserRole'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -41,7 +41,7 @@ export default class User extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @hasManyThrough([() => Role, () => UserAssignment], {
+  @hasManyThrough([() => Role, () => RolePermission], {
     foreignKey: 'userId',
     throughForeignKey: 'id',
     throughLocalKey: 'roleId',

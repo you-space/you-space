@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column, HasManyThrough, hasManyThrough } from '@ioc:Adonis/Lucid/Orm'
 import Permission from './Permission'
-import PermissionsAssignment from './PermissionsAssignment'
+import RolePermission from './RolePermission'
 
 export default class Role extends BaseModel {
   @column({ isPrimary: true })
@@ -10,7 +10,7 @@ export default class Role extends BaseModel {
   @column()
   public name: string
 
-  @hasManyThrough([() => Permission, () => PermissionsAssignment], {
+  @hasManyThrough([() => Permission, () => RolePermission], {
     foreignKey: 'roleId',
     throughLocalKey: 'roleId',
     throughForeignKey: 'id',
