@@ -9,20 +9,28 @@
 
             <template #body-cell-actions="props">
                 <q-td :props="props">
-                    <q-btn
-                        icon="edit"
-                        size="sm"
-                        flat
-                        round
-                        @click="editVisibility(props.row.id)"
+                    <q-chip
+                        v-if="props.row.isDefault"
+                        :label="$t('default')"
+                        color="primary"
+                        text-color="white"
                     />
-                    <q-btn
-                        icon="delete"
-                        size="sm"
-                        flat
-                        round
-                        @click="deleteVisibility(props.row.id)"
-                    />
+                    <template v-else>
+                        <q-btn
+                            icon="edit"
+                            size="sm"
+                            flat
+                            round
+                            @click="editVisibility(props.row.id)"
+                        />
+                        <q-btn
+                            icon="delete"
+                            size="sm"
+                            flat
+                            round
+                            @click="deleteVisibility(props.row.id)"
+                        />
+                    </template>
                 </q-td>
             </template>
         </q-table>
@@ -36,6 +44,7 @@
 </template>
 
 <script lang="ts">
+import lodash from 'lodash';
 import { api } from 'src/boot/axios';
 import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -55,6 +64,13 @@ export default defineComponent({
         const dialog = ref(false);
         const editedItemid = ref<number | null>(null);
 
+        function getPermissionsLabel({ requiredPermissions }: Visibility) {
+            if (requiredPermissions.length === 0) {
+                return '-';
+            }
+            return requiredPermissions.map((p) => p.name).join();
+        }
+
         const columns = [
             {
                 label: tm.t('name'),
@@ -65,8 +81,7 @@ export default defineComponent({
             {
                 label: tm.t('permission', 2),
                 name: 'permissions',
-                field: ({ requiredPermissions }: Visibility) =>
-                    requiredPermissions.map((p) => p.name).join(),
+                field: getPermissionsLabel,
                 align: 'left',
             },
             { name: 'actions' },
