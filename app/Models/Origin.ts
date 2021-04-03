@@ -37,7 +37,7 @@ export default class Origin extends BaseModel {
   @column()
   public type: OriginTypes
 
-  @column({ serializeAs: null })
+  @column()
   public config: OriginConfig
 
   @hasOne(() => OriginMetadata)

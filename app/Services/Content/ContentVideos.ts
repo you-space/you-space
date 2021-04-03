@@ -69,7 +69,7 @@ export default class ContentVideo {
     const serialize = videos.map((v) => ({
       id: v.id,
       ...OriginProvider.serializeVideo(v.origin, v),
-      origin: v.origin,
+      origin: v.origin.serialize({ fields: { omit: ['config'] } }),
       visibility: v.visibility,
       totalViews: Number(v.$extras.totalViews) || 0,
     }))
@@ -97,7 +97,7 @@ export default class ContentVideo {
     return {
       id: video.id,
       ...OriginProvider.serializeVideo(video.origin, video),
-      origin: video.origin,
+      origin: v.origin.serialize({ fields: { omit: ['config'] } }),
       visibility: video.visibility,
       totalViews: Number(video.$extras.totalViews) || 0,
     }
