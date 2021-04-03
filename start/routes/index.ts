@@ -22,4 +22,5 @@ import './admin'
 import './videos'
 import './auth'
 
+// need to be in the last import
 import './theme'

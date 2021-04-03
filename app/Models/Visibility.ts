@@ -6,6 +6,7 @@ import {
   hasMany,
   hasManyThrough,
   HasManyThrough,
+  beforeDelete,
 } from '@ioc:Adonis/Lucid/Orm'
 import Video from './Video'
 import VisibilityPermission from './VisibilityPermission'
@@ -21,10 +22,13 @@ export default class Visibility extends BaseModel {
   public id: number
 
   @column()
-  public name: keyof typeof DefaultVisibilities
+  public name: keyof typeof DefaultVisibilities | string
 
   @hasMany(() => Video)
   public videos: HasMany<typeof Video>
+
+  @hasMany(() => VisibilityPermission)
+  public visibilityPermissions: HasMany<typeof VisibilityPermission>
 
   @hasManyThrough([() => Permission, () => VisibilityPermission], {
     foreignKey: 'visibilityId',
@@ -38,4 +42,9 @@ export default class Visibility extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @beforeDelete()
+  public static async beforeDelete(visibility: Visibility) {
+    await visibility.related('visibilityPermissions').query().delete()
+  }
 }
