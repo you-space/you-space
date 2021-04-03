@@ -2,21 +2,24 @@
 // so you can safely delete all default props below
 
 export default {
-    failed: 'Action failed',
-    success: 'Action was successful',
-    addNew: 'Add new',
-    name: 'Name',
-    directory: 'Directory',
-    page: 'Page | Pages',
+    // entities
     videoList: 'Video list',
+    origin: 'Origin | Origins',
+    visibility: 'Visibility | Visibilities',
+    comment: 'Comment | Comments',
+    permission: 'Permission | Permissions',
+    page: 'Page | Pages',
+    view: 'View | Views',
+
+    // common
+    name: 'Name',
+    save: 'Save',
+    cancel: 'Cancel',
+
+    dashboard: 'Dashboard',
     home: 'Home',
-    viewsCount: 'Views {0}',
-    likeCount: 'Likes {0}',
-    trending: 'Trending',
-    public: 'Public',
-    viewAdminDashboard: 'View administration dashboard',
-    viewChannel: 'View channel',
-    showReplies: 'Show replies {0}',
+
+    addNew: 'Add new',
     description: 'Description',
-    comments: 'Comments',
+    bulkActions: 'Bulk actions',
 };

@@ -1,10 +1,6 @@
 <template>
     <q-layout view="hHh Lpr lFf">
-        <q-header
-            bordered
-            class="bg-white text-blue-grey-5"
-            height="30px"
-        >
+        <q-header bordered class="bg-white text-blue-grey-5" height="30px">
             <q-toolbar>
                 <q-btn
                     flat
@@ -15,24 +11,16 @@
                     @click="toggleLeftDrawer"
                 />
 
-                <q-toolbar-title>
-                    You space
-                </q-toolbar-title>
+                <q-toolbar-title> You space </q-toolbar-title>
             </q-toolbar>
         </q-header>
 
-        <q-drawer
-            v-model="leftDrawerOpen"
-            show-if-above
-            bordered
-        >
+        <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
             <q-list class="text-blue-grey-5">
-                <template
-                    v-for="(item, index) in menuList"
-                    :key="index"
-                >
+                <template v-for="(item, index) in menuList" :key="index">
                     <q-item
-                        v-ripple 
+                        v-if="!item.children"
+                        v-ripple
                         exact
                         active-class="text-blue-grey-5 bg-blue-grey-1"
                         :to="item.to"
@@ -44,6 +32,34 @@
                             {{ item.label }}
                         </q-item-section>
                     </q-item>
+
+                    <q-expansion-item
+                        v-else
+                        expand-separator
+                        :icon="item.icon"
+                        :label="item.label"
+                        :to="item.to"
+                        active-class="text-blue-grey-5 bg-blue-grey-1"
+                    >
+                        <q-list>
+                            <template
+                                v-for="(child, childIndex) in item.children"
+                                :key="childIndex"
+                            >
+                                <q-item
+                                    class="q-pl-md"
+                                    exact
+                                    active-class="text-blue-grey-5 text-bold"
+                                    :to="child.to"
+                                >
+                                    <q-item-section avatar />
+                                    <q-item-section>
+                                        {{ child.label }}
+                                    </q-item-section>
+                                </q-item>
+                            </template>
+                        </q-list>
+                    </q-expansion-item>
                 </template>
             </q-list>
         </q-drawer>
@@ -62,18 +78,22 @@ import lodash from 'lodash';
 export default defineComponent({
     name: 'MainLayout',
 
-    preFetch(options){
+    preFetch(options) {
         const store = options.store;
         const redirect = options.redirect as any;
-        const isAuthenticaed = lodash.get(store, 'state.user.authenticated', false);
+        const isAuthenticaed = lodash.get(
+            store,
+            'state.user.authenticated',
+            false,
+        );
 
         if (isAuthenticaed) {
             return;
         }
-        redirect({name: 'login'});
+        redirect({ name: 'login' });
     },
 
-    setup () {
+    setup() {
         const tm = useI18n();
 
         const leftDrawerOpen = ref(false);
@@ -81,27 +101,39 @@ export default defineComponent({
             {
                 label: tm.t('dashboard'),
                 icon: 'home',
-                to: {name: 'home'},
+                to: { name: 'home' },
             },
             {
                 label: tm.t('videoList'),
                 icon: 'play_circle',
-                to: {name: 'videos'},
+                to: { name: 'videos' },
+                children: [
+                    {
+                        label: tm.t('videoList'),
+                        icon: 'play_circle',
+                        to: { name: 'videos-list' },
+                    },
+                    {
+                        label: tm.t('visibility', 2),
+                        icon: 'visibility',
+                        to: { name: 'visibilities' },
+                    },
+                ],
             },
             {
-                label: tm.t('origins'),
+                label: tm.t('origin', 2),
                 icon: 'view_in_ar',
-                to: {name: 'origins'},
+                to: { name: 'origins' },
             },
         ];
 
         return {
             menuList,
             leftDrawerOpen,
-            toggleLeftDrawer () {
+            toggleLeftDrawer() {
                 leftDrawerOpen.value = !leftDrawerOpen.value;
-            }
+            },
         };
-    }
+    },
 });
 </script>

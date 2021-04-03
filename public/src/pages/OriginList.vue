@@ -49,8 +49,8 @@
 import lodash from 'lodash';
 import { defineComponent, ref, defineAsyncComponent, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-
 import { api } from 'boot/axios';
+import { Origin } from 'src/types';
 
 export default defineComponent({
     components: {
@@ -61,7 +61,7 @@ export default defineComponent({
     setup() {
         const tm = useI18n();
 
-        const rows = ref<any[]>([]);
+        const rows = ref<Origin[]>([]);
         const dialog = ref(false);
 
         const editedItemid = ref<number | null>(null);
@@ -83,13 +83,14 @@ export default defineComponent({
             {
                 label: tm.t('totalVideos'),
                 name: 'totalVideos',
-                field: (row: any) => lodash.get(row, 'metadata.totalVideos', 0),
+                field: (row: Origin) =>
+                    lodash.get(row, 'metadata.totalVideos', 0),
                 align: 'left',
             },
             {
                 label: tm.t('registeredVideos'),
                 name: 'totalVideos',
-                field: (row: any) =>
+                field: (row: Origin) =>
                     lodash.get(row, 'metadata.registeredVideos', 0),
                 align: 'left',
             },
