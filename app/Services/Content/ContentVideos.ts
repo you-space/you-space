@@ -97,7 +97,7 @@ export default class ContentVideo {
     return {
       id: video.id,
       ...OriginProvider.serializeVideo(video.origin, video),
-      origin: v.origin.serialize({ fields: { omit: ['config'] } }),
+      origin: video.origin.serialize({ fields: { omit: ['config'] } }),
       visibility: video.visibility,
       totalViews: Number(video.$extras.totalViews) || 0,
     }
