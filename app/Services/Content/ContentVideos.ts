@@ -4,12 +4,13 @@ import User from 'App/Models/User'
 import Video from 'App/Models/Video'
 import Visibility from 'App/Models/Visibility'
 import OriginProvider from 'App/Services/Origin/OriginProvider'
+import Permission from 'App/Models/Permission'
 
 export interface VideoFilters {
   name?: string
   page: number
   limit: number
-  visibility: number
+  visibility: Visibility['name']
   orderBy: [string, 'desc' | 'asc']
 }
 
@@ -21,19 +22,29 @@ export default class ContentVideo {
   }
 
   static async getUserAllowedVisibilities(user?: User) {
-    const allVisibility = await Visibility.all()
+    const allVisibility = await Visibility.query().preload('requiredPermissions')
 
     if (!user) {
       return allVisibility.filter((v) => v.name === 'public')
     }
 
-    const roles = await user.related('roles').query()
+    const roles = await user.related('roles').query().preload('permissions')
 
-    if (roles.some((r) => r.name === 'admin')) {
-      return allVisibility
-    }
+    const usersPermission = roles
+      .map((r) => r.permissions)
+      .reduce<Permission[]>((all, p) => all.concat(p), [])
+      .map((p) => p.name)
 
-    return allVisibility.filter((v) => v.name === 'public')
+    const allowedVisibilities = allVisibility.filter((v) => {
+      const requiredPermissions = v.requiredPermissions.map((p) => p.name)
+
+      if (requiredPermissions.length === 0) {
+        return true
+      }
+      return requiredPermissions.every((rp) => usersPermission.includes(rp))
+    })
+
+    return allowedVisibilities
   }
 
   static async index(args?: Partial<VideoFilters>, user?: User) {
@@ -41,11 +52,15 @@ export default class ContentVideo {
       page: 1,
       limit: 20,
       orderBy: ['created_at', 'desc'],
-      visibility: 1,
+      visibility: 'public',
       ...pickBy(args, (v) => v !== undefined),
     }
 
-    const visibility = await this.getUserAllowedVisibilities(user)
+    const allowedVisibility = await this.getUserAllowedVisibilities(user)
+
+    const visibilityId = allowedVisibility
+      .filter((v) => filters.visibility.split(',').includes(v.name))
+      .map((v) => v.id)
 
     const offset = (filters.page - 1) * filters.limit
 
@@ -55,10 +70,7 @@ export default class ContentVideo {
       .preload('origin')
       .preload('views')
       .preload('visibility')
-      .whereIn(
-        'visibility_id',
-        visibility.map((v) => v.id)
-      )
+      .whereIn('visibility_id', visibilityId)
       .withCount('views', (query) => {
         query.sum('count').as('totalViews')
       })

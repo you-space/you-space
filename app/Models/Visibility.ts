@@ -1,6 +1,15 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  column,
+  HasMany,
+  hasMany,
+  hasManyThrough,
+  HasManyThrough,
+} from '@ioc:Adonis/Lucid/Orm'
 import Video from './Video'
+import VisibilityPermission from './VisibilityPermission'
+import Permission from './Permission'
 
 export enum DefaultVisibilities {
   public = 'public',
@@ -16,6 +25,13 @@ export default class Visibility extends BaseModel {
 
   @hasMany(() => Video)
   public videos: HasMany<typeof Video>
+
+  @hasManyThrough([() => Permission, () => VisibilityPermission], {
+    foreignKey: 'visibilityId',
+    throughForeignKey: 'id',
+    throughLocalKey: 'permissionId',
+  })
+  public requiredPermissions: HasManyThrough<typeof Permission>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

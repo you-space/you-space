@@ -12,8 +12,8 @@ export default class Role extends BaseModel {
 
   @hasManyThrough([() => Permission, () => RolePermission], {
     foreignKey: 'roleId',
-    throughLocalKey: 'roleId',
     throughForeignKey: 'id',
+    throughLocalKey: 'permissionId',
   })
   public permissions: HasManyThrough<typeof Permission>
 
