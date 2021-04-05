@@ -1,13 +1,16 @@
 import { ApplicationContract } from '@ioc:Adonis/Core/Application'
 
 export default class OriginMainProvider {
+  public static needsApplication = true
   constructor(protected application: ApplicationContract) {}
 
   public async register() {
     const Origin = (await import('App/Models/Origin')).default
+    const OriginTypes = (await import('App/Models/Origin')).OriginTypes
 
     const main = await Origin.firstOrCreate({
-      name: 'local',
+      name: OriginTypes.Main,
+      type: OriginTypes.Main,
     })
 
     this.application.container.singleton('Providers/OriginMainProvider', () => main)
