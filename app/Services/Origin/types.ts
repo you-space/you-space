@@ -27,7 +27,7 @@ export interface CommentSerialized {
 
 export interface VideoSerialized {
   videoId: string
-  name: string
+  title: string
   src: string
   description: string
   thumbnailSrc?: string

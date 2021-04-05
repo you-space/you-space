@@ -129,7 +129,7 @@ export default class YoutubeProvider extends OriginHelper implements OriginVideo
     const defaultThumb = lodash.get(data, 'snippet.thumbnails.default.url', null)
     return {
       videoId: lodash.get(data, 'id', null),
-      name: lodash.get(data, 'snippet.title', null),
+      title: lodash.get(data, 'snippet.title', null),
       src: `https://www.youtube.com/embed/${lodash.get(data, 'id', null)}`,
       description: lodash.get(data, 'snippet.description', null),
       viewsCount: Number(viewsCount),

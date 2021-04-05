@@ -12,37 +12,47 @@
             selection="multiple"
             @request="onRequestTable"
         >
-            <template #top-left>
-                <q-btn :label="$t('bulkActions')">
-                    <q-menu style="min-width: 100px">
-                        <q-list>
-                            <q-item
-                                v-close-popup
-                                clickable
-                                @click="updateVideosVisibility('public')"
-                            >
-                                <q-item-section>
-                                    {{ $t('markAsPublic') }}
-                                </q-item-section>
-                            </q-item>
-                            <q-item
-                                v-close-popup
-                                clickable
-                                @click="updateVideosVisibility('private')"
-                            >
-                                <q-item-section>
-                                    {{ $t('markAsPrivate') }}
-                                </q-item-section>
-                            </q-item>
-                        </q-list>
-                    </q-menu>
-                </q-btn>
-            </template>
+            <template #top>
+                <div class="row full-width">
+                    <div class="col-3 q-pr-md">
+                        <q-input
+                            v-model="filters.search"
+                            :label="$t('search')"
+                        ></q-input>
+                    </div>
+                    <div class="col-3 q-pr-md">
+                        <q-select
+                            v-model="filters.visibility"
+                            :label="$t('visibility')"
+                            :options="visibilities"
+                            option-value="name"
+                            option-label="name"
+                            map-options
+                            emit-value
+                            multiple
+                            clearable
+                        />
+                    </div>
+                    <div class="col-3 q-pr-md">
+                        <q-select
+                            v-model="filters.originId"
+                            :label="$t('origin')"
+                            :options="origins"
+                            option-value="id"
+                            option-label="name"
+                            map-options
+                            emit-value
+                            multiple
+                            clearable
+                        />
+                    </div>
 
-            <template #top-right>
-                <q-btn @click="dialog = true">
-                    {{ $t('addNew') }}
-                </q-btn>
+                    <div class="col-3 text-right">
+                        <q-btn @click="dialog = true">
+                            {{ $t('addNew') }}
+                        </q-btn>
+                    </div>
+                </div>
             </template>
 
             <template #body-cell-thumbnail="props">
@@ -89,17 +99,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, defineAsyncComponent } from 'vue';
+import { pickBy, identity } from 'lodash';
+import { defineComponent, ref, defineAsyncComponent, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
 
 import { api } from 'boot/axios';
 import { Video } from 'src/types/video';
-import { getImgSrc, getVideoPath } from 'src/functionts';
+import { getOrigins, getVideoPath, getVisibilities } from 'src/functionts';
+import { Origin, Visibility } from 'src/types';
 
 interface VideosResponse {
     data: Video[];
-    meta: any;
+    meta: {
+        total: number;
+    };
+}
+
+interface Filters {
+    visibility: string[] | null;
+    originId: number[] | null;
 }
 
 export default defineComponent({
@@ -111,14 +129,22 @@ export default defineComponent({
     },
     setup() {
         const tm = useI18n();
-        const router = useRouter();
 
         const rows = ref<Video[]>([]);
         const selected = ref<Video[]>([]);
 
-        const dialog = ref(false);
+        const visibilities = ref<Visibility[]>([]);
+        const origins = ref<Origin[]>([]);
 
+        const showFilters = ref(false);
+        const dialog = ref(false);
         const loading = ref(false);
+
+        const filters = ref<Filters>({
+            visibility: null,
+            originId: null,
+        });
+
         const pagination = ref({
             sortBy: 'desc',
             descending: false,
@@ -134,9 +160,9 @@ export default defineComponent({
                 style: 'width:100px',
             },
             {
-                label: tm.t('name'),
-                name: 'name',
-                field: 'name',
+                label: tm.t('title'),
+                name: 'title',
+                field: 'title',
                 align: 'left',
             },
             {
@@ -154,15 +180,23 @@ export default defineComponent({
             {
                 label: tm.t('view', 2),
                 name: 'viewsCount',
-                field: 'viewsCount',
+                field: (row: Video) => tm.n(row.viewsCount),
                 align: 'left',
             },
             { name: 'actions' },
         ];
 
         const getVideos = async (page = 1) => {
+            const values = filters.value;
+            const query = {
+                ...filters.value,
+                visibility: values.visibility ? values.visibility.join() : null,
+                origin: values.originId ? values.originId.join() : null,
+                page: String(page),
+            };
+
             const { data } = await api.get<VideosResponse>('admin/videos', {
-                params: { page },
+                params: new URLSearchParams(pickBy<any>(query, (k) => !!k)),
             });
 
             const videos = data.data;
@@ -192,39 +226,45 @@ export default defineComponent({
             setTimeout(() => (loading.value = false), 800);
         };
 
-        onMounted(async () => {
-            const { videos, meta } = await getVideos();
+        async function reload() {
+            const { videos, meta } = await getVideos(pagination.value.page);
             pagination.value.rowsNumber = meta.total;
             rows.value = videos;
-        });
+        }
+
+        async function setVisibilities() {
+            visibilities.value = await getVisibilities();
+        }
+
+        async function setOrigins() {
+            origins.value = await getOrigins();
+        }
+
+        void setVisibilities();
+        void setOrigins();
+        void reload();
 
         const deleteVideo = async (item: Video) => {
             await api.delete(`admin/videos/${item.id}`);
             await onRequestTable({ pagination: pagination.value });
         };
 
-        const updateVideosVisibility = async (visibility: string) => {
-            const updateAll = selected.value.map((v) => ({
-                id: v.id,
-                visibility_id: visibility === 'public' ? 2 : 1,
-            }));
-
-            await api.patch('admin/videos/update-all', { videos: updateAll });
-
-            await onRequestTable();
-        };
+        watch(() => filters, reload, { deep: true });
 
         return {
             columns,
             rows,
             selected,
+            visibilities,
+            origins,
             loading,
             pagination,
             dialog,
             deleteVideo,
-            updateVideosVisibility,
             onRequestTable,
             getVideoPath,
+            showFilters,
+            filters,
         };
     },
 });

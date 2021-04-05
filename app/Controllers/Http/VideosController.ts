@@ -9,12 +9,7 @@ export default class VideosController {
       visibility: request.input('visibility', 'public'),
     }
 
-    const videos = await ContentVideo.index(filter, auth.user)
-
-    return {
-      data: videos,
-      meta: {},
-    }
+    return await ContentVideo.index(filter, auth.user)
   }
 
   public async show({ params, auth }: HttpContextContract) {

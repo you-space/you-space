@@ -12,6 +12,7 @@ export default {
     view: 'View | Views',
 
     // common
+    search: 'Search',
     name: 'Name',
     save: 'Save',
     cancel: 'Cancel',

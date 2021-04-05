@@ -7,6 +7,7 @@ export interface Video {
     src: string;
     thumbnailSrc?: string;
     originId?: number;
+    viewsCount: number;
     visibility: {
         name: string;
     };

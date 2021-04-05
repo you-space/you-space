@@ -7,10 +7,12 @@ import OriginProvider from 'App/Services/Origin/OriginProvider'
 import Permission from 'App/Models/Permission'
 
 export interface VideoFilters {
+  search?: string
   name?: string
   page: number
   limit: number
-  visibility: Visibility['name']
+  visibility?: string
+  originId?: string
   orderBy: [string, 'desc' | 'asc']
 }
 
@@ -52,21 +54,25 @@ export default class ContentVideo {
       page: 1,
       limit: 20,
       orderBy: ['created_at', 'desc'],
-      visibility: 'public',
       ...pickBy(args, (v) => v !== undefined),
     }
 
     const allowedVisibility = await this.getUserAllowedVisibilities(user)
 
     const visibilityId = allowedVisibility
-      .filter((v) => filters.visibility.split(',').includes(v.name))
+      .filter((v) => {
+        if (!filters.visibility) {
+          return true
+        }
+        return filters.visibility.split(',').includes(v.name)
+      })
       .map((v) => v.id)
-
-    const offset = (filters.page - 1) * filters.limit
 
     await ContentVideo.registerOrigins(filters.page)
 
-    const videos = await Video.query()
+    const query = Video.query()
+      .leftJoin('video_metadata', 'video_metadata.video_id', 'videos.id')
+      .preload('metadata')
       .preload('origin')
       .preload('views')
       .preload('visibility')
@@ -74,19 +80,44 @@ export default class ContentVideo {
       .withCount('views', (query) => {
         query.sum('count').as('totalViews')
       })
-      .offset(offset)
-      .limit(filters.limit)
       .orderBy(filters.orderBy[0], filters.orderBy[1])
 
-    const serialize = videos.map((v) => ({
-      id: v.id,
-      ...OriginProvider.serializeVideo(v.origin, v),
-      origin: v.origin.serialize({ fields: { omit: ['config'] } }),
-      visibility: v.visibility,
-      totalViews: Number(v.$extras.totalViews) || 0,
-    }))
+    if (filters.search) {
+      query.whereRaw(
+        `setweight(to_tsvector(coalesce(videos.origin_data::text, '')), 'A')
+        || setweight(to_tsvector(coalesce(video_metadata.title, '')), 'B')
+        @@ plainto_tsquery(?)`,
+        [filters.search]
+      )
+    }
 
-    return serialize
+    if (filters.originId) {
+      query.whereIn('originId', filters.originId.split(','))
+    }
+
+    const paginator = await query.paginate(Number(filters.page), Number(filters.limit))
+
+    const data = paginator.all().map((v) => {
+      const serialize = OriginProvider.serializeVideo(v.origin, v)
+      return {
+        id: v.id,
+        origin: v.origin.serialize({ fields: { omit: ['config'] } }),
+        visibility: v.visibility,
+        totalViews: Number(v.$extras.totalViews) || 0,
+
+        title: v.title ? v.title : serialize.title,
+        description: v.description ? v.description : serialize.description,
+
+        thumbnailSrc: serialize.thumbnailSrc,
+        src: serialize.src,
+        viewsCount: serialize.viewsCount,
+      }
+    })
+
+    return {
+      data,
+      meta: paginator.getMeta(),
+    }
   }
 
   static async show(videoId: string, user?: User) {

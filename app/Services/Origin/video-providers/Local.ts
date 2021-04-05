@@ -1,5 +1,5 @@
-import { OriginVideoProvider } from 'App/Services/Origin/types'
 import lodash from 'lodash'
+import { OriginVideoProvider } from 'App/Services/Origin/types'
 import { OriginHelper } from 'App/Services/Origin/helpers'
 
 export default class LocalProvider extends OriginHelper implements OriginVideoProvider {
@@ -15,11 +15,11 @@ export default class LocalProvider extends OriginHelper implements OriginVideoPr
     return []
   }
 
-  public serializeVideo(data) {
+  public serializeVideo(data: any) {
     const baseURL = '/api/v1'
     return {
       videoId: lodash.get(data, 'id', null),
-      name: lodash.get(data, 'name', null),
+      title: lodash.get(data, 'name', null),
       src: `${baseURL}/files/embed/${lodash.get(data, 'id', null)}`,
       description: lodash.get(data, 'description', null),
       thumbnailSrc: data.thumbnail ? `${baseURL}/files/embed/${data.thumbnail.id}` : undefined,

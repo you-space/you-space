@@ -7,83 +7,77 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Video from 'App/Models/Video'
 import VideoValidator from 'App/Validators/VideoValidator'
 import File, { FileTypes } from 'App/Models/File'
-import OriginMetadata from 'App/Models/OriginMetadata'
 import ContentVideo from 'App/Services/Content/ContentVideos'
 import OriginMain from '@ioc:Providers/OriginMainProvider'
+import Database from '@ioc:Adonis/Lucid/Database'
 
 export default class VideosController {
   public async index({ request, auth }: HttpContextContract) {
     const filter = {
       page: request.input('page', 1),
       limit: request.input('limit', 20),
+
+      search: request.input('search', undefined),
+      visibility: request.input('visibility', undefined),
+      originId: request.input('originId', undefined),
     }
 
-    const { sum } = await OriginMetadata.query().sum('total_videos').first()
-    const totalVideos = Number(sum) || 0
-
-    const videos = await ContentVideo.index(filter, auth.user)
-
-    return {
-      data: videos,
-      meta: {
-        total: totalVideos,
-        pages: Math.ceil(totalVideos / filter.limit),
-      },
-    }
+    return await ContentVideo.index(filter, auth.user)
   }
 
   public async store({ request }: HttpContextContract) {
-    const { name, video, thumbnail } = await request.validate(VideoValidator)
+    const { title, video, description, thumbnail } = await request.validate(VideoValidator)
 
-    const videoFilename = `${uuid()}.${video.extname}`
+    const trx = await Database.transaction()
+
+    const localVideo = new Video()
+    localVideo.useTransaction(trx)
+
+    const videoFile = new File()
+    videoFile.useTransaction(trx)
+
+    videoFile.filename = `${uuid()}.${video.extname}`
+    videoFile.type = FileTypes.Video
+    videoFile.extname = video.extname || 'mp4'
 
     await video.move(Application.tmpPath('uploads'), {
-      name: videoFilename,
+      name: videoFile.filename,
     })
 
-    const file = await File.create({
-      type: FileTypes.Video,
-      filename: videoFilename,
-      extname: video.extname,
-    })
+    await videoFile.save()
 
-    let image: File | null = null
-
-    if (thumbnail) {
-      const filenameThumbnail = `${uuid()}.${thumbnail.extname}`
-
-      await thumbnail.move(Application.tmpPath('uploads'), {
-        name: filenameThumbnail,
-      })
-
-      image = await File.create({
-        type: FileTypes.Image,
-        filename: filenameThumbnail,
-        extname: thumbnail.extname,
-      })
+    localVideo.id = `${OriginMain.id}-${videoFile.id}`
+    localVideo.videoId = String(videoFile.id)
+    localVideo.originId = OriginMain.id
+    localVideo.originData = {
+      id: videoFile.id,
     }
 
-    const create = await Video.create({
-      id: `${OriginMain.id}-${file.id}`,
-      videoId: String(file.id),
-      originId: OriginMain.id,
-      originData: {
-        ...file.serialize(),
-        name,
-        thumbnail: image ? image.serialize() : undefined,
-      },
+    if (thumbnail) {
+      const thumbnailFile = new File()
+      thumbnailFile.useTransaction(trx)
+
+      thumbnailFile.filename = `${uuid()}.${thumbnail.extname}`
+      thumbnailFile.type = FileTypes.Image
+      thumbnailFile.extname = thumbnail.extname || 'jpg'
+
+      await thumbnail.move(Application.tmpPath('uploads'), {
+        name: thumbnailFile.filename,
+      })
+
+      await thumbnailFile.save()
+
+      localVideo.originData.thumbnailId = thumbnailFile.id
+    }
+
+    await localVideo.related('metadata').create({
+      title,
+      description,
     })
 
-    const { count } = await OriginMain.related('videos').query().count('id').first()
+    await trx.commit()
 
-    await OriginMain.related('metadata').updateOrCreate(
-      {
-        originId: OriginMain.id,
-      },
-      { originId: OriginMain.id, totalVideos: count }
-    )
-
-    return create
+    return localVideo
   }
 
   public async updateAll({ request }: HttpContextContract) {

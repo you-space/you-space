@@ -1,5 +1,16 @@
-import { BaseModel, belongsTo, BelongsTo, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  belongsTo,
+  BelongsTo,
+  column,
+  HasMany,
+  HasOne,
+  hasMany,
+  hasOne,
+  computed,
+} from '@ioc:Adonis/Lucid/Orm'
 import { DateTime } from 'luxon'
+import VideoMetadata from './VideoMetadata'
 import Comment from './Comment'
 import Origin from './Origin'
 import View from './View'
@@ -19,7 +30,28 @@ export default class Video extends BaseModel {
   public visibilityId: number
 
   @column({ columnName: 'origin_data', serializeAs: null })
-  public originData: object
+  public originData: any
+
+  @computed()
+  public get title() {
+    if (!this.metadata || !this.metadata.title) {
+      return null
+    }
+
+    return this.metadata.title
+  }
+
+  @computed()
+  public get description() {
+    if (!this.metadata || !this.metadata.description) {
+      return null
+    }
+
+    return this.metadata.description
+  }
+
+  @hasOne(() => VideoMetadata)
+  public metadata: HasOne<typeof VideoMetadata>
 
   @belongsTo(() => Origin, {
     foreignKey: 'originId',
