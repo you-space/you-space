@@ -25,7 +25,8 @@
     "@adonisjs/auth",
     "./providers/AppProvider",
     "./providers/VisibilityProvider",
-    "@adonisjs/view"
+    "@adonisjs/view",
+    "./providers/OriginMainProvider"
   ],
   "aceProviders": [
     "@adonisjs/repl"

@@ -13,3 +13,11 @@ declare module '@ioc:Providers/Visibility' {
 
   export default provider
 }
+
+declare module '@ioc:Providers/OriginMainProvider' {
+  import Origin from 'App/Models/Origin'
+
+  const OriginMain: Origin
+
+  export default OriginMain
+}

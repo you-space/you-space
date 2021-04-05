@@ -7,9 +7,9 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Video from 'App/Models/Video'
 import VideoValidator from 'App/Validators/VideoValidator'
 import File, { FileTypes } from 'App/Models/File'
-import Origin, { OriginTypes } from 'App/Models/Origin'
 import OriginMetadata from 'App/Models/OriginMetadata'
 import ContentVideo from 'App/Services/Content/ContentVideos'
+import OriginMain from '@ioc:Providers/OriginMainProvider'
 
 export default class VideosController {
   public async index({ request, auth }: HttpContextContract) {
@@ -34,11 +34,6 @@ export default class VideosController {
 
   public async store({ request }: HttpContextContract) {
     const { name, video, thumbnail } = await request.validate(VideoValidator)
-
-    const originMain = await Origin.firstOrCreate({
-      type: OriginTypes.Main,
-      name: 'local',
-    })
 
     const videoFilename = `${uuid()}.${video.extname}`
 
@@ -69,9 +64,9 @@ export default class VideosController {
     }
 
     const create = await Video.create({
-      id: `${originMain.id}-${file.id}`,
+      id: `${OriginMain.id}-${file.id}`,
       videoId: String(file.id),
-      originId: originMain.id,
+      originId: OriginMain.id,
       originData: {
         ...file.serialize(),
         name,
@@ -79,13 +74,13 @@ export default class VideosController {
       },
     })
 
-    const { count } = await originMain.related('videos').query().count('id').first()
+    const { count } = await OriginMain.related('videos').query().count('id').first()
 
-    await originMain.related('metadata').updateOrCreate(
+    await OriginMain.related('metadata').updateOrCreate(
       {
-        originId: originMain.id,
+        originId: OriginMain.id,
       },
-      { originId: originMain.id, totalVideos: count }
+      { originId: OriginMain.id, totalVideos: count }
     )
 
     return create
