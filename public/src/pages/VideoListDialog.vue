@@ -60,7 +60,7 @@
             </q-card-section>
 
             <q-card-section class="text-right full-width">
-                <q-btn color="primary" @click="uploadVideo">
+                <q-btn color="primary" @click="saveVideo">
                     {{ $t('upload') }}
                 </q-btn>
                 <q-btn @click="dialog = false">
@@ -73,7 +73,8 @@
 
 <script lang="ts">
 import { api } from 'src/boot/axios';
-import { defineComponent, ref, computed } from 'vue';
+import { Video } from 'src/types';
+import { defineComponent, ref, computed, watch } from 'vue';
 
 interface Upload {
     title: string;
@@ -87,6 +88,10 @@ export default defineComponent({
         modelValue: {
             type: Boolean,
             default: false,
+        },
+        videoId: {
+            type: String,
+            default: null,
         },
     },
     emits: ['update:modelValue', 'save'],
@@ -107,7 +112,21 @@ export default defineComponent({
             },
         });
 
-        const uploadVideo = async () => {
+        const createVideo = async () => {
+            const formData = new FormData();
+
+            formData.append('title', video.value.title);
+            formData.append('description', video.value.description);
+            formData.append('video', video.value.file || '');
+
+            if (video.value.thumbnail) {
+                formData.append('thumbnail', video.value.thumbnail);
+            }
+
+            await api.post('admin/videos', formData);
+        };
+
+        const updateVideo = async () => {
             if (!video.value) {
                 return;
             }
@@ -122,15 +141,39 @@ export default defineComponent({
                 formData.append('thumbnail', video.value.thumbnail);
             }
 
-            await api.post('admin/videos', formData);
+            await api.patch(`admin/videos/${props.videoId}`, formData);
+        };
+
+        async function saveVideo() {
+            if (props.videoId) {
+                await updateVideo();
+            } else {
+                await createVideo();
+            }
 
             emit('save');
 
             dialog.value = false;
-        };
+        }
+
+        async function setVideo() {
+            if (!props.videoId) {
+                video.value.title = '';
+                video.value.description = '';
+                video.value.file = null;
+                video.value.thumbnail = null;
+                return;
+            }
+
+            const { data } = await api.get<Video>(`videos/${props.videoId}`);
+            video.value.title = data.title;
+            video.value.description = data.description;
+        }
+
+        watch(() => props.videoId, setVideo, { immediate: true });
 
         return {
-            uploadVideo,
+            saveVideo,
             dialog,
             video,
         };

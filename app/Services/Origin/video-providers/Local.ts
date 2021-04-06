@@ -1,10 +1,12 @@
 import lodash from 'lodash'
 import { OriginVideoProvider } from 'App/Services/Origin/types'
 import { OriginHelper } from 'App/Services/Origin/helpers'
+import OriginMain from '@ioc:Providers/OriginMainProvider'
 
 export default class LocalProvider extends OriginHelper implements OriginVideoProvider {
   public async getTotalVideos() {
-    return 0
+    const { count } = await OriginMain.related('videos').query().count('*').firstOrFail()
+    return count
   }
 
   public async getVideoComments() {
@@ -15,14 +17,13 @@ export default class LocalProvider extends OriginHelper implements OriginVideoPr
     return []
   }
 
-  public serializeVideo(data: any) {
-    const baseURL = '/api/v1'
+  public serializeVideo() {
     return {
-      videoId: lodash.get(data, 'id', null),
-      title: lodash.get(data, 'name', null),
-      src: `${baseURL}/files/embed/${lodash.get(data, 'id', null)}`,
-      description: lodash.get(data, 'description', null),
-      thumbnailSrc: data.thumbnail ? `${baseURL}/files/embed/${data.thumbnail.id}` : undefined,
+      videoId: '',
+      title: '',
+      src: '',
+      description: '',
+      thumbnailSrc: undefined,
       viewsCount: 0,
     }
   }

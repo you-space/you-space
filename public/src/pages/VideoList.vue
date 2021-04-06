@@ -48,7 +48,7 @@
                     </div>
 
                     <div class="col-3 text-right">
-                        <q-btn @click="dialog = true">
+                        <q-btn @click="addVideo">
                             {{ $t('addNew') }}
                         </q-btn>
                     </div>
@@ -84,6 +84,14 @@
                         :to="getVideoPath(props.row)"
                     />
                     <q-btn
+                        class="q-mr-sm"
+                        icon="edit"
+                        size="xs"
+                        flat
+                        round
+                        @click="editVideo(props.row.id)"
+                    />
+                    <q-btn
                         icon="delete"
                         size="xs"
                         flat
@@ -94,12 +102,16 @@
             </template>
         </q-table>
 
-        <video-upload-video v-model="dialog" @save="onRequestTable" />
+        <video-list-dialog
+            v-model="dialog"
+            :video-id="editedItemId"
+            @save="onRequestTable"
+        />
     </q-page>
 </template>
 
 <script lang="ts">
-import { pickBy, identity } from 'lodash';
+import { pickBy } from 'lodash';
 import { defineComponent, ref, defineAsyncComponent, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -123,8 +135,8 @@ interface Filters {
 export default defineComponent({
     name: 'AdminVideoList',
     components: {
-        VideoUploadVideo: defineAsyncComponent(
-            () => import('./UploadVideo.vue'),
+        VideoListDialog: defineAsyncComponent(
+            () => import('./VideoListDialog.vue'),
         ),
     },
     setup() {
@@ -138,6 +150,7 @@ export default defineComponent({
 
         const showFilters = ref(false);
         const dialog = ref(false);
+        const editedItemId = ref<string | null>(null);
         const loading = ref(false);
 
         const filters = ref<Filters>({
@@ -226,12 +239,6 @@ export default defineComponent({
             setTimeout(() => (loading.value = false), 800);
         };
 
-        async function reload() {
-            const { videos, meta } = await getVideos(pagination.value.page);
-            pagination.value.rowsNumber = meta.total;
-            rows.value = videos;
-        }
-
         async function setVisibilities() {
             visibilities.value = await getVisibilities();
         }
@@ -239,6 +246,14 @@ export default defineComponent({
         async function setOrigins() {
             origins.value = await getOrigins();
         }
+
+        async function reload() {
+            const { videos, meta } = await getVideos(pagination.value.page);
+            pagination.value.rowsNumber = meta.total;
+            rows.value = videos;
+        }
+
+        watch(() => filters, reload, { deep: true });
 
         void setVisibilities();
         void setOrigins();
@@ -249,7 +264,15 @@ export default defineComponent({
             await onRequestTable({ pagination: pagination.value });
         };
 
-        watch(() => filters, reload, { deep: true });
+        function addVideo() {
+            editedItemId.value = null;
+            dialog.value = true;
+        }
+
+        function editVideo(videoId: string) {
+            editedItemId.value = videoId;
+            dialog.value = true;
+        }
 
         return {
             columns,
@@ -265,6 +288,9 @@ export default defineComponent({
             getVideoPath,
             showFilters,
             filters,
+            addVideo,
+            editVideo,
+            editedItemId,
         };
     },
 });

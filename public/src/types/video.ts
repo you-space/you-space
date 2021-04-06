@@ -2,7 +2,8 @@ import { Origin } from './origin';
 export interface Video {
     id: number;
     videoId: number;
-    name: string;
+    title: string;
+    description: string;
     type: undefined | 'you-tube';
     src: string;
     thumbnailSrc?: string;

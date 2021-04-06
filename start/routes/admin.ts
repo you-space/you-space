@@ -6,7 +6,10 @@ Route.group(() => {
 }).prefix('ys-admin')
 
 Route.group(() => {
-  Route.resource('videos', 'Admin/VideosController').apiOnly().only(['store', 'destroy', 'index'])
+  Route.resource('videos', 'Admin/VideosController')
+    .apiOnly()
+    .only(['store', 'destroy', 'index', 'update'])
+
   Route.patch('videos/update-all', 'Admin/VideosController.updateAll')
 
   Route.resource('origins', 'Admin/OriginsController').apiOnly()

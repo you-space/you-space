@@ -107,9 +107,9 @@ export default class ContentVideo {
 
         title: v.title ? v.title : serialize.title,
         description: v.description ? v.description : serialize.description,
+        src: v.src ? v.src : serialize.src,
+        thumbnailSrc: v.thumbnailSrc ? v.thumbnailSrc : serialize.thumbnailSrc,
 
-        thumbnailSrc: serialize.thumbnailSrc,
-        src: serialize.src,
         viewsCount: serialize.viewsCount,
       }
     })
@@ -125,6 +125,7 @@ export default class ContentVideo {
 
     const video = await Video.query()
       .where('id', videoId)
+      .preload('metadata')
       .preload('origin')
       .preload('views')
       .preload('visibility')
@@ -137,12 +138,19 @@ export default class ContentVideo {
       })
       .firstOrFail()
 
+    const serialize = OriginProvider.serializeVideo(video.origin, video)
     return {
       id: video.id,
-      ...OriginProvider.serializeVideo(video.origin, video),
       origin: video.origin.serialize({ fields: { omit: ['config'] } }),
       visibility: video.visibility,
       totalViews: Number(video.$extras.totalViews) || 0,
+
+      title: video.title ? video.title : serialize.title,
+      description: video.description ? video.description : serialize.description,
+      src: video.src ? video.src : serialize.src,
+
+      thumbnailSrc: serialize.thumbnailSrc,
+      viewsCount: serialize.viewsCount,
     }
   }
 }

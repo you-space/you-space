@@ -10,6 +10,8 @@ import File, { FileTypes } from 'App/Models/File'
 import ContentVideo from 'App/Services/Content/ContentVideos'
 import OriginMain from '@ioc:Providers/OriginMainProvider'
 import Database from '@ioc:Adonis/Lucid/Database'
+import VideoMetadata from 'App/Models/VideoMetadata'
+import VideoUpdateValidator from 'App/Validators/VideoUpdateValidator'
 
 export default class VideosController {
   public async index({ request, auth }: HttpContextContract) {
@@ -46,12 +48,15 @@ export default class VideosController {
 
     await videoFile.save()
 
+    const metadata = new VideoMetadata()
+
+    metadata.title = title
+    metadata.description = description
+    metadata.videoFileId = videoFile.id
+
     localVideo.id = `${OriginMain.id}-${videoFile.id}`
     localVideo.videoId = String(videoFile.id)
     localVideo.originId = OriginMain.id
-    localVideo.originData = {
-      id: videoFile.id,
-    }
 
     if (thumbnail) {
       const thumbnailFile = new File()
@@ -67,32 +72,51 @@ export default class VideosController {
 
       await thumbnailFile.save()
 
-      localVideo.originData.thumbnailId = thumbnailFile.id
+      metadata.thumbnailFileId = thumbnailFile.id
     }
 
-    await localVideo.related('metadata').create({
-      title,
-      description,
-    })
+    await localVideo.related('metadata').save(metadata)
 
     await trx.commit()
 
     return localVideo
   }
 
-  public async updateAll({ request }: HttpContextContract) {
-    const { videos } = await request.validate({
-      schema: schema.create({
-        videos: schema.array([rules.minLength(1)]).members(
-          schema.object().members({
-            id: schema.string(),
-            visibility_id: schema.number.optional(),
-          })
-        ),
-      }),
-    })
+  public async update({ request, params }: HttpContextContract) {
+    const { title, description, thumbnail } = await request.validate(VideoUpdateValidator)
 
-    return await Video.updateOrCreateMany('id', videos)
+    const originVideo = await Video.query().preload('metadata').where('id', params.id).firstOrFail()
+
+    const trx = await Database.transaction()
+    originVideo.useTransaction(trx)
+
+    if (thumbnail) {
+      const old = await originVideo.metadata.related('thumbnailFile').query().first()
+      await originVideo.metadata.related('thumbnailFile').dissociate()
+      if (old) {
+        await old.delete()
+      }
+
+      const thumbnailFile = new File()
+      thumbnailFile.filename = `${uuid()}.${thumbnail.extname}`
+      thumbnailFile.type = FileTypes.Image
+      thumbnailFile.extname = thumbnail.extname || 'jpg'
+
+      await originVideo.metadata.related('thumbnailFile').associate(thumbnailFile)
+
+      await thumbnail.move(Application.tmpPath('uploads'), {
+        name: thumbnailFile.filename,
+      })
+    }
+
+    await originVideo.related('metadata').updateOrCreate(
+      {
+        videoId: originVideo.videoId,
+      },
+      { title, description }
+    )
+
+    await trx.commit()
   }
 
   public async destroy({ params }: HttpContextContract) {
