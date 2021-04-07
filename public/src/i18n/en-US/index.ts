@@ -16,6 +16,13 @@ export default {
     name: 'Name',
     save: 'Save',
     cancel: 'Cancel',
+    createdAt: 'Created at',
+    updatedAt: 'Updated at',
+    totalVideos: 'Total videos',
+    registeredVideos: 'Registered videos',
+
+    apiKey: 'Api key',
+    channelId: 'Channel id',
 
     dashboard: 'Dashboard',
     home: 'Home',

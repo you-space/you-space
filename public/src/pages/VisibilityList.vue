@@ -44,7 +44,6 @@
 </template>
 
 <script lang="ts">
-import lodash from 'lodash';
 import { api } from 'src/boot/axios';
 import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';

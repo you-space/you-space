@@ -1,11 +1,9 @@
 <template>
-    <q-layout view="hHh Lpr lFf">
-        <router-view />
-    </q-layout>
+    <router-view />
 </template>
 
 <script lang="ts">
-import { defineComponent} from 'vue';
+import { defineComponent } from 'vue';
 
-export default defineComponent({name: 'EmptyLayout', });
+export default defineComponent({ name: 'EmptyLayout' });
 </script>

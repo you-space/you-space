@@ -19,6 +19,13 @@
 
             <template #body-cell-actions="props">
                 <q-td :props="props">
+                    <q-btn
+                        icon="visibility"
+                        size="sm"
+                        flat
+                        round
+                        :to="getOriginPath(props.row.id)"
+                    />
                     <template v-if="!props.row.isDefault">
                         <q-btn
                             icon="import_export"
@@ -26,13 +33,6 @@
                             flat
                             round
                             @click="importOriginVideos(props.row.id)"
-                        />
-                        <q-btn
-                            icon="edit"
-                            size="sm"
-                            flat
-                            round
-                            @click="editOrigin(props.row.id)"
                         />
                         <q-btn
                             icon="delete"
@@ -110,9 +110,11 @@ export default defineComponent({
             rows.value = data;
         };
 
-        const editOrigin = (id: number) => {
-            editedItemid.value = id;
-            dialog.value = true;
+        const getOriginPath = (id: number) => {
+            return {
+                name: 'origin-single',
+                params: { originId: id },
+            };
         };
 
         const deleteOrigin = async (id: number) => {
@@ -133,7 +135,7 @@ export default defineComponent({
             dialog,
             deleteOrigin,
             setOrigins,
-            editOrigin,
+            getOriginPath,
             editedItemid,
             importOriginVideos,
         };

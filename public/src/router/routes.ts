@@ -37,7 +37,21 @@ const routes: RouteRecordRaw[] = [
             {
                 path: 'origins',
                 name: 'origins',
-                component: () => import('pages/OriginList.vue'),
+                component: () => import('layouts/EmptyLayout.vue'),
+                redirect: { name: 'origin-list' },
+                children: [
+                    {
+                        path: 'origin-list',
+                        name: 'origin-list',
+                        component: () => import('pages/OriginList.vue'),
+                    },
+                    {
+                        path: ':originId',
+                        name: 'origin-single',
+                        component: () => import('pages/OriginSingle.vue'),
+                        props: true,
+                    },
+                ],
             },
         ],
     },

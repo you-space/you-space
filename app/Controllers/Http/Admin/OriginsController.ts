@@ -15,7 +15,7 @@ export default class OriginsController {
 
     return origins.map((o) => ({
       ...o.serialize(),
-      videosCount: o.$extras.videos_count,
+      videosCount: Number(o.$extras.videos_count),
     }))
   }
 
@@ -36,7 +36,16 @@ export default class OriginsController {
   }
 
   public async show({ params }: HttpContextContract) {
-    return Origin.query().where('id', params.id).preload('metadata').firstOrFail()
+    const origin = await Origin.query()
+      .where('id', params.id)
+      .withCount('videos')
+      .preload('metadata')
+      .firstOrFail()
+
+    return {
+      ...origin.serialize(),
+      videosCount: Number(origin.$extras.videos_count),
+    }
   }
 
   public async update({ params, request }: HttpContextContract) {
