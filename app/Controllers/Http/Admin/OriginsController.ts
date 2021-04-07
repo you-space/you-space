@@ -1,4 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import OriginService from '@ioc:Providers/OriginService'
+import OriginException from 'App/Exceptions/OriginException'
 
 import Origin, { OriginConfig, OriginTypes } from 'App/Models/Origin'
 import OriginProvider from 'App/Services/Origin/OriginProvider'
@@ -13,13 +15,13 @@ export default class OriginsController {
   public async store({ request }: HttpContextContract) {
     const { name, type, config } = await request.validate(OriginValidator)
 
-    if (type === OriginTypes.Main) {
-      throw new Error("can't create main origin")
+    const isValid = await OriginService.checkConfig(type, config)
+
+    if (!isValid) {
+      throw new OriginException('config invalid', type)
     }
 
-    await OriginProvider.checkConfig(config as OriginConfig)
-
-    return Origin.create({
+    return await Origin.create({
       name,
       type,
       config: config as OriginConfig,

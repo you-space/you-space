@@ -13,6 +13,7 @@ Route.group(() => {
   Route.patch('videos/update-all', 'Admin/VideosController.updateAll')
 
   Route.resource('origins', 'Admin/OriginsController').apiOnly()
+  Route.post('origins/import/:id', 'Admin/OriginsController.importData')
 
   Route.resource('visibilities', 'Admin/VisibilitiesController').apiOnly()
   Route.resource('permissions', 'Admin/PermissionsController').only(['index'])

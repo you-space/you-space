@@ -1,27 +1,44 @@
 import lodash from 'lodash'
 import axios from 'axios'
-import { OriginVideoProvider } from 'App/Services/Origin/types'
-import { OriginHelper } from 'App/Services/Origin/helpers'
+import BaseOriginProvider from 'App/Services/Origin/BaseOriginProvider'
 import { OriginConfig } from 'App/Models/Origin'
 
 const api = axios.create({
   baseURL: 'https://www.googleapis.com/youtube/v3',
 })
 
-export default class YoutubeProvider extends OriginHelper implements OriginVideoProvider {
+export default class YoutubeProvider extends BaseOriginProvider {
+  public resultsPerPage = 50
+
+  public async getTotalVideos() {
+    let metadata = await this.getMetadata()
+    if (!metadata.totalVideos) {
+      await this.getVideos(1)
+      metadata = await this.getMetadata()
+    }
+    return metadata.totalVideos || 0
+  }
+
+  public async getTotalPages() {
+    const totalVideos = await this.getTotalVideos()
+    return Math.ceil(totalVideos / this.resultsPerPage)
+  }
+
   public static async checkConfig(config: OriginConfig) {
-    const request = await api.get('channels', {
-      params: {
-        key: config.apiKey,
-        id: config.channelId,
-        part: 'contentDetails',
-      },
-    })
+    const request = await api
+      .get('channels', {
+        params: {
+          key: config.apiKey,
+          id: config.channelId,
+          part: 'contentDetails',
+        },
+      })
+      .catch(() => {})
 
     const channel = lodash.get(request, 'data.items[0]', null)
 
     if (!channel) {
-      throw new Error('[you-tube-provider] channel not found')
+      return false
     }
 
     return channel
@@ -64,7 +81,6 @@ export default class YoutubeProvider extends OriginHelper implements OriginVideo
     }
 
     if (page > 1 && !pageToken) {
-      console.log(pageToken, metadata)
       throw new Error('page token not found')
     }
 
@@ -74,7 +90,7 @@ export default class YoutubeProvider extends OriginHelper implements OriginVideo
         key: config.apiKey,
         playlistId: metadata.uploadPlaylistId,
         pageToken,
-        maxResults: 50,
+        maxResults: this.resultsPerPage,
       },
     })
 
@@ -114,15 +130,6 @@ export default class YoutubeProvider extends OriginHelper implements OriginVideo
     }))
   }
 
-  public async getTotalVideos() {
-    let metadata = await this.getMetadata()
-    if (!metadata.totalVideos) {
-      await this.getVideos(1)
-      metadata = await this.getMetadata()
-    }
-    return metadata.totalVideos || 0
-  }
-
   public serializeVideo(data: any) {
     const viewsCount = lodash.get(data, 'statistics.viewCount', 0)
     const standardThumb = lodash.get(data, 'snippet.thumbnails.standard.url', null)
@@ -156,7 +163,7 @@ export default class YoutubeProvider extends OriginHelper implements OriginVideo
         part: 'snippet, replies',
         textFormat: 'plainText',
         videoId,
-        maxResults: 50,
+        maxResults: this.resultsPerPage,
       },
     })
 

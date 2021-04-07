@@ -5,6 +5,7 @@ import Video from 'App/Models/Video'
 import Visibility from 'App/Models/Visibility'
 import OriginProvider from 'App/Services/Origin/OriginProvider'
 import Permission from 'App/Models/Permission'
+import OriginService from '@ioc:Providers/OriginService'
 
 export interface VideoFilters {
   search?: string
@@ -20,7 +21,7 @@ export default class ContentVideo {
   static async registerOrigins(page: number) {
     const origins = await Origin.query().where('type', OriginTypes.YouTube)
 
-    await Promise.all(origins.map(async (o) => OriginProvider.registerVideos(o, page)))
+    await Promise.all(origins.map(async (o) => OriginService.registerVideos(o, page)))
   }
 
   static async getUserAllowedVisibilities(user?: User) {
@@ -51,10 +52,10 @@ export default class ContentVideo {
 
   static async index(args?: Partial<VideoFilters>, user?: User) {
     const filters: VideoFilters = {
-      page: 1,
-      limit: 20,
       orderBy: ['created_at', 'desc'],
       ...pickBy(args, (v) => v !== undefined),
+      page: args ? Number(args.page) : 1,
+      limit: args ? Number(args.limit) : 20,
     }
 
     const allowedVisibility = await this.getUserAllowedVisibilities(user)

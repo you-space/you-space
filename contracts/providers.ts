@@ -1,11 +1,3 @@
-// declare module '@ioc:Providers/YouTube' {
-//   import YouTubeProvider from 'providers/YouTubeProvider'
-
-//   const provider: YouTubeProvider
-
-//   export default provider
-// }
-
 declare module '@ioc:Providers/Visibility' {
   import VisibilityProvider from 'providers/VisibilityProvider'
 
@@ -20,4 +12,12 @@ declare module '@ioc:Providers/OriginMainProvider' {
   const OriginMain: Origin
 
   export default OriginMain
+}
+
+declare module '@ioc:Providers/OriginService' {
+  import Service from 'App/Services/Origin/OriginService'
+
+  const OriginService: Service
+
+  export default OriginService
 }

@@ -37,6 +37,9 @@ export interface VideoSerialized {
 export interface OriginVideoProvider {
   preload?(config: OriginConfig): Promise<void>
   getTotalVideos(): Promise<number>
+
+  getTotalPages(): Promise<number>
+
   getVideos(page: number): Promise<OriginVideo[]>
   serializeVideo(data: any): VideoSerialized
 
