@@ -21,3 +21,10 @@ declare module '@ioc:Providers/OriginService' {
 
   export default OriginService
 }
+declare module '@ioc:Providers/Queue/OriginQueue' {
+  import Queue from 'App/Services/Queue/OriginQueue'
+
+  const OriginQueue: Queue
+
+  export default OriginQueue
+}

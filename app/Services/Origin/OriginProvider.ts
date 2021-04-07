@@ -49,7 +49,6 @@ class OriginProvider {
       {
         originId: origin.id,
         totalVideos: totalVideos,
-        registeredVideos: Number($extras.videos_count) || 0,
       }
     )
   }

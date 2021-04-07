@@ -1,5 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import OriginService from '@ioc:Providers/OriginService'
+import OriginQueue from '@ioc:Providers/Queue/OriginQueue'
+import NotModifyDefaultEntityException from 'App/Exceptions/NotModifyDefaultEntityException'
 import OriginException from 'App/Exceptions/OriginException'
 
 import Origin, { OriginConfig, OriginTypes } from 'App/Models/Origin'
@@ -9,7 +11,12 @@ import OriginValidator from 'App/Validators/OriginValidator'
 
 export default class OriginsController {
   public async index() {
-    return Origin.query().preload('metadata')
+    const origins = await Origin.query().preload('metadata').withCount('videos')
+
+    return origins.map((o) => ({
+      ...o.serialize(),
+      videosCount: o.$extras.videos_count,
+    }))
   }
 
   public async store({ request }: HttpContextContract) {
@@ -61,8 +68,26 @@ export default class OriginsController {
   public async destroy({ params }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.id)
     if (origin.type === OriginTypes.Main) {
-      throw new Error("can't delete main origin")
+      throw new NotModifyDefaultEntityException("can't delete main origin")
     }
     await origin.delete()
+  }
+
+  public async startImport({ params }: HttpContextContract) {
+    const origin = await Origin.findOrFail(params.id)
+    const provider = OriginService.getProvider(origin)
+    const totalPages = await provider.getTotalPages()
+
+    const jobs: any[] = []
+
+    for (let i = 1; i <= totalPages; i++) {
+      jobs.push({
+        originId: origin.id,
+        page: i,
+        delay: i * 1000,
+      })
+    }
+
+    jobs.forEach((job) => OriginQueue.addVideoPageImport(job.originId, job.page, job.delay))
   }
 }

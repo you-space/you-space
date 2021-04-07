@@ -11,12 +11,6 @@ export default class OriginMetadata extends BaseModel {
   @column({ columnName: 'total_videos', serializeAs: 'totalVideos' })
   public totalVideos: number
 
-  @column({ columnName: 'registered_videos', serializeAs: 'registeredVideos' })
-  public registeredVideos: number
-
-  @column({ columnName: 'total_subscribers' })
-  public totalSubscribers: number
-
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 

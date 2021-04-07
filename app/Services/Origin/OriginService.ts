@@ -1,3 +1,4 @@
+import Logger from '@ioc:Adonis/Core/Logger'
 import Redis from '@ioc:Adonis/Addons/Redis'
 import OriginException from 'App/Exceptions/OriginException'
 import Origin, { OriginTypes } from 'App/Models/Origin'
@@ -10,7 +11,7 @@ interface AllVideoProviders {
 }
 
 export default class OriginService {
-  public allProviders: AllVideoProviders
+  private allProviders: AllVideoProviders
 
   constructor() {
     this.allProviders = {
@@ -40,55 +41,61 @@ export default class OriginService {
   }
 
   public async registerVideos(origin: Origin, page: number) {
-    const provider = this.getProvider(origin)
+    try {
+      const provider = this.getProvider(origin)
 
-    const totalPages = await provider.getTotalPages()
+      if (provider.preload) {
+        await provider.preload(origin.config)
+      }
 
-    console.log(page, totalPages)
+      const totalPages = await provider.getTotalPages()
+      const totalVideos = await provider.getTotalVideos()
 
-    if (totalPages < page) {
-      return
+      await origin.related('metadata').updateOrCreate({}, { totalVideos: totalVideos })
+
+      if (totalPages < page) {
+        return
+      }
+      const videosKey = `origin:${origin.id}:videos:page:${page}`
+
+      const cache = await Redis.get(videosKey)
+
+      if (cache) {
+        return
+      }
+
+      const videos = await provider.getVideos(page)
+
+      if (videos.length === 0) {
+        return
+      }
+
+      const serializedVideos = videos.map((v) => v.data).map(provider.serializeVideo)
+
+      await origin.related('videos').updateOrCreateMany(
+        videos.map((v) => ({
+          id: `${origin.id}-${v.videoId}`,
+          videoId: v.videoId,
+          originId: origin.id,
+          originData: v.data,
+        })),
+        'id'
+      )
+
+      await origin.related('views').updateOrCreateMany(
+        serializedVideos.map((i) => ({
+          id: `${origin.id}-${origin.id}-${i.videoId}`,
+          videoId: `${origin.id}-${i.videoId}`,
+          originId: origin.id,
+          count: i.viewsCount,
+        })),
+        'id'
+      )
+
+      await Redis.set(videosKey, JSON.stringify(videos), 'EX', 60 * 1000 * 600)
+    } catch (error) {
+      const exception = new OriginException(error.message, origin.type, origin.name)
+      Logger.child(exception).error(error.message)
     }
-    const videosKey = `origin:${origin.id}:videos:page:${page}`
-
-    const cache = await Redis.get(videosKey)
-
-    if (cache) {
-      return
-    }
-
-    if (provider.preload) {
-      await provider.preload(origin.config)
-    }
-
-    const videos = await provider.getVideos(page).catch((err) => {
-      throw new OriginException(err.message, origin.type, origin.name)
-    })
-
-    if (videos.length === 0) {
-      return
-    }
-
-    const serializedVideos = videos.map((v) => v.data).map(provider.serializeVideo)
-
-    await origin.related('videos').updateOrCreateMany(
-      videos.map((v) => ({
-        id: `${origin.id}-${v.videoId}`,
-        videoId: v.videoId,
-        originId: origin.id,
-        originData: v.data,
-      }))
-    )
-
-    await origin.related('views').updateOrCreateMany(
-      serializedVideos.map((i) => ({
-        id: `${origin.id}-${origin.id}-${i.videoId}`,
-        videoId: `${origin.id}-${i.videoId}`,
-        originId: origin.id,
-        count: i.viewsCount,
-      }))
-    )
-
-    await Redis.set(videosKey, JSON.stringify(videos))
   }
 }

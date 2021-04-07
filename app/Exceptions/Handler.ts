@@ -15,9 +15,24 @@
 
 import Logger from '@ioc:Adonis/Core/Logger'
 import HttpExceptionHandler from '@ioc:Adonis/Core/HttpExceptionHandler'
-
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Env from '@ioc:Adonis/Core/Env'
 export default class ExceptionHandler extends HttpExceptionHandler {
   constructor() {
     super(Logger)
+  }
+
+  public async report(error: any) {
+    Logger.error(error)
+  }
+
+  public async handle(error: any, { response }: HttpContextContract) {
+    const status = error.status || 500
+    response.status(status).json({
+      status: status,
+      code: error.code,
+      message: error.message || 'Internal server error',
+      stack: Env.get('NODE_ENV') === 'development' ? error.stack : undefined,
+    })
   }
 }

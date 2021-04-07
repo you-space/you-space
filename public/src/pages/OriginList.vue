@@ -19,20 +19,29 @@
 
             <template #body-cell-actions="props">
                 <q-td :props="props">
-                    <q-btn
-                        icon="edit"
-                        size="sm"
-                        flat
-                        round
-                        @click="editOrigin(props.row.id)"
-                    />
-                    <q-btn
-                        icon="delete"
-                        size="sm"
-                        flat
-                        round
-                        @click="deleteOrigin(props.row.id)"
-                    />
+                    <template v-if="!props.row.isDefault">
+                        <q-btn
+                            icon="import_export"
+                            size="sm"
+                            flat
+                            round
+                            @click="importOriginVideos(props.row.id)"
+                        />
+                        <q-btn
+                            icon="edit"
+                            size="sm"
+                            flat
+                            round
+                            @click="editOrigin(props.row.id)"
+                        />
+                        <q-btn
+                            icon="delete"
+                            size="sm"
+                            flat
+                            round
+                            @click="deleteOrigin(props.row.id)"
+                        />
+                    </template>
                 </q-td>
             </template>
         </q-table>
@@ -47,7 +56,7 @@
 
 <script lang="ts">
 import lodash from 'lodash';
-import { defineComponent, ref, defineAsyncComponent, onMounted } from 'vue';
+import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { api } from 'boot/axios';
 import { Origin } from 'src/types';
@@ -89,9 +98,8 @@ export default defineComponent({
             },
             {
                 label: tm.t('registeredVideos'),
-                name: 'totalVideos',
-                field: (row: Origin) =>
-                    lodash.get(row, 'metadata.registeredVideos', 0),
+                name: 'videosCount',
+                field: 'videosCount',
                 align: 'left',
             },
             { name: 'actions' },
@@ -112,7 +120,12 @@ export default defineComponent({
             await setOrigins();
         };
 
-        onMounted(setOrigins);
+        async function importOriginVideos(id: number) {
+            await api.post(`/admin/origins/import/${id}`);
+            await setOrigins();
+        }
+
+        void setOrigins();
 
         return {
             rows,
@@ -122,6 +135,7 @@ export default defineComponent({
             setOrigins,
             editOrigin,
             editedItemid,
+            importOriginVideos,
         };
     },
 });

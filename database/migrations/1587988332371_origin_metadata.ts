@@ -8,8 +8,6 @@ export default class OriginMetadata extends BaseSchema {
       table.increments('id').primary()
       table.integer('origin_id').notNullable().references('origins.id').unique()
       table.integer('total_videos').notNullable().defaultTo(0)
-      table.integer('registered_videos').notNullable().defaultTo(0)
-      table.integer('total_subscribers').notNullable().defaultTo(0)
       table.timestamps(true)
     })
   }

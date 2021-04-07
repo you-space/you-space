@@ -3,6 +3,7 @@ import {
   BaseModel,
   beforeDelete,
   column,
+  computed,
   HasMany,
   hasMany,
   HasOne,
@@ -40,6 +41,17 @@ export default class Origin extends BaseModel {
   @column()
   public config: OriginConfig
 
+  @column.dateTime({ autoCreate: true })
+  public createdAt: DateTime
+
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  public updatedAt: DateTime
+
+  @computed()
+  public get isDefault() {
+    return this.type === OriginTypes.Main
+  }
+
   @hasOne(() => OriginMetadata)
   public metadata: HasOne<typeof OriginMetadata>
 
@@ -62,12 +74,6 @@ export default class Origin extends BaseModel {
     foreignKey: 'originId',
   })
   public comments: HasMany<typeof Comment>
-
-  @column.dateTime({ autoCreate: true })
-  public createdAt: DateTime
-
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  public updatedAt: DateTime
 
   @beforeDelete()
   public static async beforeDelete(origin: Origin) {
