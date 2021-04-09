@@ -15,6 +15,8 @@ Route.group(() => {
   Route.resource('origins', 'Admin/OriginsController').apiOnly()
   Route.post('origins/import/:id', 'Admin/OriginsController.startImport')
 
+  Route.resource('origins.logs', 'Admin/OriginLogsController').only(['index'])
+
   Route.resource('visibilities', 'Admin/VisibilitiesController').apiOnly()
   Route.resource('permissions', 'Admin/PermissionsController').only(['index'])
 })

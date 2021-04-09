@@ -14,6 +14,7 @@ import OriginMetadata from './OriginMetadata'
 import View from './View'
 import Comment from './Comment'
 import User from './User'
+import OriginLog from './OriginLog'
 
 export enum OriginTypes {
   YouTube = 'you-tube',
@@ -74,6 +75,12 @@ export default class Origin extends BaseModel {
     foreignKey: 'originId',
   })
   public comments: HasMany<typeof Comment>
+
+  @hasMany(() => OriginLog, {
+    foreignKey: 'originId',
+    onQuery: (query) => query.orderBy('created_at', 'desc'),
+  })
+  public logs: HasMany<typeof OriginLog>
 
   @beforeDelete()
   public static async beforeDelete(origin: Origin) {

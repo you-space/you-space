@@ -1,5 +1,6 @@
 import OriginService from '@ioc:Providers/OriginService'
 import Origin from 'App/Models/Origin'
+import { OriginLogTypes } from 'App/Models/OriginLog'
 import Bull, { Queue, Job } from 'bull'
 
 interface ImportJobData {
@@ -17,7 +18,15 @@ export default class OriginQueue {
   public async processImport(job: Job<ImportJobData>) {
     const origin = await Origin.findOrFail(job.data.originId)
 
-    OriginService.registerVideos(origin, job.data.page)
+    await OriginService.registerVideos(origin, job.data.page)
+
+    await origin.related('logs').create({
+      message: `queue: import videos page ${job.data.page}`,
+      type: OriginLogTypes.Info,
+      payload: {
+        page: job.data.page,
+      },
+    })
 
     return Promise.resolve()
   }
