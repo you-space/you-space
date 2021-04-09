@@ -8,7 +8,6 @@ import {
   OriginVideo,
 } from './types'
 import OriginException from 'App/Exceptions/OriginException'
-
 export default class BaseOriginProvider implements OriginVideoProvider {
   public metadataKey: string
 

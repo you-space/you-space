@@ -85,6 +85,10 @@ export default class OriginsController {
   public async startImport({ params }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.id)
     const provider = OriginService.getProvider(origin)
+    if (provider.preload) {
+      await provider.preload(origin.config)
+    }
+
     const totalPages = await provider.getTotalPages()
 
     const jobs: any[] = []

@@ -33,7 +33,6 @@ export default class File extends BaseModel {
   public static async deleteFile(file: File) {
     const filePath = Application.tmpPath('uploads', file.filename)
     const exist = await promisify(fs.exists)(filePath)
-    console.log(filePath, exist)
     if (exist) {
       await promisify(fs.unlink)(filePath)
     }

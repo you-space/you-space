@@ -8,6 +8,8 @@ export default class OriginServiceProvider {
   public async register() {
     await this.registerOrigin()
     await this.registerQueue()
+    await this.registerAuthenticateByToken()
+    await this.registerSocket()
   }
 
   public async registerOrigin() {
@@ -24,5 +26,25 @@ export default class OriginServiceProvider {
     const originQueue = new OriginQueue()
 
     this.application.container.singleton('Providers/Queue/OriginQueue', () => originQueue)
+  }
+
+  public async registerAuthenticateByToken() {
+    const AuthenticateByTokenService = (await import('App/Services/AuthenticateByTokenService'))
+      .default
+
+    const authenticateByTokenService = new AuthenticateByTokenService()
+
+    this.application.container.singleton(
+      'Providers/AuthenticateByTokenService',
+      () => authenticateByTokenService
+    )
+  }
+
+  public async registerSocket() {
+    const SocketService = (await import('App/Services/SocketService')).default
+
+    const socketService = new SocketService()
+
+    this.application.container.singleton('Providers/SocketService', () => socketService)
   }
 }
