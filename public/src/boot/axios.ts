@@ -1,6 +1,6 @@
 import { boot } from 'quasar/wrappers';
 import lodash from 'lodash';
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosError, AxiosInstance } from 'axios';
 import { Notify } from 'quasar';
 
 declare module '@vue/runtime-core' {
@@ -13,7 +13,7 @@ declare module '@vue/runtime-core' {
 const baseURL = '/api/v1';
 
 const api = axios.create({ baseURL });
-function getArrayOfMessages(requestError: any) {
+function getArrayOfMessages(requestError: AxiosError) {
     const result = [];
     const errors = lodash.get(requestError, 'response.data.errors', []);
     const message = lodash.get(requestError, 'response.data.message', null);

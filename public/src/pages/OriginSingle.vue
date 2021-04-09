@@ -46,22 +46,37 @@
                         readonly
                     >
                     </q-input>
+
                     <q-input
-                        :model-value="$d(origin.createdAt)"
+                        v-if="origin.createdAt"
+                        :model-value="$d(origin.createdAt, 'long')"
                         :label="$t('createdAt')"
                         readonly
                     />
                     <q-input
-                        :model-value="$d(origin.updatedAt)"
+                        v-if="origin.updatedAt"
+                        :model-value="$d(origin.updatedAt, 'long')"
                         :label="$t('updatedAt')"
                         readonly
                     />
                 </q-card-section>
+                <q-card-actions>
+                    <q-btn flat :label="$t('edit')" @click="dialog = true" />
+                    <q-btn flat @click="deleteOrigin">{{ $t('delete') }}</q-btn>
+                    <q-btn flat @click="importOriginVideos">{{
+                        $t('startImport')
+                    }}</q-btn>
+                </q-card-actions>
             </q-card>
         </div>
         <div class="col">
-            <origin-single-logs />
+            <origin-single-logs v-if="originId" :origin-id="originId" />
         </div>
+        <origin-list-dialog
+            v-model="dialog"
+            :origin-id="originId"
+            @save="setOrigin"
+        />
     </q-page>
 </template>
 
@@ -69,11 +84,18 @@
 import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { Origin } from 'src/types';
 import { api } from 'src/boot/axios';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
+
 export default defineComponent({
     name: 'OriginSingle',
     components: {
         OriginSingleLogs: defineAsyncComponent(
             () => import('./OriginSingleLogs.vue'),
+        ),
+        OriginListDialog: defineAsyncComponent(
+            () => import('./OriginListDialog.vue'),
         ),
     },
     props: {
@@ -83,13 +105,22 @@ export default defineComponent({
         },
     },
     setup(props) {
+        const tm = useI18n();
+        const router = useRouter();
+        const $q = useQuasar();
+
         const origin = ref<Partial<Origin>>({
             name: '',
             type: '',
             videosCount: 0,
             metadata: { totalVideos: 0 },
+            config: {},
+            updatedAt: '',
+            createdAt: '',
         });
         const showKey = ref(false);
+        const dialog = ref(false);
+
         async function setOrigin() {
             if (!props.originId) {
                 return;
@@ -98,20 +129,46 @@ export default defineComponent({
                 `admin/origins/${props.originId}`,
             );
 
-            origin.value = data;
+            origin.value.name = data.name;
+            origin.value.type = data.type;
+            origin.value.videosCount = data.videosCount;
+            origin.value.createdAt = data.createdAt;
+            origin.value.updatedAt = data.updatedAt;
+
+            if (data.metadata) {
+                origin.value.metadata = {
+                    totalVideos: data.metadata.totalVideos,
+                };
+            }
+            origin.value.config = data.config;
         }
 
-        async function importOriginVideos(id: number) {
-            await api.post(`/admin/origins/import/${id}`);
+        async function importOriginVideos() {
+            await api.post(`/admin/origins/import/${props.originId}`);
             await setOrigin();
+        }
+
+        function deleteOrigin() {
+            $q.dialog({
+                title: tm.t('areYouSure'),
+                message: tm.t('thisActionCanNotBeUndone'),
+                cancel: true,
+                persistent: true,
+            }).onOk(async () => {
+                await api.delete(`/admin/origins/${props.originId}`);
+                await router.push({ name: 'origin-list' });
+            });
         }
 
         void setOrigin();
 
         return {
             origin,
+            setOrigin,
             importOriginVideos,
             showKey,
+            dialog,
+            deleteOrigin,
         };
     },
 });

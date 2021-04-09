@@ -3,7 +3,10 @@ export interface Origin {
     name: string;
     type: string;
     videosCount: number;
+    config: Record<string, unknown>;
     metadata: {
         totalVideos: number;
     };
+    updatedAt: string;
+    createdAt: string;
 }

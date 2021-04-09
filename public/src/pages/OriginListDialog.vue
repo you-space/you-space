@@ -10,7 +10,21 @@
                     :options="types"
                 />
                 <template v-if="type === 'you-tube'">
-                    <q-input v-model="config.apiKey" :label="$t('apiKey')" />
+                    <q-input
+                        v-model="config.apiKey"
+                        :type="!showKey ? 'password' : 'text'"
+                        :label="$t('apiKey')"
+                    >
+                        <template #append>
+                            <q-icon
+                                :name="
+                                    !showKey ? 'visibility_off' : 'visibility'
+                                "
+                                class="cursor-pointer"
+                                @click="showKey = !showKey"
+                            />
+                        </template>
+                    </q-input>
 
                     <q-input
                         v-model="config.channelId"
@@ -56,6 +70,7 @@ export default defineComponent({
         const name = ref('');
         const type = ref('');
         const config = ref({});
+        const showKey = ref(false);
 
         const types = ['you-tube', 'twitch'];
 
@@ -123,6 +138,7 @@ export default defineComponent({
             type,
             types,
             config,
+            showKey,
         };
     },
 });

@@ -28,6 +28,13 @@ export default {
     home: 'Home',
 
     addNew: 'Add new',
+    edit: 'Edit',
+    delete: 'Delete',
+    startImport: 'Start import',
+
     description: 'Description',
     bulkActions: 'Bulk actions',
+
+    areYouSure: 'Are you sure?',
+    thisActionCanNotBeUndone: 'This action can not be undone',
 };

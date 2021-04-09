@@ -1,26 +1,103 @@
 <template>
     <q-card class="full-height">
         <q-tabs v-model="tab" inline-label align="justify">
-            <q-tab name="logs" :label="$t('logs')" />
-            <q-tab name="errors" :label="$t('errors')" />
             <q-tab name="all" :label="$t('all')" />
+            <q-tab name="error" :label="$t('errors')" />
+            <q-tab name="info" :label="$t('logs')" />
         </q-tabs>
 
         <q-separator />
 
-        <q-tab-panels v-model="tab" animated>
-            <q-tab-panel name="logs"> logs </q-tab-panel>
-            <q-tab-panel name="errors"> errors </q-tab-panel>
-            <q-tab-panel name="all"> all </q-tab-panel>
-        </q-tab-panels>
+        <!-- <q-card-section> -->
+        <q-list bordered separator style="height: calc(100% - 49px)">
+            <q-scroll-area class="full-height">
+                <q-item
+                    v-for="log in displayLogs"
+                    :key="log.id"
+                    v-ripple
+                    clickable
+                    @click="showLog(log)"
+                >
+                    <q-item-section side>
+                        <q-chip color="grey-7" text-color="white" square>
+                            {{ log.type }}
+                        </q-chip>
+                    </q-item-section>
+                    <q-item-section>
+                        {{ log.message }}
+                    </q-item-section>
+                    <q-item-section side>
+                        {{ $d(log.createdAt, 'long') }}
+                    </q-item-section>
+                </q-item>
+            </q-scroll-area>
+        </q-list>
+        <!-- </q-card-section> -->
     </q-card>
 </template>
-<script>
-import { ref } from 'vue';
+<script lang="ts">
+import { ref, defineComponent, computed, onUnmounted } from 'vue';
+import { api } from 'src/boot/axios';
+import { useQuasar } from 'quasar';
+import { useSocketIo } from 'src/boot/socket-io';
 
-export default {
-    setup() {
-        return { tab: ref('logs') };
+interface Log {
+    type: string;
+    message: string;
+    payload: Record<string, unknown>;
+}
+
+export default defineComponent({
+    props: {
+        originId: {
+            type: Number,
+            required: true,
+        },
     },
-};
+    setup(props) {
+        const logs = ref<Log[]>([]);
+        const tab = ref('all');
+        const socket = useSocketIo();
+
+        const displayLogs = computed(() => {
+            if (tab.value === 'all') {
+                return logs.value;
+            }
+            return logs.value.filter((l) => l.type === tab.value);
+        });
+
+        const $q = useQuasar();
+
+        async function setOriginLogs() {
+            const { data } = await api.get<Log[]>(
+                `/admin/origins/${String(props.originId)}/logs`,
+            );
+
+            logs.value = data;
+        }
+
+        function showLog(log: Log) {
+            $q.dialog({
+                title: log.message,
+                html: true,
+                message: `<code>${JSON.stringify(log.payload)}</code>`,
+                style: 'word-break: break-word',
+            });
+        }
+
+        void setOriginLogs();
+        socket.on('originLog:created', () => {
+            void setOriginLogs();
+        });
+
+        onUnmounted(() => socket.disconnect());
+
+        return {
+            logs,
+            displayLogs,
+            tab,
+            showLog,
+        };
+    },
+});
 </script>
