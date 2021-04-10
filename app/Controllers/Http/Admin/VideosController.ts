@@ -1,17 +1,16 @@
 import Application from '@ioc:Adonis/Core/Application'
-import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import { v4 as uuid } from 'uuid'
-
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { v4 as uuid } from 'uuid'
+import Database from '@ioc:Adonis/Lucid/Database'
 
 import Video from 'App/Models/Video'
 import VideoValidator from 'App/Validators/VideoValidator'
 import File, { FileTypes } from 'App/Models/File'
 import ContentVideo from 'App/Services/Content/ContentVideos'
-import OriginMain from '@ioc:Providers/OriginMainProvider'
-import Database from '@ioc:Adonis/Lucid/Database'
 import VideoMetadata from 'App/Models/VideoMetadata'
 import VideoUpdateValidator from 'App/Validators/VideoUpdateValidator'
+
+import OriginMain from '@ioc:Providers/OriginMainProvider'
 
 export default class VideosController {
   public async index({ request, auth }: HttpContextContract) {
@@ -83,12 +82,18 @@ export default class VideosController {
   }
 
   public async update({ request, params }: HttpContextContract) {
-    const { title, description, thumbnail } = await request.validate(VideoUpdateValidator)
+    const { title, description, thumbnail, visibilityId } = await request.validate(
+      VideoUpdateValidator
+    )
 
     const originVideo = await Video.query().preload('metadata').where('id', params.id).firstOrFail()
 
     const trx = await Database.transaction()
     originVideo.useTransaction(trx)
+
+    if (visibilityId) {
+      originVideo.visibilityId = visibilityId
+    }
 
     if (thumbnail) {
       const old = await originVideo.metadata.related('thumbnailFile').query().first()

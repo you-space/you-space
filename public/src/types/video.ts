@@ -4,13 +4,12 @@ export interface Video {
     videoId: number;
     title: string;
     description: string;
-    type: undefined | 'you-tube';
+    type: string;
     src: string;
     thumbnailSrc?: string;
     originId?: number;
     viewsCount: number;
-    visibility: {
-        name: string;
-    };
+    visibilityId: number;
+    visibilityName: string;
     origin: Origin;
 }

@@ -29,6 +29,7 @@ export interface VideoSerialized {
   videoId: string
   title: string
   src: string
+  originLink: string
   description: string
   thumbnailSrc?: string
   viewsCount: number

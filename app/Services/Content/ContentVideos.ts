@@ -1,5 +1,7 @@
-import Origin, { OriginTypes } from 'App/Models/Origin'
+import Env from '@ioc:Adonis/Core/Env'
 import { pickBy } from 'lodash'
+
+import Origin, { OriginTypes } from 'App/Models/Origin'
 import User from 'App/Models/User'
 import Video from 'App/Models/Video'
 import Visibility from 'App/Models/Visibility'
@@ -50,6 +52,27 @@ export default class ContentVideo {
     return allowedVisibilities
   }
 
+  static getVideoFields(video: Video) {
+    const serialize = OriginProvider.serializeVideo(video.origin, video)
+    return {
+      id: video.id,
+      origin: video.origin.serialize({ fields: { omit: ['config'] } }),
+      visibilityId: video.visibility.id,
+      visibilityName: video.visibility.name,
+      totalViews: Number(video.$extras.totalViews) || 0,
+
+      title: video.title ? video.title : serialize.title,
+      description: video.description ? video.description : serialize.description,
+      src: video.src ? video.src : serialize.src,
+      link: `${Env.get('DOMAIN_URL')}/videos/${video.id}`,
+      thumbnailSrc: video.thumbnailSrc ? video.thumbnailSrc : serialize.thumbnailSrc,
+
+      viewsCount: serialize.viewsCount,
+      originLink: serialize.originLink,
+      originThumbnail: serialize.thumbnailSrc,
+    }
+  }
+
   static async index(args?: Partial<VideoFilters>, user?: User) {
     const filters: VideoFilters = {
       orderBy: ['created_at', 'desc'],
@@ -98,22 +121,7 @@ export default class ContentVideo {
 
     const paginator = await query.paginate(Number(filters.page), Number(filters.limit))
 
-    const data = paginator.all().map((v) => {
-      const serialize = OriginProvider.serializeVideo(v.origin, v)
-      return {
-        id: v.id,
-        origin: v.origin.serialize({ fields: { omit: ['config'] } }),
-        visibility: v.visibility,
-        totalViews: Number(v.$extras.totalViews) || 0,
-
-        title: v.title ? v.title : serialize.title,
-        description: v.description ? v.description : serialize.description,
-        src: v.src ? v.src : serialize.src,
-        thumbnailSrc: v.thumbnailSrc ? v.thumbnailSrc : serialize.thumbnailSrc,
-
-        viewsCount: serialize.viewsCount,
-      }
-    })
+    const data = paginator.all().map(this.getVideoFields)
 
     return {
       data,
@@ -139,19 +147,6 @@ export default class ContentVideo {
       })
       .firstOrFail()
 
-    const serialize = OriginProvider.serializeVideo(video.origin, video)
-    return {
-      id: video.id,
-      origin: video.origin.serialize({ fields: { omit: ['config'] } }),
-      visibility: video.visibility,
-      totalViews: Number(video.$extras.totalViews) || 0,
-
-      title: video.title ? video.title : serialize.title,
-      description: video.description ? video.description : serialize.description,
-      src: video.src ? video.src : serialize.src,
-
-      thumbnailSrc: serialize.thumbnailSrc,
-      viewsCount: serialize.viewsCount,
-    }
+    return this.getVideoFields(video)
   }
 }

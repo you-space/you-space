@@ -24,7 +24,7 @@ const routes: RouteRecordRaw[] = [
                     {
                         path: 'videos/:videoId',
                         name: 'video',
-                        component: () => import('pages/Video.vue'),
+                        component: () => import('src/pages/VideoSingle.vue'),
                         props: true,
                     },
                     {

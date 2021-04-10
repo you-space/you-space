@@ -84,14 +84,6 @@
                         :to="getVideoPath(props.row)"
                     />
                     <q-btn
-                        class="q-mr-sm"
-                        icon="edit"
-                        size="xs"
-                        flat
-                        round
-                        @click="editVideo(props.row.id)"
-                    />
-                    <q-btn
                         icon="delete"
                         size="xs"
                         flat
@@ -102,11 +94,7 @@
             </template>
         </q-table>
 
-        <video-list-dialog
-            v-model="dialog"
-            :video-id="editedItemId"
-            @save="onRequestTable"
-        />
+        <video-list-dialog v-model="dialog" @save="onRequestTable" />
     </q-page>
 </template>
 
@@ -181,7 +169,7 @@ export default defineComponent({
             {
                 label: tm.t('visibility'),
                 name: 'visibility',
-                field: (row: Video) => row.visibility.name,
+                field: 'visibilityName',
                 align: 'left',
             },
             {
@@ -269,11 +257,6 @@ export default defineComponent({
             dialog.value = true;
         }
 
-        function editVideo(videoId: string) {
-            editedItemId.value = videoId;
-            dialog.value = true;
-        }
-
         return {
             columns,
             rows,
@@ -289,7 +272,6 @@ export default defineComponent({
             showFilters,
             filters,
             addVideo,
-            editVideo,
             editedItemId,
         };
     },

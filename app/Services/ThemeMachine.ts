@@ -12,7 +12,7 @@ const readFile = promisify(fs.readFile)
 
 interface ThemeDataProvider {
   getThemePath: () => string
-  videos: (page: number, limit: number) => Promise<any[]>
+  videos: (filters: any) => Promise<any>
   comments: (videoId: string, args: any) => Promise<any[]>
   render: typeof View.render
 }
@@ -27,11 +27,8 @@ export function getThemePath(themeName: string, ...args: string[]) {
 
 export function getThemeDataProvider(themeName: string): ThemeDataProvider {
   return {
-    videos: async (page: number, limit: number) => {
-      return await ContentVideo.index({
-        page,
-        limit,
-      })
+    videos: async (filters: any) => {
+      return await ContentVideo.index(filters)
     },
     comments: async (videoId: string, args: any) => {
       const filters = {

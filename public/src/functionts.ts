@@ -1,7 +1,4 @@
-import lodash from 'lodash';
-
-import { ref, Ref } from 'vue';
-import { api, axios } from 'boot/axios';
+import { api } from 'boot/axios';
 
 import { Video } from './types/video';
 import { router } from 'src/router';
@@ -29,4 +26,13 @@ export async function getVisibilities() {
 export async function getOrigins() {
     const { data } = await api.get<Origin[]>('admin/origins');
     return data;
+}
+
+export async function getBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+    });
 }
