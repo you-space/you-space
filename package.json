@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "postinstall": "npm install --prefix public",
     "start": "node server.js",
     "dev": "node ace serve --watch",
     "dev:dashboard": "npm run dev --prefix public",
