@@ -60,12 +60,26 @@
                         readonly
                     />
                 </q-card-section>
+                <q-separator class="full-width" />
                 <q-card-actions>
-                    <q-btn flat :label="$t('edit')" @click="dialog = true" />
-                    <q-btn flat @click="deleteOrigin">{{ $t('delete') }}</q-btn>
-                    <q-btn flat @click="importOriginVideos">{{
-                        $t('startImport')
-                    }}</q-btn>
+                    <q-btn
+                        color="primary"
+                        style="width: 150px"
+                        :label="$t('edit')"
+                        @click="dialog = true"
+                    />
+                    <q-btn
+                        color="negative"
+                        style="width: 150px"
+                        :label="$t('delete')"
+                        @click="deleteOrigin"
+                    />
+                    <q-btn
+                        color="positive"
+                        style="width: 150px"
+                        :label="$t('startImport')"
+                        @click="importOriginVideos"
+                    />
                 </q-card-actions>
             </q-card>
         </div>

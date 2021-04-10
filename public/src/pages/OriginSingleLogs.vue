@@ -1,6 +1,11 @@
 <template>
     <q-card class="full-height">
-        <q-tabs v-model="tab" inline-label align="justify">
+        <q-tabs
+            v-model="tab"
+            active-color="primary"
+            inline-label
+            align="justify"
+        >
             <q-tab name="all" :label="$t('all')" />
             <q-tab name="error" :label="$t('errors')" />
             <q-tab name="info" :label="$t('logs')" />
@@ -80,13 +85,20 @@ export default defineComponent({
             $q.dialog({
                 title: log.message,
                 html: true,
-                message: `<code>${JSON.stringify(log.payload)}</code>`,
-                style: 'word-break: break-word',
+                message: `<pre class="bg-grey-9 text-white q-pa-sm rounded-borders" >${JSON.stringify(
+                    log.payload,
+                    null,
+                    3,
+                )}</pre>`,
             });
         }
 
         void setOriginLogs();
         socket.on('originLog:created', () => {
+            void setOriginLogs();
+        });
+
+        socket.on('originLog:deleted', () => {
             void setOriginLogs();
         });
 

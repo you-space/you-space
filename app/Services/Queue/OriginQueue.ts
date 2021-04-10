@@ -1,8 +1,8 @@
 import OriginService from '@ioc:Providers/OriginService'
 import Origin from 'App/Models/Origin'
-import { OriginLogTypes } from 'App/Models/OriginLog'
+import OriginLog, { OriginLogTypes } from 'App/Models/OriginLog'
 import Bull, { Queue, Job } from 'bull'
-
+import Logger from '@ioc:Adonis/Core/Logger'
 interface ImportJobData {
   originId: number
   page: number
@@ -13,6 +13,29 @@ export default class OriginQueue {
   constructor() {
     this.queue = new Bull('origins')
     this.queue.process('import', this.processImport)
+    this.queue.process('delete-old-logs', this.deleteOldLogs)
+
+    this.queue.add(
+      'delete-old-logs',
+      {},
+      {
+        repeat: {
+          cron: '0 * * * *',
+        },
+      }
+    )
+  }
+
+  public async deleteOldLogs() {
+    const lastOurMilliseconds = Date.now() - 60 * 60 * 1000
+
+    const oldLogs = await OriginLog.query().where('created_at', '<=', new Date(lastOurMilliseconds))
+
+    Logger.child({
+      length: oldLogs.length,
+    }).info('cleaning old origin logs')
+
+    return await Promise.all(oldLogs.map(async (l) => await l.delete()))
   }
 
   public async processImport(job: Job<ImportJobData>) {

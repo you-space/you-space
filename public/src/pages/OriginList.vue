@@ -28,13 +28,6 @@
                     />
                     <template v-if="!props.row.isDefault">
                         <q-btn
-                            icon="import_export"
-                            size="sm"
-                            flat
-                            round
-                            @click="importOriginVideos(props.row.id)"
-                        />
-                        <q-btn
                             icon="delete"
                             size="sm"
                             flat

@@ -104,21 +104,14 @@ export default defineComponent({
                 to: { name: 'home' },
             },
             {
-                label: tm.t('videoList'),
+                label: tm.t('video', 2),
                 icon: 'play_circle',
-                to: { name: 'videos' },
-                children: [
-                    {
-                        label: tm.t('videoList'),
-                        icon: 'play_circle',
-                        to: { name: 'videos-list' },
-                    },
-                    {
-                        label: tm.t('visibility', 2),
-                        icon: 'visibility',
-                        to: { name: 'visibilities' },
-                    },
-                ],
+                to: { name: 'videos-list' },
+            },
+            {
+                label: tm.t('visibility', 2),
+                icon: 'visibility',
+                to: { name: 'visibilities' },
             },
             {
                 label: tm.t('origin', 2),

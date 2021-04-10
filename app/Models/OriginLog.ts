@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { afterSave, BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { afterDelete, afterSave, BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
 export enum OriginLogTypes {
   Error = 'error',
@@ -26,8 +26,14 @@ export default class OriginLog extends BaseModel {
   public createdAt: DateTime
 
   @afterSave()
-  public static async emitSocketEvent() {
+  public static async emitSaveEvent() {
     const SocketService = (await import('@ioc:Providers/SocketService')).default
     SocketService.io.of('/admin').emit('originLog:created')
+  }
+
+  @afterDelete()
+  public static async emitDeleteEvent() {
+    const SocketService = (await import('@ioc:Providers/SocketService')).default
+    SocketService.io.of('/admin').emit('originLog:deleted')
   }
 }
