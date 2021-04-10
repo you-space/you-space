@@ -1,56 +1,32 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import path from 'path'
 import { getThemeMachine } from 'App/Services/ThemeMachine'
-import ContentVideo from 'App/Services/Content/ContentVideos'
+import fs from 'fs'
+import { promisify } from 'util'
 
 export default class ThemeController {
-  public async show({ params, request, response }: HttpContextContract) {
-    const staticRoutes = {
-      '/': 'index',
-      '/video-list': 'archive',
-    }
-
-    const templateName = staticRoutes[request.url()] || '404'
-
-    if (templateName === '404') {
-      response.status(404)
-    }
-
-    const machine = await getThemeMachine()
-
-    const template = await machine.getTemplate(templateName)
-
-    return template.render(machine)
-  }
-
-  public async showStatic({ request, response }: HttpContextContract) {
+  public async show({ request, response }: HttpContextContract) {
     const types = {
       js: 'text/javascript',
+      map: 'text/javascript',
+      css: 'text/css',
+      png: 'image/png',
+      ico: 'image/x-icon',
     }
 
-    const filename = request.url().replace('/theme/static', '')
-    const extname = path.extname(filename).replace('.', '')
+    const filename = request.url()
+    const extname = path.extname(request.url()).replace('.', '')
 
-    if (types[extname]) {
+    const machine = await getThemeMachine()
+
+    const themeFiles = machine.staticFiles()
+
+    if (types[extname] && Object.keys(themeFiles).includes(filename)) {
       response.safeHeader('Content-type', types[extname])
+
+      return await promisify(fs.readFile)(themeFiles[filename])
     }
 
-    const machine = await getThemeMachine()
-
-    const file = await machine.getThemeStaticFile(filename)
-
-    return file || '404'
-  }
-
-  public async showSingle({ params, auth }: HttpContextContract) {
-    const video = await ContentVideo.show(params.id, auth.user)
-
-    const templateName = video ? 'video-single' : '404'
-
-    const machine = await getThemeMachine()
-
-    const template = await machine.getTemplate(templateName)
-
-    return template.render(machine, video)
+    return machine.render({ request, response })
   }
 }
