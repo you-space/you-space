@@ -3,6 +3,15 @@ const nodeExternals = require('webpack-node-externals')
 const webpack = require('webpack')
 
 module.exports = {
+  devServer: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3333/api',
+        changeOrigin: true,
+        pathRewrite: { '^/api': '' },
+      },
+    },
+  },
   chainWebpack: (webpackConfig) => {
     // We need to disable cache loader, otherwise the client build
     // will used cached components from the server build

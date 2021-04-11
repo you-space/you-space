@@ -1,3 +1,3 @@
 module.exports = {
-  projects: ['./public'],
+  projects: ['./public', './content/themes/revolution'],
 }
