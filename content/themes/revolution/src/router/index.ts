@@ -7,8 +7,14 @@ const history = isServer ? createMemoryHistory() : createWebHistory()
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'Home',
-    component: () => import('@/pages/Home.vue'),
+    component: () => import('@/layouts/Default.vue'),
+    children: [
+      {
+        path: '',
+        name: 'home',
+        component: () => import('@/pages/Home.vue'),
+      },
+    ],
   },
 ]
 

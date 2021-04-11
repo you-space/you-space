@@ -1,7 +1,11 @@
 import { createApp } from './app'
 
-const { app, router } = createApp()
+createApp()
+  .then(async ({ app, router }) => {
+    await router.isReady()
 
-router.isReady().then(() => {
-  app.mount('#app')
-})
+    app.mount('#app')
+  })
+  .catch((err) => {
+    console.error(err)
+  })
