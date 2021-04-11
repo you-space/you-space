@@ -5,5 +5,5 @@ export interface BootArgs {
 }
 
 export interface Boot {
-  (args: BootArgs): void
+  (args: BootArgs): void | Promise<void>
 }

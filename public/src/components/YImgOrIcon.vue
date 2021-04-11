@@ -45,6 +45,5 @@ export default defineComponent({
             default: null,
         },
     },
-    setup() {},
 });
 </script>
