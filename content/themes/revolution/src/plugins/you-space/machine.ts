@@ -27,7 +27,12 @@ async function fetchVideos(filters?: FetchVideosFilter): Promise<FetchVideosResp
 }
 
 async function findVideo(id: string) {
-  const { data } = await api.get(`api/v1/videos/${id}`)
+  const { data } = await api.get<Video>(`api/v1/videos/${id}`)
+  return data
+}
+
+async function fetchVideoComments(id: string) {
+  const { data } = await api.get(`api/v1/videos/${id}/comments`)
   return data
 }
 
@@ -36,6 +41,7 @@ export function createMachine(baseURL = '/') {
   return {
     fetchVideos,
     findVideo,
+    fetchVideoComments,
   }
 }
 

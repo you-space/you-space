@@ -6,7 +6,15 @@ import { OriginConfig } from 'App/Models/Origin'
 const api = axios.create({
   baseURL: 'https://www.googleapis.com/youtube/v3',
 })
-
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response) {
+      console.log(err.response)
+    }
+    return Promise.reject(err)
+  }
+)
 export default class YoutubeProvider extends BaseOriginProvider {
   public resultsPerPage = 50
 

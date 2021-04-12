@@ -3,12 +3,12 @@ import Video from 'App/Models/Video'
 import OriginProvider from 'App/Services/Origin/OriginProvider'
 
 export default class CommentsController {
-  public async showVideoComments({ params, request }: HttpContextContract) {
+  public async index({ params, request }: HttpContextContract) {
     const page = request.input('page', 1)
     const limit = 20
     const offset = (Number(page) - 1) * limit
 
-    const video = await Video.query().preload('origin').where('id', params.videoId).firstOrFail()
+    const video = await Video.query().preload('origin').where('id', params.video_id).firstOrFail()
 
     await OriginProvider.registerVideoComments(video.origin, video.videoId, page)
 

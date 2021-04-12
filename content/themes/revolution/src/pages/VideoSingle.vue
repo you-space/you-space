@@ -12,6 +12,16 @@
           {{ video.description }}
         </p>
       </template>
+
+      <q-list>
+        <r-comment
+          v-for="comment in comments"
+          :key="comment.id"
+          :comment="comment"
+          :replies="comment.replies"
+        >
+        </r-comment>
+      </q-list>
     </div>
 
     <div class="col-4 q-px-md relative-position border-r border-grey-5">
@@ -72,13 +82,14 @@ export default defineComponent({
   setup(props) {
     const machine = useMachine()
     const video = ref<Video | null>(null)
+    const comments = ref([])
     const sidebarVideos = ref<Video[]>([])
 
     async function setVideo() {
       video.value = null
-      const request = await machine.findVideo(props.videoId)
-      setTimeout(() => {
-        video.value = request
+      setTimeout(async () => {
+        video.value = await machine.findVideo(props.videoId)
+        comments.value = await machine.fetchVideoComments(props.videoId)
       }, 800)
     }
 
@@ -96,6 +107,7 @@ export default defineComponent({
     return {
       video,
       sidebarVideos,
+      comments,
     }
   },
 })
