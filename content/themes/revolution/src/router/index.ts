@@ -14,6 +14,12 @@ const routes: Array<RouteRecordRaw> = [
         name: 'home',
         component: () => import('@/pages/Home.vue'),
       },
+      {
+        path: 'videos/:videoId',
+        name: 'video-single',
+        props: true,
+        component: () => import('@/pages/VideoSingle.vue'),
+      },
     ],
   },
 ]

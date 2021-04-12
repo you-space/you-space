@@ -36,6 +36,4 @@ export default function ({ app }: BootArgs) {
 
     app.component(componentName, component.default || component)
   })
-
-  console.log(componentsLoaded)
 }

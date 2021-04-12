@@ -5,6 +5,11 @@ const webpack = require('webpack')
 module.exports = {
   devServer: {
     proxy: {
+      '/ys-admin': {
+        target: 'http://localhost:3333/ys-admin',
+        changeOrigin: true,
+        pathRewrite: { '^/ys-admin': '' },
+      },
       '/api': {
         target: 'http://localhost:3333/api',
         changeOrigin: true,

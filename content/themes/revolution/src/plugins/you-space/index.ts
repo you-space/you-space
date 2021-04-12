@@ -24,3 +24,5 @@ export function useMachine() {
 export default function ({ app }: BootArgs) {
   app.use(machinePlugin)
 }
+
+export * from './machine'

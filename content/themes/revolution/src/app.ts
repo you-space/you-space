@@ -1,6 +1,7 @@
 import App from './App.vue'
 import { createSSRApp } from 'vue'
 import { createAppRouter } from './router'
+import '@/styles/index.scss'
 import store from './store'
 import bootPlugins from './boot'
 

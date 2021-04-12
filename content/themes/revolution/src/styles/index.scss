@@ -1,0 +1,19 @@
+@import './quasar.scss';
+
+body {
+  color: $grey-8;
+}
+
+.border-r {
+  border-left-width: 1px;
+  border-left-style: solid;
+}
+
+.border-grey-5 {
+  border-color: $grey-5;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}

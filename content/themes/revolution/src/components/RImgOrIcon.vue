@@ -1,6 +1,14 @@
 <template>
   <div :style="`width: ${width}; height: ${height}`" class="relative-position">
-    <q-img v-if="src" :src="src" :width="width" :height="height" />
+    <q-img
+      v-if="src"
+      :src="src"
+      :width="width"
+      :height="height"
+      :img-style="{
+        maxWidth,
+      }"
+    />
     <div
       v-else
       class="full-width text-center bg-grey-4 flex items-center justify-center"
@@ -38,6 +46,10 @@ export default defineComponent({
       default: null,
     },
     caption: {
+      type: String,
+      default: null,
+    },
+    maxWidth: {
       type: String,
       default: null,
     },
