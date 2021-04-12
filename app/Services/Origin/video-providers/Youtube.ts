@@ -142,6 +142,7 @@ export default class YoutubeProvider extends BaseOriginProvider {
       viewsCount: Number(viewsCount),
       thumbnailSrc: standardThumb || defaultThumb,
       originLink: `https://www.youtube.com/watch?v=${lodash.get(data, 'id', null)}`,
+      publishedAt: lodash.get(data, 'snippet.publishedAt', null),
     }
   }
 

@@ -1,5 +1,5 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import ContentVideo from 'App/Services/Content/ContentVideos'
+import ContentService from '@ioc:Providers/ContentService'
 
 export default class VideosController {
   public async index({ request, auth }: HttpContextContract) {
@@ -9,10 +9,10 @@ export default class VideosController {
       visibility: request.input('visibility', 'public'),
     }
 
-    return await ContentVideo.index(filter, auth.user)
+    return await ContentService.index(filter, auth.user)
   }
 
   public async show({ params, auth }: HttpContextContract) {
-    return ContentVideo.show(params.id, auth.user)
+    return ContentService.show(params.id, auth.user)
   }
 }

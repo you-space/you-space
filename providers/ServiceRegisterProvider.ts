@@ -7,6 +7,9 @@ export default class OriginServiceProvider {
 
   public async register() {
     await this.registerOrigin()
+
+    await this.registerContent()
+
     await this.registerQueue()
     await this.registerAuthenticateByToken()
     await this.registerSocket()
@@ -18,6 +21,14 @@ export default class OriginServiceProvider {
     const service = new OriginService()
 
     this.application.container.singleton('Providers/OriginService', () => service)
+  }
+
+  public async registerContent() {
+    const ContentService = (await import('App/Services/Content/ContentVideos')).default
+
+    const service = new ContentService()
+
+    this.application.container.singleton('Providers/ContentService', () => service)
   }
 
   public async registerQueue() {

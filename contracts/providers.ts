@@ -21,6 +21,15 @@ declare module '@ioc:Providers/OriginService' {
 
   export default OriginService
 }
+
+declare module '@ioc:Providers/ContentService' {
+  import Service from 'App/Services/Content/ContentVideos'
+
+  const ContentService: Service
+
+  export default ContentService
+}
+
 declare module '@ioc:Providers/Queue/OriginQueue' {
   import Queue from 'App/Services/Queue/OriginQueue'
 

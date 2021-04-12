@@ -20,13 +20,13 @@ export interface VideoFilters {
 }
 
 export default class ContentVideo {
-  static async registerOrigins(page: number) {
+  public async registerOrigins(page: number) {
     const origins = await Origin.query().where('type', OriginTypes.YouTube)
 
     await Promise.all(origins.map(async (o) => OriginService.registerVideos(o, page)))
   }
 
-  static async getUserAllowedVisibilities(user?: User) {
+  public async getUserAllowedVisibilities(user?: User) {
     const allVisibility = await Visibility.query().preload('requiredPermissions')
 
     if (!user) {
@@ -52,7 +52,7 @@ export default class ContentVideo {
     return allowedVisibilities
   }
 
-  static getVideoFields(video: Video) {
+  public getVideoFields(video: Video) {
     const serialize = OriginProvider.serializeVideo(video.origin, video)
     return {
       id: video.id,
@@ -66,6 +66,7 @@ export default class ContentVideo {
       src: video.src ? video.src : serialize.src,
       link: `${Env.get('DOMAIN_URL')}/videos/${video.id}`,
       thumbnailSrc: video.thumbnailSrc ? video.thumbnailSrc : serialize.thumbnailSrc,
+      publishedAt: serialize.publishedAt ? serialize.publishedAt : video.createdAt,
 
       viewsCount: serialize.viewsCount,
       originLink: serialize.originLink,
@@ -73,7 +74,7 @@ export default class ContentVideo {
     }
   }
 
-  static async index(args?: Partial<VideoFilters>, user?: User) {
+  public async index(args?: Partial<VideoFilters>, user?: User) {
     const filters: VideoFilters = {
       orderBy: ['created_at', 'desc'],
       ...pickBy(args, (v) => v !== undefined),
@@ -92,7 +93,7 @@ export default class ContentVideo {
       })
       .map((v) => v.id)
 
-    await ContentVideo.registerOrigins(filters.page)
+    await this.registerOrigins(filters.page)
 
     const query = Video.query()
       .leftJoin('video_metadata', 'video_metadata.video_id', 'videos.id')
@@ -129,7 +130,7 @@ export default class ContentVideo {
     }
   }
 
-  static async show(videoId: string, user?: User) {
+  public async show(videoId: string, user?: User) {
     const visibility = await this.getUserAllowedVisibilities(user)
 
     const video = await Video.query()

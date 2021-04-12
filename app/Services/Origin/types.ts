@@ -33,6 +33,7 @@ export interface VideoSerialized {
   description: string
   thumbnailSrc?: string
   viewsCount: number
+  publishedAt: string
 }
 
 export interface OriginVideoProvider {

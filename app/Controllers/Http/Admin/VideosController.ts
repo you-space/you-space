@@ -6,11 +6,11 @@ import Database from '@ioc:Adonis/Lucid/Database'
 import Video from 'App/Models/Video'
 import VideoValidator from 'App/Validators/VideoValidator'
 import File, { FileTypes } from 'App/Models/File'
-import ContentVideo from 'App/Services/Content/ContentVideos'
 import VideoMetadata from 'App/Models/VideoMetadata'
 import VideoUpdateValidator from 'App/Validators/VideoUpdateValidator'
 
 import OriginMain from '@ioc:Providers/OriginMainProvider'
+import ContentService from '@ioc:Providers/ContentService'
 
 export default class VideosController {
   public async index({ request, auth }: HttpContextContract) {
@@ -23,7 +23,7 @@ export default class VideosController {
       originId: request.input('originId', undefined),
     }
 
-    return await ContentVideo.index(filter, auth.user)
+    return await ContentService.index(filter, auth.user)
   }
 
   public async store({ request }: HttpContextContract) {

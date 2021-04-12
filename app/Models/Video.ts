@@ -59,7 +59,7 @@ export default class Video extends BaseModel {
       return null
     }
 
-    return `api/v1/files/embed/${this.metadata.videoFileId}`
+    return `/api/v1/files/embed/${this.metadata.videoFileId}`
   }
 
   @computed()
@@ -68,7 +68,7 @@ export default class Video extends BaseModel {
       return null
     }
 
-    return `api/v1/files/embed/${this.metadata.thumbnailFileId}`
+    return `/api/v1/files/embed/${this.metadata.thumbnailFileId}`
   }
 
   @hasOne(() => VideoMetadata)
