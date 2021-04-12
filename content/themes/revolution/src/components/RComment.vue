@@ -19,14 +19,20 @@
           icon="thumb_down"
           :label="comment.totalUnlikeCount"
         />
-        <q-btn v-if="replies" @click="showReplies = !showReplies" size="0.6rem" color="grey-5" flat>
+        <q-btn
+          v-if="replies.length"
+          @click="showReplies = !showReplies"
+          size="0.6rem"
+          color="grey-5"
+          flat
+        >
           <span class="q-mr-sm">
             {{ $t('showReplies', [replies.length]) }}
           </span>
           <q-icon :name="showReplies ? 'expand_less' : 'expand_more'" />
         </q-btn>
       </div>
-      <div v-if="replies" class="q-my-md" v-show="showReplies">
+      <div v-if="replies.length" class="q-my-md" v-show="showReplies">
         <r-comment v-for="comment in replies" :key="comment.id" :comment="comment" />
       </div>
     </q-item-section>
@@ -44,7 +50,7 @@ export default defineComponent({
     replies: {
       type: Array,
       required: false,
-      default: null,
+      default: () => [],
     },
   },
   setup() {
