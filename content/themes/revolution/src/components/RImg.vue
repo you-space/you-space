@@ -1,10 +1,9 @@
 <template>
   <div :style="`width: ${width}; height: ${height}`" class="relative-position">
-    <q-img
+    <img
       v-if="src"
       :src="src"
-      :width="width"
-      :height="height"
+      :class="`${width} ${height} object-cover`"
       :img-style="{
         maxWidth,
       }"
@@ -14,7 +13,7 @@
       class="full-width text-center bg-grey-4 flex items-center justify-center"
       :style="`width: ${width}; height: ${height}`"
     >
-      <q-icon size="md" name="insert_photo" />
+      <f-icon icon="image" />
     </div>
     <div
       v-if="caption"
@@ -34,12 +33,12 @@ export default defineComponent({
     width: {
       type: String,
       required: false,
-      default: '100px',
+      default: 'w-10',
     },
     height: {
       type: String,
       required: false,
-      default: '50px',
+      default: 'h-10',
     },
     src: {
       type: String,

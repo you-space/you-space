@@ -1,42 +1,37 @@
 <template>
-  <q-item v-if="comment" class="q-py-sm q-mb-sm row comment">
-    <q-item-section avatar class="self-start">
-      <q-avatar>
-        <img :src="comment.avatarSrc" />
-      </q-avatar>
-    </q-item-section>
-    <q-item-section>
-      <span class="text-bold">{{ comment.username }}</span>
-      <p class="mb-2" style="white-space: pre-line; word-break: break-word">
+  <r-item v-if="comment" class="mb-2 pl-0">
+    <r-item-section side>
+      <r-avatar>
+        <r-img :src="comment.avatarSrc" />
+      </r-avatar>
+    </r-item-section>
+
+    <r-item-section class="px-4">
+      <span class="font-bold leading-none">{{ comment.username }}</span>
+      <p style="white-space: pre-line; word-break: break-word">
         {{ comment.content }}
       </p>
-      <div class="flex">
-        <q-btn size="0.6rem" color="grey-5" flat icon="thumb_up" :label="comment.totalLikeCount" />
-        <q-btn
-          size="0.6rem"
-          color="grey-5"
-          flat
-          icon="thumb_down"
-          :label="comment.totalUnlikeCount"
-        />
-        <q-btn
-          v-if="replies.length"
-          @click="showReplies = !showReplies"
-          size="0.6rem"
-          color="grey-5"
-          flat
-        >
-          <span class="q-mr-sm">
+      <div class="flex text-sm">
+        <r-btn flat color="gray-400" icon="thumbs-up" :label="comment.totalLikeCount" />
+        <r-btn flat color="gray-400" icon="thumbs-down" :label="comment.totalUnlikeCount" />
+
+        <r-btn v-if="replies.length" @click="showReplies = !showReplies" flat color="gray-400">
+          <span class="mr-2">
             {{ $t('showReplies', [replies.length]) }}
           </span>
-          <q-icon :name="showReplies ? 'expand_less' : 'expand_more'" />
-        </q-btn>
+
+          <f-icon
+            icon="chevron-down"
+            class="transition-transform transform"
+            :class="showReplies ? 'rotate-180' : ''"
+          />
+        </r-btn>
       </div>
-      <div v-if="replies.length" class="q-my-md" v-show="showReplies">
+      <div v-if="replies.length" class="my-4" v-show="showReplies">
         <r-comment v-for="comment in replies" :key="comment.id" :comment="comment" />
       </div>
-    </q-item-section>
-  </q-item>
+    </r-item-section>
+  </r-item>
 </template>
 <script lang="ts">
 import { defineComponent, ref } from 'vue'

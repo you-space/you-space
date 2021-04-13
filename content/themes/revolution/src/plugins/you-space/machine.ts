@@ -20,7 +20,7 @@ export interface FetchVideosResponse {
 }
 
 async function fetchVideos(filters?: FetchVideosFilter): Promise<FetchVideosResponse> {
-  const { data } = await api.get('api/v1/videos', {
+  const { data } = await api.get('/api/v1/videos', {
     params: filters,
   })
   return data

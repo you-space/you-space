@@ -17,7 +17,11 @@ const setup = {
   },
   async render({ request, response }) {
     const appPath = path.join(__dirname, 'dist', 'server-app', serverManifest['app.js'])
-    const { app, router } = require(appPath).default
+    const createApp = require(appPath).default
+
+    console.log(createApp)
+
+    const { app, router } = await createApp()
 
     router.push(request.url())
 

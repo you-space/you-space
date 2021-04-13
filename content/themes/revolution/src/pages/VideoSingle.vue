@@ -1,72 +1,60 @@
 <template>
-  <q-page padding class="row">
-    <div class="col-8 q-px-md relative-position">
-      <q-inner-loading :showing="!video">
-        <q-spinner-gears size="50px" color="primary" />
-      </q-inner-loading>
+  <r-page class="flex" padding>
+    <div class="w-8/12 px-4 relative" style="min-height: 500px">
+      <r-inner-loading v-model="loading" />
 
-      <template v-if="video">
-        <q-video :src="video.src" style="height: 500px; max-width: 1100px" />
-        <h2 class="text-h5 text-bold">{{ video.title }}</h2>
+      <template v-if="!loading">
+        <r-video :src="video.src" width="w-full" style="height: 500px; max-width: 1100px" />
+        <h2 class="text-xl font-bold mt-4 mb-2">{{ video.title }}</h2>
         <p style="white-space: pre-line">
           {{ video.description }}
         </p>
+        <r-list class="my-4">
+          <r-comment
+            v-for="comment in comments"
+            :key="comment.id"
+            :comment="comment"
+            :replies="comment.replies"
+          >
+          </r-comment>
+        </r-list>
       </template>
-
-      <q-list>
-        <r-comment
-          v-for="comment in comments"
-          :key="comment.id"
-          :comment="comment"
-          :replies="comment.replies"
-        >
-        </r-comment>
-      </q-list>
     </div>
 
-    <div class="col-4 q-px-md relative-position border-r border-grey-5">
-      <q-inner-loading :showing="!video">
-        <q-spinner-gears size="50px" color="primary" />
-      </q-inner-loading>
+    <div class="w-4/12 px-2 relative border-l border-gray-300">
+      <r-inner-loading v-model="loading" />
 
-      <q-list v-if="video">
-        <q-item-label header class="q-pt-none q-px-none">
-          <h3 style="line-height: 1" class="text-h6 q-my-none q-px-none text-bold">
+      <r-list v-if="!loading">
+        <r-item class="pt-0">
+          <h3 class="text-2xl my-0 font-bold leading-none">
             {{ $t('related') }}
           </h3>
-        </q-item-label>
+        </r-item>
 
-        <q-item v-for="sVideo in sidebarVideos" :key="sVideo.id" class="items-start q-px-none">
-          <q-item-section>
+        <r-item v-for="sVideo in sidebarVideos" :key="sVideo.id">
+          <r-item-section>
             <router-link :to="$common.getVideoTo(sVideo.id)">
-              <r-img-or-icon
-                :src="sVideo.thumbnailSrc"
-                height="120px"
-                width="100%"
-                max-width="240px"
-              />
+              <r-img :src="sVideo.thumbnailSrc" height="h-32" width="w-full" max-width="240px" />
             </router-link>
-          </q-item-section>
+          </r-item-section>
 
-          <q-item-section>
-            <q-item-label class="flex text-grey-8">
-              <router-link :to="$common.getVideoTo(sVideo.id)" active-class="text-primary">
-                <h3 class="text-body2 q-my-none text-bold">
-                  {{ sVideo.title }}
-                </h3>
-              </router-link>
+          <r-item-section class="px-2">
+            <router-link :to="$common.getVideoTo(sVideo.id)" active-class="text-primary">
+              <h3 class="text-base font-bold">
+                {{ sVideo.title }}
+              </h3>
+            </router-link>
 
-              <h5 class="text-caption q-my-none">
-                {{ $t('viewsLength', [video.totalViews]) }}
-                <span class="q-my-md">-</span>
-                {{ $d(video.publishedAt) }}
-              </h5>
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
+            <h5 class="text-sm">
+              {{ $t('viewsLength', [video.totalViews]) }}
+              <span class="my-2">-</span>
+              {{ $d(video.publishedAt) }}
+            </h5>
+          </r-item-section>
+        </r-item>
+      </r-list>
     </div>
-  </q-page>
+  </r-page>
 </template>
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
@@ -84,12 +72,14 @@ export default defineComponent({
     const video = ref<Video | null>(null)
     const comments = ref([])
     const sidebarVideos = ref<Video[]>([])
+    const loading = ref(false)
 
     async function setVideo() {
-      video.value = null
+      loading.value = true
+      video.value = await machine.findVideo(props.videoId)
+      comments.value = await machine.fetchVideoComments(props.videoId)
       setTimeout(async () => {
-        video.value = await machine.findVideo(props.videoId)
-        comments.value = await machine.fetchVideoComments(props.videoId)
+        loading.value = false
       }, 800)
     }
 
@@ -108,6 +98,7 @@ export default defineComponent({
       video,
       sidebarVideos,
       comments,
+      loading,
     }
   },
 })

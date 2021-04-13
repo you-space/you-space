@@ -1,29 +1,22 @@
 <template>
-  <q-page padding>
-    <q-infinite-scroll
-      class="full-width"
-      @load="onLoadInfiniteScrool"
-      :disable="disableInfiniteScroll"
-      :offset="250"
-    >
-      <div class="row full-width">
+  <r-page padding>
+    <r-infinite-scroll @load="onLoadInfiniteScrool" :disable="disableInfiniteScroll" :offset="250">
+      <div class="grid grid-cols-5 gap-5">
         <template v-for="video in videos" :key="video.id">
-          <div class="col-3 q-pa-sm">
+          <div>
             <router-link :to="$common.getVideoTo(video.id)">
-              <r-img-or-icon :src="video.thumbnailSrc" height="200px" width="100%" />
+              <r-img :src="video.thumbnailSrc" width="w-full" height="h-48" />
             </router-link>
 
             <router-link :to="$common.getVideoTo(video.id)">
-              <h2 class="text-body1 q-mt-none text-bold text-grey-8 q-pt-md">
+              <h2 class="text-base my-2 font-bold text-gray-500 hover:text-blue-500">
                 {{ video.title }}
               </h2>
             </router-link>
             <div class="flex">
-              <h3 class="text-caption q-my-none">
+              <h3 class="text-sm">
                 {{ $t('viewsLength', [video.totalViews]) }}
-              </h3>
-              <span class="q-mx-sm">-</span>
-              <h3 class="text-caption q-my-none">
+                <span class="mx-1">-</span>
                 {{ $d(video.publishedAt) }}
               </h3>
             </div>
@@ -33,11 +26,11 @@
 
       <template #loading>
         <div class="row justify-center q-my-md">
-          <q-spinner-dots color="primary" size="40px" />
+          <f-icon icon="spinner" />
         </div>
       </template>
-    </q-infinite-scroll>
-  </q-page>
+    </r-infinite-scroll>
+  </r-page>
 </template>
 
 <script lang="ts">
@@ -70,11 +63,11 @@ export default defineComponent({
       page.value++
     }
 
-    async function onLoadInfiniteScrool(index: number, done: () => void) {
+    async function onLoadInfiniteScrool() {
       await addVideosPage()
 
       setTimeout(() => {
-        done()
+        // done()
       }, 2000)
     }
 

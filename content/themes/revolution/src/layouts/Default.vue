@@ -1,63 +1,31 @@
 <template>
-  <q-layout view="hHh Lpr lFf">
-    <q-header bordered class="bg-white text-blue-grey-5" height="30px">
-      <q-toolbar>
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+  <r-layout>
+    <template #header>
+      <r-header class="bg-white">
+        <r-btn @click="toggleLeftDrawer">
+          <f-icon icon="bars"></f-icon>
+        </r-btn>
+        You space
+      </r-header>
+    </template>
 
-        <q-toolbar-title> You space </q-toolbar-title>
-      </q-toolbar>
-    </q-header>
-
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-list class="text-blue-grey-5">
-        <template v-for="(item, index) in menuList" :key="index">
-          <q-item
-            v-if="!item.children"
-            v-ripple
-            exact
-            active-class="text-blue-grey-5 bg-blue-grey-1"
-            :to="item.to"
-          >
-            <q-item-section avatar>
-              <q-icon :name="item.icon" />
-            </q-item-section>
-            <q-item-section>
+    <template #drawer>
+      <r-drawer v-model="leftDrawerOpen">
+        <r-list class="text-blue-grey-500">
+          <template v-for="(item, index) in menuList" :key="index">
+            <r-item :to="item.to">
+              <f-icon :icon="item.icon" />
               {{ item.label }}
-            </q-item-section>
-          </q-item>
+            </r-item>
+          </template>
+        </r-list>
+      </r-drawer>
+    </template>
 
-          <q-expansion-item
-            v-else
-            expand-separator
-            :icon="item.icon"
-            :label="item.label"
-            :to="item.to"
-            active-class="text-blue-grey-5 bg-blue-grey-1"
-          >
-            <q-list>
-              <template v-for="(child, childIndex) in item.children" :key="childIndex">
-                <q-item
-                  class="q-pl-md"
-                  exact
-                  active-class="text-blue-grey-5 text-bold"
-                  :to="child.to"
-                >
-                  <q-item-section avatar />
-                  <q-item-section>
-                    {{ child.label }}
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-list>
-          </q-expansion-item>
-        </template>
-      </q-list>
-    </q-drawer>
-
-    <q-page-container class="bg-grey-1">
+    <r-container class="bg-gray-100">
       <router-view />
-    </q-page-container>
-  </q-layout>
+    </r-container>
+  </r-layout>
 </template>
 
 <script lang="ts">
@@ -68,7 +36,7 @@ export default defineComponent({
   setup() {
     // const tm = useI18n()
 
-    const leftDrawerOpen = ref(false)
+    const leftDrawerOpen = ref(true)
     const menuList = [
       {
         label: 'Home', //tm.t('home'),
