@@ -1,11 +1,9 @@
 <template>
   <r-layout>
     <template #header>
-      <r-header class="bg-white">
-        <r-btn @click="toggleLeftDrawer">
-          <f-icon icon="bars"></f-icon>
-        </r-btn>
-        You space
+      <r-header class="bg-white flex">
+        <r-btn class="mr-4" @click="toggleLeftDrawer" icon="bars" />
+        <h1>You space</h1>
       </r-header>
     </template>
 
@@ -14,15 +12,19 @@
         <r-list class="text-blue-grey-500">
           <template v-for="(item, index) in menuList" :key="index">
             <r-item :to="item.to">
-              <f-icon :icon="item.icon" />
-              {{ item.label }}
+              <r-item-section side>
+                <f-icon :icon="item.icon" />
+              </r-item-section>
+              <r-item-section class="ml-4">
+                {{ item.label }}
+              </r-item-section>
             </r-item>
           </template>
         </r-list>
       </r-drawer>
     </template>
 
-    <r-container class="bg-gray-100">
+    <r-container class="bg-gray-100 h-full">
       <router-view />
     </r-container>
   </r-layout>
@@ -30,16 +32,16 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-// import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n'
 export default defineComponent({
   name: 'Default',
   setup() {
-    // const tm = useI18n()
+    const tm = useI18n()
 
     const leftDrawerOpen = ref(true)
     const menuList = [
       {
-        label: 'Home', //tm.t('home'),
+        label: tm.t('home'),
         icon: 'home',
         to: { name: 'home' },
       },

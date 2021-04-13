@@ -1,5 +1,8 @@
 <template>
-  <div class="transition-all bg-white overflow-hidden" :class="model ? 'w-64' : 'w-0'">
+  <div
+    class="transition-all bg-white overflow-hidden border-r h-full"
+    :class="model ? 'w-64' : 'w-0'"
+  >
     <slot />
   </div>
 </template>

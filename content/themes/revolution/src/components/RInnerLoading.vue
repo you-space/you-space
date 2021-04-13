@@ -1,6 +1,8 @@
 <template>
-  <div v-show="model" class="absolute inset-0 bg-white flex justify-center items-center text-white">
-    <div class="r-spinner animate-spin"></div>
+  <div v-show="model" class="w-full h-full relative">
+    <div class="absolute inset-0 flex justify-center items-center text-white">
+      <div class="r-spinner animate-spin"></div>
+    </div>
   </div>
 </template>
 <script lang="ts">

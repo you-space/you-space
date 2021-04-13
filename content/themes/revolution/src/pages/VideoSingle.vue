@@ -1,6 +1,6 @@
 <template>
   <r-page class="flex" padding>
-    <div class="w-8/12 px-4 relative" style="min-height: 500px">
+    <div class="w-8/12 px-4">
       <r-inner-loading v-model="loading" />
 
       <template v-if="!loading">
@@ -21,7 +21,7 @@
       </template>
     </div>
 
-    <div class="w-4/12 px-2 relative border-l border-gray-300">
+    <div class="w-4/12 px-2 border-l border-gray-300">
       <r-inner-loading v-model="loading" />
 
       <r-list v-if="!loading">

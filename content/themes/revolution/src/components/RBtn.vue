@@ -1,11 +1,11 @@
 <template>
   <button :class="classes">
-    <div v-if="icon" class="mr-2">
-      <f-icon :icon="icon" />
-    </div>
-    <div v-if="label">
+    <template v-if="icon">
+      <f-icon :icon="icon" :class="label ? 'mr-2' : ''" />
+    </template>
+    <template v-if="label">
       {{ label }}
-    </div>
+    </template>
 
     <slot />
   </button>
