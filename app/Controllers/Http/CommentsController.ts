@@ -1,6 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import OriginService from '@ioc:Providers/OriginService'
 import Video from 'App/Models/Video'
-import OriginProvider from 'App/Services/Origin/OriginProvider'
 
 export default class CommentsController {
   public async index({ params, request }: HttpContextContract) {
@@ -10,7 +10,7 @@ export default class CommentsController {
 
     const video = await Video.query().preload('origin').where('id', params.video_id).firstOrFail()
 
-    await OriginProvider.registerVideoComments(video.origin, video.videoId, page)
+    await OriginService.registerComments(video.origin, video.videoId, page)
 
     const comments = await video
       .related('comments')
@@ -21,6 +21,6 @@ export default class CommentsController {
       .limit(limit)
       .offset(offset)
 
-    return comments.map((c) => OriginProvider.serializeComment(video.origin, c))
+    return comments.map((c) => OriginService.serializeComment(video.origin, c))
   }
 }

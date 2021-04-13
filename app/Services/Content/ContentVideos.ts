@@ -5,7 +5,6 @@ import Origin, { OriginTypes } from 'App/Models/Origin'
 import User from 'App/Models/User'
 import Video from 'App/Models/Video'
 import Visibility from 'App/Models/Visibility'
-import OriginProvider from 'App/Services/Origin/OriginProvider'
 import Permission from 'App/Models/Permission'
 import OriginService from '@ioc:Providers/OriginService'
 
@@ -53,7 +52,7 @@ export default class ContentVideo {
   }
 
   public getVideoFields(video: Video) {
-    const serialize = OriginProvider.serializeVideo(video.origin, video)
+    const serialize = OriginService.serializeVideo(video.origin, video)
     return {
       id: video.id,
       origin: video.origin.serialize({ fields: { omit: ['config'] } }),

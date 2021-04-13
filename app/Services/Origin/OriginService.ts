@@ -6,6 +6,9 @@ import { OriginVideoProvider } from './types'
 import LocalProvider from './video-providers/Local'
 import YoutubeProvider from './video-providers/Youtube'
 import { OriginLogTypes } from 'App/Models/OriginLog'
+import lodash from 'lodash'
+import Comment from 'App/Models/Comment'
+import Video from 'App/Models/Video'
 
 interface AllVideoProviders {
   [prop: string]: (origin: Origin, redisKey: string) => OriginVideoProvider
@@ -44,43 +47,27 @@ export default class OriginService {
     return true
   }
 
-  public async registerVideos(origin: Origin, page: number) {
-    try {
-      await this._registerVideos(origin, page)
-    } catch (error) {
-      let payload: any = {
-        message: error.message,
-      }
-      const exception = new OriginException(error.message, origin.type, origin.name)
+  public async errorHandler(error: any, origin: Origin) {
+    const exception = new OriginException(error.message, origin.type, origin.name)
 
-      Logger.child(exception).error(error.message)
+    Logger.child(exception).error(error.message)
 
-      if (error.toJSON) {
-        payload = {
-          ...payload,
-          ...error.toJSON(),
-        }
-      }
-
-      if (error.response) {
-        payload = {
-          ...payload,
-          response: error.response.data,
-        }
-      }
-
-      await origin.related('logs').create({
-        message: error.message,
-        type: OriginLogTypes.Error,
-        payload: {
-          ...payload,
-          stack: undefined,
-        },
-      })
-    }
+    await origin.related('logs').create({
+      message: error.message,
+      type: OriginLogTypes.Error,
+      payload: {
+        config: lodash.get(error, 'config', undefined),
+        response: lodash.get(error, 'response.data', undefined),
+        stack: undefined,
+      },
+    })
   }
 
-  public async _registerVideos(origin: Origin, page: number) {
+  public async registerVideos(origin: Origin, page: number) {
+    await this._registerVideos(origin, page).catch((err) => this.errorHandler(err, origin))
+  }
+
+  private async _registerVideos(origin: Origin, page: number) {
     const provider = this.getProvider(origin)
 
     if (provider.preload) {
@@ -142,5 +129,100 @@ export default class OriginService {
         viewsLength,
       },
     })
+  }
+
+  public async registerComments(origin: Origin, videoId: string, page: number) {
+    await this._registerVideoComments(origin, videoId, page).catch((err) =>
+      this.errorHandler(err, origin)
+    )
+  }
+
+  private async _registerVideoComments(origin: Origin, videoId: string, page: number) {
+    const provider = this.getProvider(origin)
+    const commentsKey = `origin:${origin.id}:${videoId}:comments:${page}`
+
+    const cache = await Redis.get(commentsKey)
+
+    if (cache) {
+      return
+    }
+
+    const topLevelComment = await provider.getVideoComments(videoId, Number(page))
+
+    const repliesComments = topLevelComment
+      .map((c) =>
+        c.replies.map((r) => ({
+          ...r,
+          parentCommentId: c.commentId,
+        }))
+      )
+      .reduce((all, c) => all.concat(c), [])
+
+    const usersToCreate = lodash
+      .unionBy(topLevelComment.concat(repliesComments), 'userId')
+      .map((c) => ({
+        id: `${origin.id}-${c.userId}`,
+        userId: c.userId,
+        originId: origin.id,
+      }))
+
+    const users = await origin.related('users').updateOrCreateMany(usersToCreate, 'id')
+
+    const commentsToCreateOrUpdate = topLevelComment.map((c) => {
+      const user = users.find((u) => u.userId === c.userId)
+      const serialized = provider.serializeComment(c.data)
+
+      return {
+        id: `${origin.id}-${c.commentId}`,
+        commentId: c.commentId,
+        userId: user ? user.id : undefined,
+        videoId: `${origin.id}-${videoId}`,
+        originId: origin.id,
+        originLikeCount: serialized.likeCount,
+        originUnlikeCount: serialized.unlikeCount,
+        originData: c.data,
+      }
+    })
+
+    const repliesToCreateOrUpdate = repliesComments.map((c) => {
+      const user = users.find((u) => u.userId === c.userId)
+      const serialized = provider.serializeComment(c.data)
+
+      return {
+        id: `${origin.id}-${c.commentId}`,
+        parentCommentId: `${origin.id}-${c.parentCommentId}`,
+        commentId: c.commentId,
+        userId: user ? user.id : undefined,
+        videoId: `${origin.id}-${videoId}`,
+        originId: origin.id,
+        originLikeCount: serialized.likeCount,
+        originUnlikeCount: serialized.unlikeCount,
+        originData: c.data,
+      }
+    })
+
+    await origin.related('comments').updateOrCreateMany(commentsToCreateOrUpdate, 'id')
+    await origin.related('comments').updateOrCreateMany(repliesToCreateOrUpdate, 'id')
+
+    await Redis.set(commentsKey, JSON.stringify(topLevelComment.concat(repliesComments)))
+  }
+
+  public serializeVideo = (origin: Origin, video: Video) => {
+    return this.getProvider(origin).serializeVideo(video.originData)
+  }
+
+  public serializeComment = (origin: Origin, comment: Comment) => {
+    const provider = this.getProvider(origin)
+    const normalSerialize = comment.serialize()
+    const originSerialize = provider.serializeComment(comment.originData)
+    const replies = comment.replies.map((r) => ({
+      ...r.serialize(),
+      ...provider.serializeComment(r.originData),
+    }))
+    return {
+      ...normalSerialize,
+      ...originSerialize,
+      replies,
+    }
   }
 }

@@ -5,7 +5,6 @@ import NotModifyDefaultEntityException from 'App/Exceptions/NotModifyDefaultEnti
 import OriginException from 'App/Exceptions/OriginException'
 
 import Origin, { OriginConfig, OriginTypes } from 'App/Models/Origin'
-import OriginProvider from 'App/Services/Origin/OriginProvider'
 import OriginUpdateValidator from 'App/Validators/OriginUpdateValidator'
 import OriginValidator from 'App/Validators/OriginValidator'
 
@@ -65,7 +64,7 @@ export default class OriginsController {
     }
 
     if (config) {
-      await OriginProvider.checkConfig(config as OriginConfig)
+      await OriginService.checkConfig(origin.type, config as OriginConfig)
       origin.config = config as OriginConfig
     }
 
