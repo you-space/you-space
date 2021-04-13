@@ -1,13 +1,8 @@
 <template>
-  <router-link
-    class="flex p-2 transition-all hover:bg-gray-200"
-    exact-active-class="bg-gray-300"
-    v-if="to"
-    :to="to"
-  >
+  <router-link :class="classes" exact-active-class="bg-gray-300" v-if="to" :to="to">
     <slot />
   </router-link>
-  <li v-else class="flex p-2">
+  <li v-else :class="classes">
     <slot />
   </li>
 </template>
@@ -20,6 +15,22 @@ export default defineComponent({
       type: Object,
       default: null,
     },
+    clickable: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  setup(props) {
+    const classes = ['flex px-4  py-3']
+    const clickableClasses = 'transition-all hover:bg-gray-200 cursor-pointer'
+
+    if (props.to || props.clickable) {
+      classes.push(clickableClasses)
+    }
+
+    return {
+      classes,
+    }
   },
 })
 </script>

@@ -22,6 +22,12 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
+  // Always leave this as last one,
+  // but you can also remove it
+  {
+    path: '/:catchAll(.*)*',
+    component: () => import('@/pages/404.vue'),
+  },
 ]
 
 export function createAppRouter() {

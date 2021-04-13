@@ -33,7 +33,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const classes = ref(['px-2 py-1 flex items-center'])
+    const classes = ref(['px-3 py-2 flex items-center'])
     if (!props.flat) {
       classes.value.push(props.color)
     } else {

@@ -1,6 +1,6 @@
 <template>
   <div class="h-screen">
-    <div class="header-content">
+    <div class="header-content" ref="header">
       <slot name="header" />
     </div>
 
@@ -15,13 +15,22 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 
 export default defineComponent({
   setup() {
-    const height = 'calc(100% - 41px)'
+    const header = ref<HTMLElement | null>(null)
+
+    const height = computed(() => {
+      if (header.value) {
+        return `calc(100% - ${header.value.clientHeight})`
+      }
+      return '100%'
+    })
+
     return {
       height,
+      header,
     }
   },
 })
