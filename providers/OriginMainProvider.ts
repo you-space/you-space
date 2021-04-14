@@ -5,6 +5,13 @@ export default class OriginMainProvider {
   constructor(protected application: ApplicationContract) {}
 
   public async register() {
+    const Database = (await import('@ioc:Adonis/Lucid/Database')).default
+    const haveTable = await Database.connection().schema.hasTable('origins')
+
+    if (!haveTable) {
+      return
+    }
+
     const Origin = (await import('App/Models/Origin')).default
     const OriginTypes = (await import('App/Models/Origin')).OriginTypes
 
