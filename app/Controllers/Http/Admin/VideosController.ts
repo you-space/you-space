@@ -10,22 +10,8 @@ import VideoMetadata from 'App/Models/VideoMetadata'
 import VideoUpdateValidator from 'App/Validators/VideoUpdateValidator'
 
 import OriginMain from '@ioc:Providers/OriginMainProvider'
-import ContentService from '@ioc:Providers/ContentService'
 
 export default class VideosController {
-  public async index({ request, auth }: HttpContextContract) {
-    const filter = {
-      page: request.input('page', 1),
-      limit: request.input('limit', 20),
-
-      search: request.input('search', undefined),
-      visibility: request.input('visibility', undefined),
-      originId: request.input('originId', undefined),
-    }
-
-    return await ContentService.index(filter, auth.user)
-  }
-
   public async store({ request }: HttpContextContract) {
     const { title, video, description, thumbnail } = await request.validate(VideoValidator)
 

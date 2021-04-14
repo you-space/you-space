@@ -24,7 +24,6 @@ export enum OriginTypes {
 export interface YoutubeConfig {
   apiKey: string
   channelId: string
-  uploadPlaylistId: string
 }
 
 export type OriginConfig = YoutubeConfig
@@ -37,7 +36,7 @@ export default class Origin extends BaseModel {
   public name: string
 
   @column()
-  public type: OriginTypes
+  public type: OriginTypes | string
 
   @column()
   public config: OriginConfig
@@ -91,5 +90,7 @@ export default class Origin extends BaseModel {
 
     await origin.related('users').query().delete()
     await origin.related('videos').query().delete()
+
+    await origin.related('logs').query().delete()
   }
 }

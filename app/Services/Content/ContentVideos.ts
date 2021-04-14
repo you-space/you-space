@@ -7,6 +7,7 @@ import Video from 'App/Models/Video'
 import Visibility from 'App/Models/Visibility'
 import Permission from 'App/Models/Permission'
 import OriginService from '@ioc:Providers/OriginService'
+import Redis from '@ioc:Adonis/Addons/Redis'
 
 export interface VideoFilters {
   search?: string
@@ -19,10 +20,23 @@ export interface VideoFilters {
 }
 
 export default class ContentVideo {
-  public async registerOrigins(page: number) {
+  public async importVideos(page: number) {
     const origins = await Origin.query().where('type', OriginTypes.YouTube)
 
-    await Promise.all(origins.map(async (o) => OriginService.registerVideos(o, page)))
+    await Promise.all(
+      origins.map(async (o) => {
+        const redisKey = `origin:${o.id}:videos:${page}`
+        const cache = await Redis.get(redisKey)
+
+        if (cache) {
+          return
+        }
+
+        await OriginService.importVideos(o, page)
+
+        await Redis.set(redisKey, 'true', 'EX', 60 * 60)
+      })
+    )
   }
 
   public async getUserAllowedVisibilities(user?: User) {
@@ -92,7 +106,7 @@ export default class ContentVideo {
       })
       .map((v) => v.id)
 
-    await this.registerOrigins(filters.page)
+    await this.importVideos(filters.page)
 
     const query = Video.query()
       .leftJoin('video_metadata', 'video_metadata.video_id', 'videos.id')

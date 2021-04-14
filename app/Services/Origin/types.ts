@@ -49,3 +49,18 @@ export interface OriginVideoProvider {
   getVideoComments(videoId: string, page: number): Promise<OriginComment[]>
   serializeComment(data: any): CommentSerialized
 }
+
+export interface OriginProvider {
+  fetchVideos(page: number): Promise<OriginVideo[]>
+  serializeVideo(data: any): VideoSerialized
+}
+
+export interface MountedOriginProvider extends OriginProvider {
+  metadata: OriginProviderMetadata
+  config: OriginConfig
+}
+
+export interface OriginProviderMetadata<T = any> {
+  get: () => Promise<T>
+  set: (value: T) => Promise<void>
+}

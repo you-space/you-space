@@ -196,7 +196,7 @@ export default defineComponent({
                 page: String(page),
             };
 
-            const { data } = await api.get<VideosResponse>('admin/videos', {
+            const { data } = await api.get<VideosResponse>('videos', {
                 params: new URLSearchParams(pickBy<any>(query, (k) => !!k)),
             });
 
