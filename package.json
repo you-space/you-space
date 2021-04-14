@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "test": "node -r @adonisjs/assembler/build/register japaFile.ts",
     "start": "node server.js",
     "dev": "node ace serve --watch",
     "dev:dashboard": "npm run dev --prefix public",
@@ -22,6 +23,9 @@
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-adonis": "^1.2.1",
     "eslint-plugin-prettier": "^3.3.1",
+    "execa": "^5.0.0",
+    "get-port": "^5.1.1",
+    "japa": "^3.1.1",
     "pino-pretty": "^4.5.0",
     "prettier": "^2.2.1",
     "sqlite3": "^5.0.2",

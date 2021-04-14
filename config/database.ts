@@ -21,12 +21,18 @@ const databaseConfig: DatabaseConfig & { orm: Partial<OrmConfig> } = {
   | file.
   |
   */
-  connection: Env.get('DB_CONNECTION', 'sqlite'),
+  connection: Env.get('DB_CONNECTION', 'pg'),
 
   connections: {
     pg: {
       client: 'pg',
       connection: Env.get('POSTGRES_URL'),
+      healthCheck: false,
+    },
+
+    test: {
+      client: 'pg',
+      connection: Env.get('TEST_POSTGRES_URL'),
       healthCheck: false,
     },
     /*
