@@ -6,7 +6,7 @@ export default class VideosController {
     const filter = {
       page: Number(request.input('page', 1)),
       limit: Number(request.input('limit', 20)),
-      visibility: request.input('visibility', 'public'),
+      visibility: request.input('visibility', undefined),
     }
 
     return await ContentService.index(filter, auth.user)

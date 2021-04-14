@@ -1,8 +1,8 @@
 import Origin, { OriginTypes } from 'App/Models/Origin'
 import test from 'japa'
-import OriginService from './OriginService'
+import OriginService from 'App/Services/Origin/OriginService'
 
-test.group('OriginService (unit)', () => {
+test.group('OriginService (integration)', () => {
   const service = new OriginService()
   let origin: Origin
 
@@ -21,14 +21,6 @@ test.group('OriginService (unit)', () => {
   async function deleteOrigin() {
     await origin.delete()
   }
-
-  test.group('errorHandler()', (group) => {
-    group.beforeEach(givenOrigin)
-    group.afterEach(deleteOrigin)
-    test('need test', () => {
-      throw new Error('need tests')
-    })
-  })
 
   test.group('getProvider()', (group) => {
     group.beforeEach(givenOrigin)
@@ -70,6 +62,28 @@ test.group('OriginService (unit)', () => {
     test('should create views of videos returned from provider', async (assert) => {
       await service.importVideos(origin, 1)
       const { count } = await origin.related('views').query().count('*').firstOrFail()
+
+      assert.equal(count, 50)
+    })
+  })
+
+  test.group('importComments()', (group) => {
+    group.beforeEach(givenOrigin)
+    group.afterEach(deleteOrigin)
+
+    test('should create comments returned from provider', async (assert) => {
+      await service.importVideos(origin, 1)
+
+      const video = await origin.related('videos').query().limit(1).firstOrFail()
+
+      await service.importComments(origin, video.videoId, 1)
+
+      const { count } = await origin
+        .related('comments')
+        .query()
+        .whereNull('parentCommentId')
+        .count('*')
+        .firstOrFail()
 
       assert.equal(count, 50)
     })

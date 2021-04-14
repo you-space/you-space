@@ -21,7 +21,8 @@ async function startHttpServer() {
  * Configure test runner
  */
 configure({
-  files: ['app/**/*.test.ts'],
+  files: ['app/**/*.test.ts', 'tests/**/*.test.ts'],
   before: [runMigrations, startHttpServer],
   after: [rollbackMigrations],
+  timeout: 10000,
 })

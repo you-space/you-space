@@ -21,12 +21,6 @@ export default class OriginsController {
   public async store({ request }: HttpContextContract) {
     const { name, type, config } = await request.validate(OriginValidator)
 
-    const isValid = await OriginService.checkConfig(type, config)
-
-    if (!isValid) {
-      throw new OriginException('config invalid', type)
-    }
-
     return await Origin.create({
       name,
       type,
@@ -48,7 +42,7 @@ export default class OriginsController {
   }
 
   public async update({ params, request }: HttpContextContract) {
-    const { name, type, config } = await request.validate(OriginUpdateValidator)
+    const { name, type } = await request.validate(OriginUpdateValidator)
     const origin = await Origin.findOrFail(params.id)
 
     if (type === OriginTypes.Main) {
@@ -61,11 +55,6 @@ export default class OriginsController {
 
     if (name) {
       origin.name = name
-    }
-
-    if (config) {
-      await OriginService.checkConfig(origin.type, config as OriginConfig)
-      origin.config = config as OriginConfig
     }
 
     await origin.save()
@@ -82,24 +71,25 @@ export default class OriginsController {
   }
 
   public async startImport({ params }: HttpContextContract) {
-    const origin = await Origin.findOrFail(params.id)
-    const provider = OriginService.getProvider(origin)
-    if (provider.preload) {
-      await provider.preload(origin.config)
-    }
+    throw new Error('not implemented')
+    // const origin = await Origin.findOrFail(params.id)
+    // const provider = OriginService.getProvider(origin)
+    // if (provider.preload) {
+    //   await provider.preload(origin.config)
+    // }
 
-    const totalPages = await provider.getTotalPages()
+    // const totalPages = await provider.getTotalPages()
 
-    const jobs: any[] = []
+    // const jobs: any[] = []
 
-    for (let i = 1; i <= totalPages; i++) {
-      jobs.push({
-        originId: origin.id,
-        page: i,
-        delay: i * 1000,
-      })
-    }
+    // for (let i = 1; i <= totalPages; i++) {
+    //   jobs.push({
+    //     originId: origin.id,
+    //     page: i,
+    //     delay: i * 1000,
+    //   })
+    // }
 
-    jobs.forEach((job) => OriginQueue.addVideoPageImport(job.originId, job.page, job.delay))
+    // jobs.forEach((job) => OriginQueue.addVideoPageImport(job.originId, job.page, job.delay))
   }
 }

@@ -8,6 +8,7 @@ import Visibility from 'App/Models/Visibility'
 import Permission from 'App/Models/Permission'
 import OriginService from '@ioc:Providers/OriginService'
 import Redis from '@ioc:Adonis/Addons/Redis'
+import OriginMain from '@ioc:Providers/OriginMainProvider'
 
 export interface VideoFilters {
   search?: string
@@ -21,7 +22,7 @@ export interface VideoFilters {
 
 export default class ContentVideo {
   public async importVideos(page: number) {
-    const origins = await Origin.query().where('type', OriginTypes.YouTube)
+    const origins = await Origin.query().whereNot('id', OriginMain.id)
 
     await Promise.all(
       origins.map(async (o) => {
@@ -69,9 +70,17 @@ export default class ContentVideo {
     const serialize = OriginService.serializeVideo(video.origin, video)
     return {
       id: video.id,
+
       origin: video.origin.serialize({ fields: { omit: ['config'] } }),
-      visibilityId: video.visibility.id,
+      originId: video.originId,
+      originLink: serialize.originLink,
+      originThumbnail: serialize.thumbnailSrc,
+
+      videoId: video.videoId,
+
+      visibilityId: video.visibilityId,
       visibilityName: video.visibility.name,
+
       totalViews: Number(video.$extras.totalViews) || 0,
 
       title: video.title ? video.title : serialize.title,
@@ -82,8 +91,6 @@ export default class ContentVideo {
       publishedAt: serialize.publishedAt ? serialize.publishedAt : video.createdAt,
 
       viewsCount: serialize.viewsCount,
-      originLink: serialize.originLink,
-      originThumbnail: serialize.thumbnailSrc,
     }
   }
 

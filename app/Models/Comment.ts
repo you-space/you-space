@@ -7,6 +7,7 @@ import {
   computed,
   belongsTo,
   BelongsTo,
+  beforeSave,
 } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
 
@@ -44,6 +45,12 @@ export default class Comment extends BaseModel {
   @column({ columnName: 'origin_data', serializeAs: null })
   public originData: any
 
+  @column.dateTime({ autoCreate: true })
+  public createdAt: DateTime
+
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  public updatedAt: DateTime
+
   @computed()
   public get totalLikeCount() {
     return this.likeCount + this.originLikeCount
@@ -65,9 +72,12 @@ export default class Comment extends BaseModel {
   })
   public user: BelongsTo<typeof User>
 
-  @column.dateTime({ autoCreate: true })
-  public createdAt: DateTime
-
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  public updatedAt: DateTime
+  @beforeSave()
+  public static async createUserIfNotExist(comment: Comment) {
+    await User.firstOrCreate({
+      id: comment.userId,
+      userId: comment.userId.replace(`${comment.originId}-`, ''),
+      originId: comment.originId,
+    })
+  }
 }

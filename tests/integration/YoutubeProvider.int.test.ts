@@ -1,8 +1,8 @@
 import test from 'japa'
-import YoutubeProvider from './YouTubeProvider'
+import YoutubeProvider from 'App/Services/Origin/YouTubeProvider'
 import faker from 'faker'
 
-test.group('YoutubeProvider (unit)', () => {
+test.group('YoutubeProvider (integration)', () => {
   let provider: YoutubeProvider
 
   function givenProvider() {

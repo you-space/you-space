@@ -8,6 +8,8 @@ export default class YouTubeProvider implements OriginProvider {
 
   public metadata: OriginProviderMetadata
 
+  public maxResults = 50
+
   public api = axios.create({
     baseURL: 'https://www.googleapis.com/youtube/v3',
   })
@@ -46,7 +48,6 @@ export default class YouTubeProvider implements OriginProvider {
   }
 
   public async fetchVideos(page: number): Promise<OriginVideo[]> {
-    const maxResults = 50
     const metadata = await this.metadata.get()
     const playlistId = await this.getUploadPlaylistId()
 
@@ -62,7 +63,7 @@ export default class YouTubeProvider implements OriginProvider {
         key: this.config.apiKey,
         playlistId,
         pageToken,
-        maxResults: maxResults,
+        maxResults: this.maxResults,
       },
     })
 
@@ -101,6 +102,55 @@ export default class YouTubeProvider implements OriginProvider {
     }))
   }
 
+  public async fetchComments(videoId: string, page: number) {
+    const metadata = await this.metadata.get()
+    let pageToken
+
+    if (page > 1) {
+      pageToken = metadata[`${videoId}:comments:${page - 1}`]
+    }
+
+    if (page > 1 && !pageToken) {
+      return []
+    }
+
+    const request = await this.api.get('/commentThreads', {
+      params: {
+        key: this.config.apiKey,
+        part: 'snippet, replies',
+        textFormat: 'plainText',
+        videoId,
+        maxResults: this.maxResults,
+      },
+    })
+
+    const comments = lodash.get(request, 'data.items', [])
+    const nextPageToken = lodash.get(request, 'data.nextPageToken', null)
+    const prevPageToken = lodash.get(request, 'data.prevPageToken', null)
+
+    await this.metadata.set({
+      ...metadata,
+      [`${videoId}:comments:${page - 1}`]: prevPageToken,
+      [`${videoId}:comments:${page + 1}`]: nextPageToken,
+    })
+
+    return comments.map((c) => {
+      const comment = lodash.get(c, 'snippet.topLevelComment', null)
+      const replies = lodash.get(c, 'replies.comments', []).map((r) => ({
+        commentId: lodash.get(r, 'id', null),
+        userId: lodash.get(r, 'snippet.authorChannelId.value', null),
+        data: r,
+      }))
+
+      return {
+        commentId: lodash.get(comment, 'id', null),
+        userId: lodash.get(comment, 'snippet.authorChannelId.value', null),
+        data: comment,
+        replies,
+      }
+    })
+  }
+
   public serializeVideo(data: any) {
     const viewsCount = lodash.get(data, 'statistics.viewCount', 0)
     const standardThumb = lodash.get(data, 'snippet.thumbnails.standard.url', null)
@@ -114,6 +164,19 @@ export default class YouTubeProvider implements OriginProvider {
       thumbnailSrc: standardThumb || defaultThumb,
       originLink: `https://www.youtube.com/watch?v=${lodash.get(data, 'id', null)}`,
       publishedAt: lodash.get(data, 'snippet.publishedAt', null),
+    }
+  }
+
+  public serializeComment(data: any) {
+    return {
+      commentId: lodash.get(data, `id`, null),
+      parentCommentId: undefined,
+      userId: lodash.get(data, `snippet.authorChannelId.value`, null),
+      username: lodash.get(data, `snippet.authorDisplayName`, null),
+      avatarSrc: lodash.get(data, `snippet.authorProfileImageUrl`, null),
+      content: lodash.get(data, `snippet.textDisplay`, null),
+      likeCount: lodash.get(data, `snippet.likeCount`, 0),
+      unlikeCount: lodash.get(data, `snippet.unlikeCount`, 0),
     }
   }
 }

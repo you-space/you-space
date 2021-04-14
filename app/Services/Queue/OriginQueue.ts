@@ -12,18 +12,21 @@ export default class OriginQueue {
   public queue: Queue
   constructor() {
     this.queue = new Bull('origins')
-    this.queue.process('import', this.processImport)
-    this.queue.process('delete-old-logs', this.deleteOldLogs)
 
-    this.queue.add(
-      'delete-old-logs',
-      {},
-      {
-        repeat: {
-          cron: '0 * * * *',
-        },
-      }
-    )
+    this.queue.empty().then(() => {
+      this.queue.process('import', this.processImport)
+      this.queue.process('delete-old-logs', this.deleteOldLogs)
+
+      this.queue.add(
+        'delete-old-logs',
+        {},
+        {
+          repeat: {
+            cron: '0 * * * *',
+          },
+        }
+      )
+    })
   }
 
   public async deleteOldLogs() {
@@ -41,7 +44,7 @@ export default class OriginQueue {
   public async processImport(job: Job<ImportJobData>) {
     const origin = await Origin.findOrFail(job.data.originId)
 
-    await OriginService.registerVideos(origin, job.data.page)
+    await OriginService.importVideos(origin, job.data.page)
 
     await origin.related('logs').create({
       message: `queue: import videos page ${job.data.page}`,
