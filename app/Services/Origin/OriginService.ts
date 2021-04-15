@@ -63,11 +63,10 @@ export default class OriginService {
   }
 
   /**
-   * Method to cath and handle erros of _importVideos
+   * Method to import videos of a origin and register/update they in database
    * @param origin
    * @param page
    */
-
   public async importVideos(origin: Origin, page: number) {
     try {
       await this._importVideos(origin, page)
@@ -77,12 +76,6 @@ export default class OriginService {
       })
     }
   }
-
-  /**
-   * Method to get videos of origin provider and add/update they in database
-   * @param origin
-   * @param page
-   */
 
   private async _importVideos(origin: Origin, page: number) {
     const provider = this.getProvider(origin)
@@ -114,7 +107,7 @@ export default class OriginService {
   }
 
   /**
-   * Method to cath and handle erros of _importComments
+   * Method to import comments of a origin and register/update they in database
    * @param origin
    * @param videoId
    * @param page
@@ -130,12 +123,6 @@ export default class OriginService {
     }
   }
 
-  /**
-   * Method to get comments of origin provider and add/update they in database
-   * @param origin
-   * @param videoId
-   * @param page
-   */
   private async _importComments(origin: Origin, videoId: string, page: number) {
     const provider = this.getProvider(origin)
 

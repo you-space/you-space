@@ -8,7 +8,6 @@ import Visibility from 'App/Models/Visibility'
 import Permission from 'App/Models/Permission'
 import OriginService from '@ioc:Providers/OriginService'
 import Redis from '@ioc:Adonis/Addons/Redis'
-import OriginMain from '@ioc:Providers/OriginMainProvider'
 
 export interface VideoFilters {
   search?: string
@@ -22,7 +21,7 @@ export interface VideoFilters {
 
 export default class ContentVideo {
   public async importVideos(page: number) {
-    const origins = await Origin.query().whereNot('id', OriginMain.id)
+    const origins = await Origin.query().whereNot('type', OriginTypes.Main)
 
     await Promise.all(
       origins.map(async (o) => {
