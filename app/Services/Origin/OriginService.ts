@@ -109,10 +109,11 @@ export default class OriginService {
           }
         )
 
-        await created.related('view').updateOrCreate(
+        await created.related('metas').updateOrCreate(
           {},
           {
-            sourceCount: serialize.viewsCount,
+            name: 'sourceCount',
+            value: String(serialize.viewsCount),
           }
         )
       })
@@ -120,27 +121,9 @@ export default class OriginService {
 
     await trx.commit()
 
-    // await origin.related('videos').updateOrCreateMany(
-    //   videos.map((v) => ({
-    //     id: `${origin.id}-${v.videoId}`,
-    //     videoId: v.videoId,
-    //     originData: v.data,
-    //   })),
-    //   'id'
-    // )
-
-    // await origin.related('views').updateOrCreateMany(
-    //   serialize.map(({ viewsCount, videoId }) => ({
-    //     id: `${origin.id}-${videoId}`,
-    //     videoId: `${origin.id}-${videoId}`,
-    //     count: viewsCount,
-    //   })),
-    //   'id'
-    // )
-
-    // Logger.child({ originName: origin.name, type: origin.type, length: videos.length }).info(
-    //   'import videos page'
-    // )
+    Logger.child({ originName: origin.name, type: origin.type, length: videos.length }).info(
+      'import videos page'
+    )
   }
 
   /**

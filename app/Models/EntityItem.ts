@@ -12,7 +12,6 @@ import {
 } from '@ioc:Adonis/Lucid/Orm'
 import Origin from './Origin'
 import Visibility from './Visibility'
-import View from './View'
 import EntityItemMeta from './EntityItemMeta'
 
 export default class EntityItem extends BaseModel {
@@ -57,9 +56,6 @@ export default class EntityItem extends BaseModel {
 
   @hasMany(() => EntityItemMeta)
   public metas: HasMany<typeof EntityItemMeta>
-
-  @hasOne(() => View)
-  public view: HasOne<typeof View>
 
   @beforeDelete()
   public static async beforeDelete(item: EntityItem) {

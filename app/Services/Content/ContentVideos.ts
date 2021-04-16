@@ -97,8 +97,6 @@ export default class ContentVideo {
       visibilityId: video.visibilityId,
       visibilityName: video.visibility.name,
 
-      totalViews: Number(video.$extras.totalViews) || 0,
-
       title: metas['title'] || serialize.title,
       description: metas['description'] || serialize.description,
       src: metas['src'] || serialize.src,
@@ -142,7 +140,6 @@ export default class ContentVideo {
       .select('entity_items.*')
       .leftJoin('entity_item_metas', 'entity_item_metas.entity_item_id', 'entity_items.id')
       .preload('metas')
-      .preload('view')
       .preload('origin')
       .preload('visibility')
       .whereIn('visibility_id', visibilityId)
