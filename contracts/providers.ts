@@ -6,7 +6,7 @@ declare module '@ioc:Providers/Visibility' {
   export default provider
 }
 
-declare module '@ioc:Providers/OriginMainProvider' {
+declare module '@ioc:Providers/OriginMain' {
   import Origin from 'App/Models/Origin'
 
   const OriginMain: Origin
@@ -52,4 +52,11 @@ declare module '@ioc:Providers/SocketService' {
   const SocketService: Service
 
   export default SocketService
+}
+declare module '@ioc:Providers/ThemeService' {
+  import Service from 'App/Services/ThemeService'
+
+  const ThemeService: Service
+
+  export default ThemeService
 }

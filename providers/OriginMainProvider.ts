@@ -4,27 +4,31 @@ export default class OriginMainProvider {
   public static needsApplication = true
   constructor(protected application: ApplicationContract) {}
 
-  public async register() {
-    const Database = (await import('@ioc:Adonis/Lucid/Database')).default
-    const haveTable = await Database.connection().schema.hasTable('origins')
+  public register() {
+    // this.application.container.singleton('Providers/OriginMain', () => null)
+  }
 
-    if (!haveTable) {
-      return
-    }
-
+  public async boot() {
     const Origin = (await import('App/Models/Origin')).default
     const OriginTypes = (await import('App/Models/Origin')).OriginTypes
+    const App = await import('@ioc:Adonis/Core/Application')
+
+    if (App.default.environment !== 'web') {
+      return
+    }
 
     const main = await Origin.firstOrCreate({
       name: OriginTypes.Main,
       type: OriginTypes.Main,
     })
 
-    this.application.container.singleton('Providers/OriginMainProvider', () => main)
-  }
+    this.application.container.singleton('Providers/OriginMain', () => main)
 
-  public async boot() {
-    // All bindings are ready, feel free to use them
+    this.application.container.singleton('Providers/OriginService', () => {
+      const OriginService = require('App/Services/Origin/OriginService').default
+
+      return new OriginService()
+    })
   }
 
   public async ready() {

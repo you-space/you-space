@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid'
 import Role from 'App/Models/Role'
 import User from 'App/Models/User'
 import UserRole from 'App/Models/UserRole'
-import OriginMain from '@ioc:Providers/OriginMainProvider'
+import OriginMain from '@ioc:Providers/OriginMain'
 
 export default class UserRolesSeeder extends BaseSeeder {
   public async run() {

@@ -21,10 +21,10 @@
     "@adonisjs/redis",
     "@adonisjs/auth",
     "@adonisjs/view",
-    "./providers/AppProvider",
-    "./providers/VisibilityProvider",
     "./providers/OriginMainProvider",
-    "./providers/ServiceRegisterProvider"
+    "./providers/ServiceRegisterProvider",
+    "./providers/AppProvider",
+    "./providers/VisibilityProvider"
   ],
   "aceProviders": ["@adonisjs/repl"],
   "metaFiles": [
