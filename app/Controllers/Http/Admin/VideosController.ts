@@ -17,16 +17,17 @@ export default class VideosController {
 
     const trx = await Database.transaction()
 
-    const item = new EntityItem()
-
     const entityVideo = await Entity.firstOrCreate({
       name: 'video',
     })
 
-    entityVideo.useTransaction(trx)
-
+    const item = new EntityItem()
     const videoFile = new File()
+
     videoFile.useTransaction(trx)
+    item.useTransaction(trx)
+
+    item.entityId = entityVideo.id
 
     videoFile.filename = `${uuid()}.${video.extname}`
     videoFile.type = FileTypes.Video
@@ -38,15 +39,23 @@ export default class VideosController {
 
     await videoFile.save()
 
-    item.value = {
-      id: videoFile.id,
-      title: title,
-      description: description,
-      videoFileId: videoFile.id,
-    }
-
     item.originId = OriginMain.id
     item.sourceId = String(videoFile.id)
+
+    const metas = [
+      {
+        name: 'title',
+        value: title,
+      },
+      {
+        name: 'description',
+        value: description,
+      },
+      {
+        name: 'fileId',
+        value: String(videoFile.id),
+      },
+    ]
 
     if (thumbnail) {
       const thumbnailFile = new File()
@@ -62,10 +71,13 @@ export default class VideosController {
 
       await thumbnailFile.save()
 
-      item.value.thumbnailId = thumbnailFile.id
+      metas.push({
+        name: 'thumbnailId',
+        value: String(thumbnailFile.id),
+      })
     }
 
-    await entityVideo.related('items').save(item)
+    await item.related('metas').createMany(metas)
 
     await trx.commit()
 
@@ -77,42 +89,60 @@ export default class VideosController {
       VideoUpdateValidator
     )
 
-    // const originVideo = await Video.query().preload('metadata').where('id', params.id).firstOrFail()
+    const item = await EntityItem.query().preload('metas').where('id', params.id).firstOrFail()
+    const newMetas: any[] = []
 
-    // const trx = await Database.transaction()
-    // originVideo.useTransaction(trx)
+    const trx = await Database.transaction()
+    item.useTransaction(trx)
 
-    // if (visibilityId) {
-    //   originVideo.visibilityId = visibilityId
-    // }
+    if (visibilityId) {
+      item.visibilityId = visibilityId
+    }
 
-    // if (thumbnail) {
-    //   const old = await originVideo.metadata.related('thumbnailFile').query().first()
-    //   await originVideo.metadata.related('thumbnailFile').dissociate()
-    //   if (old) {
-    //     await old.delete()
-    //   }
+    if (thumbnail) {
+      const old = item.metas.find((m) => m.name === 'thumbnailId')
+      const file = await File.find(old ? old.value : null)
 
-    //   const thumbnailFile = new File()
-    //   thumbnailFile.filename = `${uuid()}.${thumbnail.extname}`
-    //   thumbnailFile.type = FileTypes.Image
-    //   thumbnailFile.extname = thumbnail.extname || 'jpg'
+      if (file) {
+        await file.delete()
+      }
 
-    //   await originVideo.metadata.related('thumbnailFile').associate(thumbnailFile)
+      const thumbnailFile = new File()
+      thumbnailFile.useTransaction(trx)
 
-    //   await thumbnail.move(Application.tmpPath('uploads'), {
-    //     name: thumbnailFile.filename,
-    //   })
-    // }
+      thumbnailFile.filename = `${uuid()}.${thumbnail.extname}`
+      thumbnailFile.type = FileTypes.Image
+      thumbnailFile.extname = thumbnail.extname || 'jpg'
 
-    // await originVideo.related('metadata').updateOrCreate(
-    //   {
-    //     videoId: originVideo.videoId,
-    //   },
-    //   { title, description }
-    // )
+      await thumbnailFile.save()
 
-    // await trx.commit()
+      newMetas.push({
+        name: 'thumbnailId',
+        value: thumbnailFile.id,
+      })
+
+      await thumbnail.move(Application.tmpPath('uploads'), {
+        name: thumbnailFile.filename,
+      })
+    }
+
+    if (title) {
+      newMetas.push({
+        name: 'title',
+        value: title,
+      })
+    }
+
+    if (description) {
+      newMetas.push({
+        name: 'description',
+        value: description,
+      })
+    }
+
+    await item.related('metas').updateOrCreateMany(newMetas, 'name')
+
+    await trx.commit()
   }
 
   public async destroy({ params }: HttpContextContract) {

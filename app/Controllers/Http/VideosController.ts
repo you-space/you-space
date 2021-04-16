@@ -19,6 +19,7 @@ export default class VideosController {
     const allowedVisibilities = await ContentService.getUserAllowedVisibilities(auth.user)
 
     const video = await EntityItem.query()
+      .preload('metas')
       .preload('visibility')
       .preload('origin')
       .where('id', params.id)

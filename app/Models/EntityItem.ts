@@ -8,10 +8,12 @@ import {
   HasMany,
   HasOne,
   hasOne,
+  beforeDelete,
 } from '@ioc:Adonis/Lucid/Orm'
 import Origin from './Origin'
 import Visibility from './Visibility'
 import View from './View'
+import EntityItemMeta from './EntityItemMeta'
 
 export default class EntityItem extends BaseModel {
   @column({ isPrimary: true })
@@ -33,7 +35,7 @@ export default class EntityItem extends BaseModel {
   public sourceId: string
 
   @column()
-  public value: any
+  public value: Record<string, unknown>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
@@ -53,6 +55,18 @@ export default class EntityItem extends BaseModel {
   })
   public child: HasMany<typeof EntityItem>
 
+  @hasMany(() => EntityItemMeta)
+  public metas: HasMany<typeof EntityItemMeta>
+
   @hasOne(() => View)
   public view: HasOne<typeof View>
+
+  @beforeDelete()
+  public static async beforeDelete(item: EntityItem) {
+    await item.related('child').query().delete()
+    await item.related('view').query().delete()
+    const metas = await item.related('metas').query()
+
+    await Promise.all(metas.map(async (m) => await m.delete()))
+  }
 }

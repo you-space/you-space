@@ -8,7 +8,7 @@ export default class EntityItemMetas extends BaseSchema {
       table.increments('id').primary()
       table.integer('entity_item_id').references('entity_items.id').notNullable()
       table.string('name').notNullable()
-      table.string('value')
+      table.text('value')
       table.timestamps(true)
     })
   }

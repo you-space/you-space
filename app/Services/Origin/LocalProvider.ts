@@ -1,9 +1,7 @@
-import Env from '@ioc:Adonis/Core/Env'
 import OriginMain from '@ioc:Providers/OriginMain'
 import Entity from 'App/Models/Entity'
 import EntityItem from 'App/Models/EntityItem'
 import { OriginProvider } from './types'
-import lodash from 'lodash'
 
 export default class LocalProvider implements OriginProvider {
   public async fetchVideos() {
@@ -40,16 +38,7 @@ export default class LocalProvider implements OriginProvider {
   }
 
   public serializeVideo(data: any) {
-    return {
-      title: lodash.get(data, 'title', null),
-      videoId: lodash.get(data, 'id', null),
-      description: lodash.get(data, 'description', null),
-      src: `${Env.get('DOMAIN_URL')}/api/v1/files/embed/${data.id}`,
-      thumbnailSrc: undefined,
-      viewsCount: 0,
-      originLink: `${Env.get('DOMAIN_URL')}/videos/${data.id}`,
-      publishedAt: lodash.get(data, 'createdAt', null),
-    }
+    return data
   }
 
   public serializeComment(data: any) {

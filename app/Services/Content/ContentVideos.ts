@@ -30,7 +30,7 @@ export default class ContentVideo {
         const cache = await Redis.get(redisKey)
 
         if (cache) {
-          // return
+          return
         }
 
         await OriginService.importVideos(o, page)
@@ -69,6 +69,21 @@ export default class ContentVideo {
   public getVideoFields(video: EntityItem) {
     const serialize = OriginService.serializeVideo(video.origin, video)
 
+    const metas = video.metas.reduce(
+      (all, meta) => ({
+        ...all,
+        [meta.name]: meta.value,
+      }),
+      {}
+    )
+    if (metas['thumbnailId']) {
+      metas['thumbnailSrc'] = `/api/v1/files/embed/${metas['thumbnailId']}`
+    }
+
+    if (metas['fileId']) {
+      metas['src'] = `/api/v1/files/embed/${metas['fileId']}`
+    }
+
     return {
       id: video.id,
 
@@ -84,19 +99,13 @@ export default class ContentVideo {
 
       totalViews: Number(video.$extras.totalViews) || 0,
 
-      title: serialize.title,
-      description: serialize.description,
-      src: serialize.src,
-      link: `${Env.get('DOMAIN_URL')}/videos/${video.id}`,
-      thumbnailSrc: serialize.thumbnailSrc,
-      publishedAt: serialize.publishedAt ? serialize.publishedAt : video.createdAt,
+      title: metas['title'] || serialize.title,
+      description: metas['description'] || serialize.description,
+      src: metas['src'] || serialize.src,
+      thumbnailSrc: metas['thumbnailSrc'] || serialize.thumbnailSrc,
 
-      // title: video.title ? video.title : serialize.title,
-      // description: video.description ? video.description : serialize.description,
-      // src: video.src ? video.src : serialize.src,
-      // link: `${Env.get('DOMAIN_URL')}/videos/${video.id}`,
-      // thumbnailSrc: video.thumbnailSrc ? video.thumbnailSrc : serialize.thumbnailSrc,
-      // publishedAt: serialize.publishedAt ? serialize.publishedAt : video.createdAt,
+      link: `${Env.get('DOMAIN_URL')}/videos/${video.id}`,
+      publishedAt: serialize.publishedAt ? serialize.publishedAt : video.createdAt,
 
       viewsCount: serialize.viewsCount || 0,
     }
@@ -130,21 +139,23 @@ export default class ContentVideo {
     const query = entityVideo
       .related('items')
       .query()
-      // .leftJoin('video_metadata', 'video_metadata.video_id', 'videos.id')
-      // .preload('metadata')
-      // .preload('views')
+      .select('entity_items.*')
+      .leftJoin('entity_item_metas', 'entity_item_metas.entity_item_id', 'entity_items.id')
+      .preload('metas')
+      .preload('view')
       .preload('origin')
       .preload('visibility')
       .whereIn('visibility_id', visibilityId)
-      // .withCount('views', (query) => {
-      //   query.sum('count').as('totalViews')
-      // })
       .orderBy(filters.orderBy[0], filters.orderBy[1])
+      .groupBy('entity_items.id')
 
     if (filters.search) {
-      query.whereRaw(`to_tsvector(coalesce(entity_items.value::text, '')) @@ plainto_tsquery(?)`, [
-        filters.search,
-      ])
+      query.whereRaw(
+        `setweight(to_tsvector(coalesce(entity_items.value::text, '')), 'A')
+        || setweight(to_tsvector(coalesce(entity_item_metas.value, '')), 'B')
+        @@ plainto_tsquery(?)`,
+        [filters.search]
+      )
     }
 
     if (filters.originId) {
