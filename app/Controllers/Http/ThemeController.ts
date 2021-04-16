@@ -5,28 +5,30 @@ import fs from 'fs'
 import { promisify } from 'util'
 
 export default class ThemeController {
-  public async show({ request, response }: HttpContextContract) {
-    const types = {
-      js: 'text/javascript',
-      map: 'text/javascript',
-      css: 'text/css',
-      png: 'image/png',
-      ico: 'image/x-icon',
-    }
+  public async show({}: HttpContextContract) {
+    throw new Error('themes are working in progress')
 
-    const filename = request.url()
-    const extname = path.extname(request.url()).replace('.', '')
+    // const types = {
+    //   js: 'text/javascript',
+    //   map: 'text/javascript',
+    //   css: 'text/css',
+    //   png: 'image/png',
+    //   ico: 'image/x-icon',
+    // }
 
-    const machine = await getThemeMachine()
+    // const filename = request.url()
+    // const extname = path.extname(request.url()).replace('.', '')
 
-    const themeFiles = machine.staticFiles()
+    // const machine = await getThemeMachine()
 
-    if (types[extname] && Object.keys(themeFiles).includes(filename)) {
-      response.safeHeader('Content-type', types[extname])
+    // const themeFiles = machine.staticFiles()
 
-      return await promisify(fs.readFile)(themeFiles[filename])
-    }
+    // if (types[extname] && Object.keys(themeFiles).includes(filename)) {
+    //   response.safeHeader('Content-type', types[extname])
 
-    return machine.render({ request, response })
+    //   return await promisify(fs.readFile)(themeFiles[filename])
+    // }
+
+    // return machine.render({ request, response })
   }
 }
