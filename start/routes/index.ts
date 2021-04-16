@@ -23,4 +23,4 @@ import './videos'
 import './auth'
 
 // need to be in the last import
-import './theme'
+import './client'

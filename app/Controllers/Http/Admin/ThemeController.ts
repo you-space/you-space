@@ -1,25 +1,61 @@
 import Application from '@ioc:Adonis/Core/Application'
 import fs from 'fs'
+import { schema } from '@ioc:Adonis/Core/Validator'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { promisify } from 'util'
+import YsOption, { BaseOptions } from 'App/Models/YsOption'
 
 export default class ThemeController {
   public async index({}: HttpContextContract) {
+    const currentTheme = await YsOption.findBy('name', BaseOptions.CurrentTheme)
     const themesPath = Application.makePath('content', 'themes')
     const context = await promisify(fs.readdir)(themesPath)
-    const themesInformation = await Promise.all(
+
+    return await Promise.all(
       context.map(async (themesName) => {
         const configPath = `${themesPath}/${themesName}/ys-config.json`
-        const configExist = await promisify(fs.exists)(configPath)
-        if (!configExist) {
-          return {
-            name: themesName,
-          }
+        const configFileExist = await promisify(fs.exists)(configPath)
+
+        let config = {
+          name: themesName,
+          isCurrent: currentTheme ? currentTheme.value === themesName : false,
         }
-        return require(configPath)
+
+        if (!configFileExist) {
+          return config
+        }
+
+        const configFile = require(configPath)
+
+        return {
+          ...config,
+          ...configFile,
+        }
       })
     )
-    return themesInformation
+  }
+
+  public async setTheme({ request }: HttpContextContract) {
+    const { name } = await request.validate({
+      schema: schema.create({
+        name: schema.string(),
+      }),
+    })
+
+    const themesPath = Application.makePath('content', 'themes', name)
+    const exists = await promisify(fs.exists)(themesPath)
+
+    if (!exists) {
+      throw new Error('theme not exist')
+    }
+
+    await YsOption.updateOrCreate(
+      {},
+      {
+        name: BaseOptions.CurrentTheme,
+        value: name,
+      }
+    )
   }
 
   public async show({}: HttpContextContract) {
