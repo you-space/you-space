@@ -9,12 +9,10 @@ import {
   HasOne,
   hasOne,
 } from '@ioc:Adonis/Lucid/Orm'
-import Video from './Video'
 import OriginMetadata from './OriginMetadata'
-import View from './View'
-import Comment from './Comment'
 import User from './User'
 import OriginLog from './OriginLog'
+import EntityItem from './EntityItem'
 
 export enum OriginTypes {
   YouTube = 'you-tube',
@@ -60,20 +58,10 @@ export default class Origin extends BaseModel {
   })
   public users: HasMany<typeof User>
 
-  @hasMany(() => Video, {
+  @hasMany(() => EntityItem, {
     foreignKey: 'originId',
   })
-  public videos: HasMany<typeof Video>
-
-  @hasMany(() => View, {
-    foreignKey: 'originId',
-  })
-  public views: HasMany<typeof View>
-
-  @hasMany(() => Comment, {
-    foreignKey: 'originId',
-  })
-  public comments: HasMany<typeof Comment>
+  public entityItem: HasMany<typeof EntityItem>
 
   @hasMany(() => OriginLog, {
     foreignKey: 'originId',
@@ -85,11 +73,7 @@ export default class Origin extends BaseModel {
   public static async beforeDelete(origin: Origin) {
     await origin.related('metadata').query().delete()
 
-    await origin.related('comments').query().delete()
-    await origin.related('views').query().delete()
-
     await origin.related('users').query().delete()
-    await origin.related('videos').query().delete()
 
     await origin.related('logs').query().delete()
   }

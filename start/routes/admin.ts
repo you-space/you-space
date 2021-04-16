@@ -17,6 +17,8 @@ Route.group(() => {
 
   Route.resource('visibilities', 'Admin/VisibilitiesController').apiOnly()
   Route.resource('permissions', 'Admin/PermissionsController').only(['index'])
+
+  Route.resource('themes', 'Admin/ThemeController').apiOnly().only(['index'])
 })
   .prefix('admin')
   .prefix('v1')

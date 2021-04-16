@@ -10,7 +10,7 @@ export default class OriginLogs extends BaseSchema {
       table.integer('origin_id').references('origins.id').notNullable()
 
       table.enum('type', Object.values(OriginLogTypes)).notNullable()
-      table.string('message').notNullable()
+      table.text('message').notNullable()
       table.jsonb('payload').notNullable()
 
       table.dateTime('created_at').defaultTo('$now')

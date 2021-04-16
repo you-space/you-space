@@ -1,6 +1,6 @@
 import lodash from 'lodash'
 
-import { OriginProvider, OriginProviderMetadata, OriginVideo } from '../types'
+import { OriginProvider, OriginProviderMetadata, OriginVideo } from './types'
 import axios from 'axios'
 
 export default class YouTubeProvider implements OriginProvider {

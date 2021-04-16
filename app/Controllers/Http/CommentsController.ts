@@ -1,29 +1,41 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import ContentService from '@ioc:Providers/ContentService'
 import OriginService from '@ioc:Providers/OriginService'
-import Comment from 'App/Models/Comment'
-import Origin from 'App/Models/Origin'
+import EntityItem from 'App/Models/EntityItem'
 
 export default class CommentsController {
   public async index({ params, request, auth }: HttpContextContract) {
     const page = request.input('page', 1)
-    const limit = 20
-    const offset = (Number(page) - 1) * limit
+    const limit = request.input('limit', 20)
 
-    const video = await ContentService.show(params.video_id, auth.user)
+    const allowedVisibilities = await ContentService.getUserAllowedVisibilities(auth.user)
 
-    const origin = await Origin.findOrFail(video.originId)
+    const video = await EntityItem.query()
+      .preload('origin')
+      .where('id', params.video_id)
+      .whereIn(
+        'visibility_id',
+        allowedVisibilities.map((v) => v.id)
+      )
+      .firstOrFail()
 
-    await OriginService.importComments(origin, video.videoId, Number(page))
+    await OriginService.importComments(video.origin, video, Number(page))
 
-    const comments = await Comment.query()
-      .where('video_id', video.id)
-      .preload('user')
-      .preload('replies')
-      .whereNull('parentCommentId')
-      .limit(limit)
-      .offset(offset)
+    const paginator = await video.related('child').query().preload('child').paginate(page, limit)
 
-    return comments.map((c) => OriginService.serializeComment(origin, c))
+    const data = paginator.all().map((item) => {
+      const comment = OriginService.serializeComment(video.origin, item)
+      let replies = item.child.map((child) => OriginService.serializeComment(video.origin, child))
+
+      return {
+        ...comment,
+        replies,
+      }
+    })
+
+    return {
+      data,
+      meta: paginator.getMeta(),
+    }
   }
 }

@@ -5,9 +5,9 @@ export default class Views extends BaseSchema {
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.text('id').primary()
-      table.text('video_id').notNullable().references('videos.id')
-      table.integer('origin_id').notNullable().references('origins.id')
+      table.increments('id').primary()
+      table.integer('entity_item_id').notNullable().references('entity_items.id')
+      table.integer('source_count').notNullable().defaultTo(0)
       table.integer('count').notNullable().defaultTo(0)
       table.timestamps(true)
     })

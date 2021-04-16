@@ -10,7 +10,7 @@ import OriginValidator from 'App/Validators/OriginValidator'
 
 export default class OriginsController {
   public async index() {
-    const origins = await Origin.query().preload('metadata').withCount('videos')
+    const origins = await Origin.query().preload('metadata')
 
     return origins.map((o) => ({
       ...o.serialize(),
@@ -29,11 +29,7 @@ export default class OriginsController {
   }
 
   public async show({ params }: HttpContextContract) {
-    const origin = await Origin.query()
-      .where('id', params.id)
-      .withCount('videos')
-      .preload('metadata')
-      .firstOrFail()
+    const origin = await Origin.query().where('id', params.id).preload('metadata').firstOrFail()
 
     return {
       ...origin.serialize(),

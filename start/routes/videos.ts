@@ -1,9 +1,7 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
-  Route.get('videos', 'VideosController.index')
-  Route.get('videos/trending', 'VideosController.trending')
-  Route.get('videos/:id', 'VideosController.show')
+  Route.resource('videos', 'VideosController').only(['index', 'show'])
 
   Route.resource('videos.comments', 'CommentsController').only(['index'])
 

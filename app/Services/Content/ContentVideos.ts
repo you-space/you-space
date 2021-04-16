@@ -3,11 +3,12 @@ import { pickBy } from 'lodash'
 
 import Origin, { OriginTypes } from 'App/Models/Origin'
 import User from 'App/Models/User'
-import Video from 'App/Models/Video'
 import Visibility from 'App/Models/Visibility'
 import Permission from 'App/Models/Permission'
 import OriginService from '@ioc:Providers/OriginService'
 import Redis from '@ioc:Adonis/Addons/Redis'
+import EntityItem from 'App/Models/EntityItem'
+import Entity from 'App/Models/Entity'
 
 export interface VideoFilters {
   search?: string
@@ -29,7 +30,7 @@ export default class ContentVideo {
         const cache = await Redis.get(redisKey)
 
         if (cache) {
-          return
+          // return
         }
 
         await OriginService.importVideos(o, page)
@@ -65,31 +66,39 @@ export default class ContentVideo {
     return allowedVisibilities
   }
 
-  public getVideoFields(video: Video) {
+  public getVideoFields(video: EntityItem) {
     const serialize = OriginService.serializeVideo(video.origin, video)
+
     return {
       id: video.id,
 
-      origin: video.origin.serialize({ fields: { omit: ['config'] } }),
+      originName: video.origin.name,
       originId: video.originId,
       originLink: serialize.originLink,
       originThumbnail: serialize.thumbnailSrc,
 
-      videoId: video.videoId,
+      videoId: video.sourceId,
 
       visibilityId: video.visibilityId,
       visibilityName: video.visibility.name,
 
       totalViews: Number(video.$extras.totalViews) || 0,
 
-      title: video.title ? video.title : serialize.title,
-      description: video.description ? video.description : serialize.description,
-      src: video.src ? video.src : serialize.src,
+      title: serialize.title,
+      description: serialize.description,
+      src: serialize.src,
       link: `${Env.get('DOMAIN_URL')}/videos/${video.id}`,
-      thumbnailSrc: video.thumbnailSrc ? video.thumbnailSrc : serialize.thumbnailSrc,
+      thumbnailSrc: serialize.thumbnailSrc,
       publishedAt: serialize.publishedAt ? serialize.publishedAt : video.createdAt,
 
-      viewsCount: serialize.viewsCount,
+      // title: video.title ? video.title : serialize.title,
+      // description: video.description ? video.description : serialize.description,
+      // src: video.src ? video.src : serialize.src,
+      // link: `${Env.get('DOMAIN_URL')}/videos/${video.id}`,
+      // thumbnailSrc: video.thumbnailSrc ? video.thumbnailSrc : serialize.thumbnailSrc,
+      // publishedAt: serialize.publishedAt ? serialize.publishedAt : video.createdAt,
+
+      viewsCount: serialize.viewsCount || 0,
     }
   }
 
@@ -114,32 +123,35 @@ export default class ContentVideo {
 
     await this.importVideos(filters.page)
 
-    const query = Video.query()
-      .leftJoin('video_metadata', 'video_metadata.video_id', 'videos.id')
-      .preload('metadata')
+    const entityVideo = await Entity.firstOrCreate({
+      name: 'video',
+    })
+
+    const query = entityVideo
+      .related('items')
+      .query()
+      // .leftJoin('video_metadata', 'video_metadata.video_id', 'videos.id')
+      // .preload('metadata')
+      // .preload('views')
       .preload('origin')
-      .preload('views')
       .preload('visibility')
       .whereIn('visibility_id', visibilityId)
-      .withCount('views', (query) => {
-        query.sum('count').as('totalViews')
-      })
+      // .withCount('views', (query) => {
+      //   query.sum('count').as('totalViews')
+      // })
       .orderBy(filters.orderBy[0], filters.orderBy[1])
 
     if (filters.search) {
-      query.whereRaw(
-        `setweight(to_tsvector(coalesce(videos.origin_data::text, '')), 'A')
-        || setweight(to_tsvector(coalesce(video_metadata.title, '')), 'B')
-        @@ plainto_tsquery(?)`,
-        [filters.search]
-      )
+      query.whereRaw(`to_tsvector(coalesce(entity_items.value::text, '')) @@ plainto_tsquery(?)`, [
+        filters.search,
+      ])
     }
 
     if (filters.originId) {
       query.whereIn('originId', filters.originId.split(','))
     }
 
-    const paginator = await query.paginate(Number(filters.page), Number(filters.limit))
+    const paginator = await query.paginate(filters.page, filters.limit)
 
     const data = paginator.all().map(this.getVideoFields)
 
@@ -147,26 +159,5 @@ export default class ContentVideo {
       data,
       meta: paginator.getMeta(),
     }
-  }
-
-  public async show(videoId: string, user?: User) {
-    const visibility = await this.getUserAllowedVisibilities(user)
-
-    const video = await Video.query()
-      .where('id', videoId)
-      .preload('metadata')
-      .preload('origin')
-      .preload('views')
-      .preload('visibility')
-      .whereIn(
-        'visibility_id',
-        visibility.map((v) => v.id)
-      )
-      .withCount('views', (query) => {
-        query.sum('count').as('totalViews')
-      })
-      .firstOrFail()
-
-    return this.getVideoFields(video)
   }
 }

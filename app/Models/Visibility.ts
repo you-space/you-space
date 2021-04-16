@@ -10,7 +10,6 @@ import {
   beforeDelete,
   beforeUpdate,
 } from '@ioc:Adonis/Lucid/Orm'
-import Video from './Video'
 import VisibilityPermission from './VisibilityPermission'
 import Permission from './Permission'
 import NotModifyDefaultEntityException from 'App/Exceptions/NotModifyDefaultEntityException'
@@ -31,9 +30,6 @@ export default class Visibility extends BaseModel {
   public get isDefault() {
     return Object.values<string>(DefaultVisibilities).includes(this.name)
   }
-
-  @hasMany(() => Video)
-  public videos: HasMany<typeof Video>
 
   @hasMany(() => VisibilityPermission)
   public visibilityPermissions: HasMany<typeof VisibilityPermission>

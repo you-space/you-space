@@ -6,8 +6,10 @@ import { OriginLogTypes } from 'App/Models/OriginLog'
 import { CommentSerialized, MountedOriginProvider, VideoSerialized } from './types'
 import lodash from 'lodash'
 import YoutubeProvider from './YouTubeProvider'
-import Video from 'App/Models/Video'
-import Comment from 'App/Models/Comment'
+import EntityItem from 'App/Models/EntityItem'
+import Entity from 'App/Models/Entity'
+import Database from '@ioc:Adonis/Lucid/Database'
+import LocalProvider from './LocalProvider'
 
 /**
  * The OriginService is a class that manage origin providers
@@ -16,6 +18,7 @@ import Comment from 'App/Models/Comment'
 export default class OriginService {
   private providers = {
     [OriginTypes.YouTube]: YoutubeProvider,
+    [OriginTypes.Main]: LocalProvider,
   }
 
   public async reportError(error: Error, origin: Origin) {
@@ -83,27 +86,61 @@ export default class OriginService {
     const videos = await provider.fetchVideos(page)
     const serialize = videos.map((v) => provider.serializeVideo(v.data))
 
-    await origin.related('videos').updateOrCreateMany(
-      videos.map((v) => ({
-        id: `${origin.id}-${v.videoId}`,
-        videoId: v.videoId,
-        originData: v.data,
-      })),
-      'id'
+    const entityVideo = await Entity.firstOrCreate({
+      name: 'video',
+    })
+
+    const trx = await Database.transaction()
+
+    entityVideo.$trx = trx
+
+    await Promise.all(
+      videos.map(async (v) => {
+        const serialize = provider.serializeVideo(v.data)
+        const created = await entityVideo.related('items').updateOrCreate(
+          {
+            sourceId: v.videoId,
+            originId: origin.id,
+          },
+          {
+            sourceId: v.videoId,
+            value: v.data,
+            originId: origin.id,
+          }
+        )
+
+        await created.related('view').updateOrCreate(
+          {},
+          {
+            sourceCount: serialize.viewsCount,
+          }
+        )
+      })
     )
 
-    await origin.related('views').updateOrCreateMany(
-      serialize.map(({ viewsCount, videoId }) => ({
-        id: `${origin.id}-${videoId}`,
-        videoId: `${origin.id}-${videoId}`,
-        count: viewsCount,
-      })),
-      'id'
-    )
+    await trx.commit()
 
-    Logger.child({ originName: origin.name, type: origin.type, length: videos.length }).info(
-      'import videos page'
-    )
+    // await origin.related('videos').updateOrCreateMany(
+    //   videos.map((v) => ({
+    //     id: `${origin.id}-${v.videoId}`,
+    //     videoId: v.videoId,
+    //     originData: v.data,
+    //   })),
+    //   'id'
+    // )
+
+    // await origin.related('views').updateOrCreateMany(
+    //   serialize.map(({ viewsCount, videoId }) => ({
+    //     id: `${origin.id}-${videoId}`,
+    //     videoId: `${origin.id}-${videoId}`,
+    //     count: viewsCount,
+    //   })),
+    //   'id'
+    // )
+
+    // Logger.child({ originName: origin.name, type: origin.type, length: videos.length }).info(
+    //   'import videos page'
+    // )
   }
 
   /**
@@ -113,9 +150,9 @@ export default class OriginService {
    * @param page
    */
 
-  public async importComments(origin: Origin, videoId: string, page: number) {
+  public async importComments(origin: Origin, video: EntityItem, page: number) {
     try {
-      await this._importComments(origin, videoId, page)
+      await this._importComments(origin, video, page)
     } catch (error) {
       await this.reportError(error, origin).catch((err) => {
         throw new OriginException(err.message, origin.type, origin.name)
@@ -123,48 +160,87 @@ export default class OriginService {
     }
   }
 
-  private async _importComments(origin: Origin, videoId: string, page: number) {
+  private async _importComments(origin: Origin, video: EntityItem, page: number) {
     const provider = this.getProvider(origin)
 
-    const commentsTopLevel = await provider.fetchComments(videoId, page)
+    const commentsTopLevel = await provider.fetchComments(video.sourceId, page)
 
-    const commentReplies = commentsTopLevel
-      .map((c) =>
-        c.replies.map((r) => ({
-          ...r,
-          parentCommentId: c.commentId,
-        }))
-      )
-      .reduce((all, c) => all.concat(c), [])
+    const entityComment = await Entity.firstOrCreate({
+      name: 'comment',
+    })
 
-    await origin.related('comments').updateOrCreateMany(
-      commentsTopLevel.map((c) => ({
-        id: `${origin.id}-${c.commentId}`,
-        commentId: c.commentId,
-        userId: `${origin.id}-${c.userId}`,
-        videoId: `${origin.id}-${videoId}`,
-        originId: origin.id,
-        originLikeCount: provider.serializeComment(c.data).likeCount,
-        originUnlikeCount: provider.serializeComment(c.data).unlikeCount,
-        originData: c.data,
-      })),
-      'id'
+    const trx = await Database.transaction()
+
+    entityComment.$trx = trx
+
+    await Promise.all(
+      commentsTopLevel.map(async (comment) => {
+        const created = await entityComment.related('items').updateOrCreate(
+          {
+            sourceId: comment.commentId,
+            originId: origin.id,
+          },
+          {
+            originId: origin.id,
+            sourceId: comment.commentId,
+            value: comment.data,
+            parentId: video.id,
+          }
+        )
+
+        if (comment.replies.length) {
+          await entityComment.related('items').updateOrCreateMany(
+            comment.replies.map((reply) => ({
+              originId: origin.id,
+              parentId: created.id,
+              value: reply.data,
+              sourceId: reply.commentId,
+            })),
+            ['entityId', 'originId', 'sourceId']
+          )
+        }
+      })
     )
 
-    await origin.related('comments').updateOrCreateMany(
-      commentReplies.map((c) => ({
-        id: `${origin.id}-${c.commentId}`,
-        commentId: c.commentId,
-        parentCommentId: `${origin.id}-${c.parentCommentId}`,
-        userId: `${origin.id}-${c.userId}`,
-        videoId: `${origin.id}-${videoId}`,
-        originId: origin.id,
-        originLikeCount: provider.serializeComment(c.data).likeCount,
-        originUnlikeCount: provider.serializeComment(c.data).unlikeCount,
-        originData: c.data,
-      })),
-      'id'
-    )
+    await trx.commit()
+
+    // const commentReplies = commentsTopLevel
+    //   .map((c) =>
+    //     c.replies.map((r) => ({
+    //       ...r,
+    //       parentCommentId: c.commentId,
+    //     }))
+    //   )
+    //   .reduce((all, c) => all.concat(c), [])
+
+    // await origin.related('comments').updateOrCreateMany(
+    //   commentsTopLevel.map((c) => ({
+    //     id: `${origin.id}-${c.commentId}`,
+    //     commentId: c.commentId,
+    //     userId: `${origin.id}-${c.userId}`,
+    //     videoId: `${origin.id}-${videoId}`,
+    //     originId: origin.id,
+    //     originLikeCount: provider.serializeComment(c.data).likeCount,
+    //     originUnlikeCount: provider.serializeComment(c.data).unlikeCount,
+    //     originData: c.data,
+    //   })),
+    //   'id'
+    // )
+
+    // await origin.related('comments').updateOrCreateMany(
+    //   commentReplies.map((c) => ({
+    //     id: `${origin.id}-${c.commentId}`,
+    //     commentId: c.commentId,
+    //     parentCommentId: `${origin.id}-${c.parentCommentId}`,
+    //     userId: `${origin.id}-${c.userId}`,
+    //     videoId: `${origin.id}-${videoId}`,
+    //     originId: origin.id,
+    //     originLikeCount: provider.serializeComment(c.data).likeCount,
+    //     originUnlikeCount: provider.serializeComment(c.data).unlikeCount,
+    //     originData: c.data,
+    //   })),
+    //   'id'
+    // )
   }
 
   /**
@@ -173,8 +249,8 @@ export default class OriginService {
    * @param video
    * @returns VideoSerialized
    */
-  public serializeVideo(origin: Origin, video: Video): VideoSerialized {
-    return this.getProvider(origin).serializeVideo(video.originData)
+  public serializeVideo(origin: Origin, video: EntityItem): VideoSerialized {
+    return this.getProvider(origin).serializeVideo(video.value)
   }
 
   /**
@@ -183,7 +259,7 @@ export default class OriginService {
    * @param comment
    * @returns CommentSerialized
    */
-  public serializeComment(origin: Origin, comment: Comment): CommentSerialized {
-    return this.getProvider(origin).serializeComment(comment.originData)
+  public serializeComment(origin: Origin, comment: EntityItem): CommentSerialized {
+    return this.getProvider(origin).serializeComment(comment.value)
   }
 }
