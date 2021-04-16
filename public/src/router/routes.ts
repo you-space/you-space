@@ -22,7 +22,7 @@ const routes: RouteRecordRaw[] = [
                         component: () => import('pages/VideoList.vue'),
                     },
                     {
-                        path: 'videos/:videoId',
+                        path: ':videoId',
                         name: 'video',
                         component: () => import('src/pages/VideoSingle.vue'),
                         props: true,
@@ -50,6 +50,19 @@ const routes: RouteRecordRaw[] = [
                         name: 'origin-single',
                         component: () => import('pages/OriginSingle.vue'),
                         props: true,
+                    },
+                ],
+            },
+            {
+                path: 'themes',
+                name: 'themes',
+                component: () => import('layouts/EmptyLayout.vue'),
+                redirect: { name: 'theme-list' },
+                children: [
+                    {
+                        path: 'theme-list',
+                        name: 'theme-list',
+                        component: () => import('pages/ThemeList.vue'),
                     },
                 ],
             },

@@ -1,6 +1,6 @@
 <template>
   <r-page padding>
-    <r-infinite-scroll @load="onLoadInfiniteScrool" :disable="disableInfiniteScroll" :offset="250">
+    <r-infinite-scroll :disable="disableInfiniteScroll" :offset="250">
       <div class="grid grid-cols-5 gap-5">
         <template v-for="video in videos" :key="video.id">
           <div>
@@ -34,47 +34,47 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
-import { useMachine, Video } from '@/plugins/you-space'
+import { defineComponent, ref, onMounted } from 'vue'
+import { machine, Video } from '@/plugins/you-space'
+
+const page = ref(1)
+const lastPage = ref(10)
+
+async function addVideosPage() {
+  if (page.value === lastPage.value) {
+    disableInfiniteScroll.value = true
+    return
+  }
+
+  const { data, meta } = await machine.fetchVideos({
+    page: page.value,
+  })
+
+  videos.value = videos.value.concat(data)
+
+  lastPage.value = meta.last_page
+
+  page.value++
+}
+
+const videos = ref<Video[]>([])
+const disableInfiniteScroll = ref(false)
 
 export default defineComponent({
   name: 'Home',
+  async serverPrefetch() {
+    await addVideosPage()
+  },
   setup() {
-    const machine = useMachine()
-    const videos = ref<Video[]>([])
-    const page = ref(1)
-    const lastPage = ref(10)
-    const disableInfiniteScroll = ref(false)
-
-    async function addVideosPage() {
-      if (page.value === lastPage.value) {
-        disableInfiniteScroll.value = true
-        return
+    onMounted(() => {
+      if (videos.value.length === 0) {
+        addVideosPage()
       }
-
-      const { data, meta } = await machine.fetchVideos({
-        page: page.value,
-      })
-
-      videos.value = videos.value.concat(data)
-
-      lastPage.value = meta.last_page
-
-      page.value++
-    }
-
-    async function onLoadInfiniteScrool() {
-      await addVideosPage()
-
-      setTimeout(() => {
-        // done()
-      }, 2000)
-    }
+    })
 
     return {
       videos,
       disableInfiniteScroll,
-      onLoadInfiniteScrool,
     }
   },
 })

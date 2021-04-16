@@ -12,6 +12,8 @@ export default {
     page: 'Page | Pages',
     view: 'View | Views',
     thumbnail: 'Thumbnail | Thumbnails',
+    author: 'Author',
+    version: 'Version',
 
     // common
     search: 'Search',

@@ -28,8 +28,9 @@ export default class ThemeController {
         const configFile = require(configPath)
 
         return {
-          ...config,
           ...configFile,
+          ...config,
+          displayName: configFile.name,
         }
       })
     )

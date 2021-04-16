@@ -4,9 +4,10 @@ import { createMachine } from './machine'
 
 const machineSymbol = Symbol('you-space-machine')
 
+export const machine = createMachine('http://localhost:3333')
+
 const machinePlugin: Plugin = {
   install(app) {
-    const machine = createMachine()
     app.provide(machineSymbol, machine)
   },
 }

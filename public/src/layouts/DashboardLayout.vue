@@ -114,6 +114,11 @@ export default defineComponent({
                 to: { name: 'visibilities' },
             },
             {
+                label: tm.t('themes'),
+                icon: 'color_lens',
+                to: { name: 'themes' },
+            },
+            {
                 label: tm.t('origin', 2),
                 icon: 'view_in_ar',
                 to: { name: 'origins' },

@@ -121,7 +121,7 @@ interface Filters {
 }
 
 export default defineComponent({
-    name: 'AdminVideoList',
+    name: 'VideoList',
     components: {
         VideoListDialog: defineAsyncComponent(
             () => import('./VideoListDialog.vue'),
@@ -175,13 +175,13 @@ export default defineComponent({
             {
                 label: tm.t('origin'),
                 name: 'origin',
-                field: (row: Video) => row.origin.name,
+                field: 'originName',
                 align: 'left',
             },
             {
                 label: tm.t('view', 2),
                 name: 'viewsCount',
-                field: (row: Video) => tm.n(row.viewsCount),
+                field: (row: Video) => tm.n(row.viewsCount || 0),
                 align: 'left',
             },
             { name: 'actions' },
