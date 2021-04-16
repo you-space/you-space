@@ -13,16 +13,16 @@ export default class OriginMainProvider {
     const OriginTypes = (await import('App/Models/Origin')).OriginTypes
     const App = await import('@ioc:Adonis/Core/Application')
 
-    if (App.default.environment !== 'web') {
-      return
+    if (App.default.environment === 'web') {
+      const main = await Origin.firstOrCreate({
+        name: OriginTypes.Main,
+        type: OriginTypes.Main,
+      })
+
+      this.application.container.singleton('Providers/OriginMain', () => main)
+    } else {
+      this.application.container.singleton('Providers/OriginMain', () => null)
     }
-
-    const main = await Origin.firstOrCreate({
-      name: OriginTypes.Main,
-      type: OriginTypes.Main,
-    })
-
-    this.application.container.singleton('Providers/OriginMain', () => main)
 
     this.application.container.singleton('Providers/OriginService', () => {
       const OriginService = require('App/Services/Origin/OriginService').default
