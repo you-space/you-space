@@ -18,8 +18,10 @@ Route.group(() => {
   Route.resource('visibilities', 'Admin/VisibilitiesController').apiOnly()
   Route.resource('permissions', 'Admin/PermissionsController').only(['index'])
 
-  Route.resource('themes', 'Admin/ThemeController').apiOnly().only(['index', 'store'])
+  Route.resource('themes', 'Admin/ThemeController').apiOnly().only(['index', 'store', 'destroy'])
+  Route.get('themes/recommended-themes', 'Admin/ThemeController.recommendedThemes')
   Route.post('themes/set-theme', 'Admin/ThemeController.setTheme')
+  Route.post('themes/build-theme', 'Admin/ThemeController.buildTheme')
 })
   .prefix('admin')
   .prefix('v1')
