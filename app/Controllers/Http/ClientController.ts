@@ -22,9 +22,9 @@ export default class ClientController {
     if (!currentTheme) {
       throw new Error('theme not defined')
     }
-    const themePath = Application.makePath('content', 'themes', currentTheme.value)
+    const themePath = Application.makePath('content', 'themes', currentTheme.value, 'index.js')
 
-    const exists = promisify(fs.exists)(themePath)
+    const exists = await promisify(fs.exists)(themePath)
 
     if (!exists) {
       throw new Error('theme not found or was deleted')

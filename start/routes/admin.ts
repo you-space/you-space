@@ -18,7 +18,7 @@ Route.group(() => {
   Route.resource('visibilities', 'Admin/VisibilitiesController').apiOnly()
   Route.resource('permissions', 'Admin/PermissionsController').only(['index'])
 
-  Route.resource('themes', 'Admin/ThemeController').apiOnly().only(['index'])
+  Route.resource('themes', 'Admin/ThemeController').apiOnly().only(['index', 'store'])
   Route.post('themes/set-theme', 'Admin/ThemeController.setTheme')
 })
   .prefix('admin')
