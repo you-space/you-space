@@ -6,15 +6,13 @@ import {
   BelongsTo,
   hasMany,
   HasMany,
-  HasOne,
-  hasOne,
   beforeDelete,
 } from '@ioc:Adonis/Lucid/Orm'
 import Origin from './Origin'
 import Visibility from './Visibility'
-import EntityItemMeta from './EntityItemMeta'
+import ItemMeta from './ItemMeta'
 
-export default class EntityItem extends BaseModel {
+export default class Item extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
@@ -48,19 +46,18 @@ export default class EntityItem extends BaseModel {
   @belongsTo(() => Visibility)
   public visibility: BelongsTo<typeof Visibility>
 
-  @hasMany(() => EntityItem, {
+  @hasMany(() => Item, {
     localKey: 'id',
     foreignKey: 'parentId',
   })
-  public child: HasMany<typeof EntityItem>
+  public child: HasMany<typeof Item>
 
-  @hasMany(() => EntityItemMeta)
-  public metas: HasMany<typeof EntityItemMeta>
+  @hasMany(() => ItemMeta)
+  public metas: HasMany<typeof ItemMeta>
 
   @beforeDelete()
-  public static async beforeDelete(item: EntityItem) {
+  public static async beforeDelete(item: Item) {
     await item.related('child').query().delete()
-    await item.related('view').query().delete()
     const metas = await item.related('metas').query()
 
     await Promise.all(metas.map(async (m) => await m.delete()))
