@@ -7,7 +7,7 @@ export default class UserRoles extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
       table.integer('role_id').references('roles.id')
-      table.string('user_id').references('users.id')
+      table.integer('user_id').references('users.id')
       table.timestamps(true)
     })
   }

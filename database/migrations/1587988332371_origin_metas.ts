@@ -1,13 +1,13 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
-
-export default class OriginMetadata extends BaseSchema {
-  protected tableName = 'origin_metadata'
+export default class Origins extends BaseSchema {
+  protected tableName = 'origin_metas'
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
-      table.integer('origin_id').notNullable().references('origins.id').unique()
-      table.integer('total_videos').notNullable().defaultTo(0)
+      table.integer('origin_id').references('origins.id').notNullable()
+      table.string('name').notNullable()
+      table.string('value')
       table.timestamps(true)
     })
   }

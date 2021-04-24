@@ -1,31 +1,8 @@
 import { DateTime } from 'luxon'
-import {
-  BaseModel,
-  beforeDelete,
-  column,
-  computed,
-  HasMany,
-  hasMany,
-  HasOne,
-  hasOne,
-} from '@ioc:Adonis/Lucid/Orm'
-import OriginMetadata from './OriginMetadata'
+import { BaseModel, beforeDelete, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
-import OriginLog from './OriginLog'
-import EntityItem from './EntityItem'
-
-export enum OriginTypes {
-  YouTube = 'you-tube',
-  Main = 'main',
-}
-
-export interface YoutubeConfig {
-  apiKey: string
-  channelId: string
-}
-
-export type OriginConfig = YoutubeConfig
-
+import Item from './Item'
+import OriginMeta from './OriginMeta'
 export default class Origin extends BaseModel {
   @column({ isPrimary: true })
   public id: number
@@ -33,48 +10,29 @@ export default class Origin extends BaseModel {
   @column()
   public name: string
 
-  @column()
-  public type: OriginTypes | string
-
-  @column()
-  public config: OriginConfig
-
   @column.dateTime({ autoCreate: true, serializeAs: 'createdAt' })
   public createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: 'updatedAt' })
   public updatedAt: DateTime
 
-  @computed()
-  public get isDefault() {
-    return this.type === OriginTypes.Main
-  }
-
-  @hasOne(() => OriginMetadata)
-  public metadata: HasOne<typeof OriginMetadata>
+  @hasMany(() => OriginMeta, {
+    foreignKey: 'originId',
+  })
+  public metas: HasMany<typeof OriginMeta>
 
   @hasMany(() => User, {
     foreignKey: 'originId',
   })
   public users: HasMany<typeof User>
 
-  @hasMany(() => EntityItem, {
+  @hasMany(() => Item, {
     foreignKey: 'originId',
   })
-  public entityItem: HasMany<typeof EntityItem>
-
-  @hasMany(() => OriginLog, {
-    foreignKey: 'originId',
-    onQuery: (query) => query.orderBy('created_at', 'desc'),
-  })
-  public logs: HasMany<typeof OriginLog>
+  public Item: HasMany<typeof Item>
 
   @beforeDelete()
   public static async beforeDelete(origin: Origin) {
-    await origin.related('metadata').query().delete()
-
     await origin.related('users').query().delete()
-
-    await origin.related('logs').query().delete()
   }
 }

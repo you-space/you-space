@@ -27,6 +27,9 @@ export default class ExceptionHandler extends HttpExceptionHandler {
   }
 
   public async handle(error: any, { response }: HttpContextContract) {
+    if (error.code === 'E_VALIDATION_FAILURE') {
+      return response.status(422).send(error.messages)
+    }
     const status = error.status || 500
     response.status(status).json({
       status: status,

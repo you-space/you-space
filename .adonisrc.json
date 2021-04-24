@@ -21,7 +21,6 @@
     "@adonisjs/redis",
     "@adonisjs/auth",
     "@adonisjs/view",
-    "./providers/OriginMainProvider",
     "./providers/ServiceRegisterProvider",
     "./providers/AppProvider",
     "./providers/VisibilityProvider"

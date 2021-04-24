@@ -6,10 +6,19 @@ export default class OriginServiceProvider {
   constructor(protected application: ApplicationContract) {}
 
   public async boot() {
+    await this.registerOriginService()
     await this.registerContent()
     await this.registerQueue()
     await this.registerAuthenticateByToken()
     await this.registerSocket()
+  }
+
+  public async registerOriginService() {
+    this.application.container.singleton('Providers/OriginService', () => {
+      const OriginService = require('App/Services/Origin/OriginService').default
+
+      return new OriginService()
+    })
   }
 
   public async registerContent() {

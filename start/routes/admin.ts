@@ -11,9 +11,12 @@ Route.group(() => {
   Route.patch('videos/update-all', 'Admin/VideosController.updateAll')
 
   Route.resource('origins', 'Admin/OriginsController').apiOnly()
-  Route.post('origins/import/:id', 'Admin/OriginsController.startImport')
-
-  Route.resource('origins.logs', 'Admin/OriginLogsController').only(['index'])
+  Route.resource('origins.providers', 'Admin/OriginProvidersController').only([
+    'index',
+    'store',
+    'update',
+    'destroy',
+  ])
 
   Route.resource('visibilities', 'Admin/VisibilitiesController').apiOnly()
   Route.resource('permissions', 'Admin/PermissionsController').only(['index'])
@@ -22,6 +25,12 @@ Route.group(() => {
   Route.get('themes/recommended-themes', 'Admin/ThemeController.recommendedThemes')
   Route.post('themes/set-theme', 'Admin/ThemeController.setTheme')
   Route.post('themes/build-theme', 'Admin/ThemeController.buildTheme')
+
+  Route.resource('plugins', 'Admin/PluginsController').only(['index'])
+  Route.post('plugins/start', 'Admin/PluginsController.start')
+  Route.post('plugins/stop', 'Admin/PluginsController.stop')
+
+  Route.resource('providers', 'Admin/ProvidersController').only(['index'])
 })
   .prefix('admin')
   .prefix('v1')
