@@ -114,7 +114,7 @@ export default defineComponent({
                 to: { name: 'visibilities' },
             },
             {
-                label: tm.t('themes'),
+                label: tm.t('theme', 2),
                 icon: 'color_lens',
                 to: { name: 'themes' },
             },

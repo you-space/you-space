@@ -3,39 +3,11 @@
         <q-card class="full-width flex" style="max-width: 500px">
             <q-card-section class="full-width">
                 <q-input v-model="name" :label="$t('name')" class="q-mb-sm" />
-                <q-select
-                    v-model="type"
-                    :label="$t('type')"
-                    class="q-mb-sm"
-                    :options="types"
-                />
-                <template v-if="type === 'you-tube'">
-                    <q-input
-                        v-model="config.apiKey"
-                        :type="!showKey ? 'password' : 'text'"
-                        :label="$t('apiKey')"
-                    >
-                        <template #append>
-                            <q-icon
-                                :name="
-                                    !showKey ? 'visibility_off' : 'visibility'
-                                "
-                                class="cursor-pointer"
-                                @click="showKey = !showKey"
-                            />
-                        </template>
-                    </q-input>
-
-                    <q-input
-                        v-model="config.channelId"
-                        :label="$t('channelId')"
-                    />
-                </template>
             </q-card-section>
 
             <q-card-section class="text-right full-width">
                 <q-btn
-                    :disabled="!name || !type"
+                    :disabled="!name"
                     color="primary"
                     class="q-mr-sm"
                     @click="saveOrigin"
@@ -60,7 +32,7 @@ export default defineComponent({
             default: false,
         },
         originId: {
-            type: Number,
+            type: [Number, String],
             required: false,
             default: null,
         },
@@ -72,7 +44,7 @@ export default defineComponent({
         const config = ref({});
         const showKey = ref(false);
 
-        const types = ['you-tube', 'twitch'];
+        const types = ['local', 'other'];
 
         const dialog = computed({
             get() {

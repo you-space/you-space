@@ -8,3 +8,26 @@ a {
     text-decoration: none;
     color: $primary;
 }
+
+.border {
+    border-width: 1px;
+    border-style: solid;
+}
+
+.border-r {
+    border-right-width: 1px;
+    border-right-style: solid;
+}
+
+.border-r {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+}
+
+.border-grey-4 {
+    border-color: $grey-4;
+}
+
+.relative {
+    position: relative;
+}

@@ -82,19 +82,6 @@ export default defineComponent({
                 field: 'type',
                 align: 'left',
             },
-            {
-                label: tm.t('totalVideos'),
-                name: 'totalVideos',
-                field: (row: Origin) =>
-                    lodash.get(row, 'metadata.totalVideos', 0),
-                align: 'left',
-            },
-            {
-                label: tm.t('registeredVideos'),
-                name: 'videosCount',
-                field: 'videosCount',
-                align: 'left',
-            },
             { name: 'actions' },
         ];
 

@@ -14,6 +14,11 @@ export default {
     thumbnail: 'Thumbnail | Thumbnails',
     author: 'Author',
     version: 'Version',
+    value: 'Value',
+    config: 'Config',
+    theme: 'Theme | Themes',
+    provider: 'Provider | Providers',
+    general: 'General',
 
     // common
     search: 'Search',
@@ -32,6 +37,9 @@ export default {
     currentThumbnail: 'Current thumbnail',
     originThumbnail: 'Origin thumbnail',
     uploadNew: 'Upload new',
+    notFound: 'Not found',
+    noItem: 'No Item | No items',
+    selectAItem: 'Select an item | Select the items',
 
     apiKey: 'Api key',
     channelId: 'Channel id',
@@ -40,6 +48,7 @@ export default {
     home: 'Home',
 
     addNew: 'Add new',
+    add: 'Add {0}',
     edit: 'Edit',
     delete: 'Delete',
     startImport: 'Start import',

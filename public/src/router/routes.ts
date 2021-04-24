@@ -48,7 +48,7 @@ const routes: RouteRecordRaw[] = [
                     {
                         path: ':originId',
                         name: 'origin-single',
-                        component: () => import('pages/OriginSingle.vue'),
+                        component: () => import('pages/OriginSingle/Index.vue'),
                         props: true,
                     },
                 ],
