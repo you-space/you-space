@@ -19,6 +19,7 @@ export default {
     theme: 'Theme | Themes',
     provider: 'Provider | Providers',
     general: 'General',
+    import: 'Import | Imports',
 
     // common
     search: 'Search',
@@ -61,4 +62,7 @@ export default {
     areYouSure: 'Are you sure?',
     thisActionCanNotBeUndone: 'This action can not be undone',
     changesHereNotModifyOriginSource: 'Changes here not modify origin source',
+
+    availableProviders: 'Available providers',
+    youCanGetMoreWithPlugins: 'You can get more with plugins',
 };

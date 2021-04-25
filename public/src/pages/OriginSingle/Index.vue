@@ -39,8 +39,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, defineAsyncComponent } from 'vue';
+import { defineComponent, ref, defineAsyncComponent, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter, useRoute } from 'vue-router';
 
 export default defineComponent({
     name: 'OriginSingle',
@@ -52,7 +53,10 @@ export default defineComponent({
     },
     setup() {
         const tm = useI18n();
-        const tab = ref('general');
+        const route = useRoute();
+        const router = useRouter();
+
+        const tab = ref(route.query.tab || 'general');
 
         const sections = [
             {
@@ -70,6 +74,11 @@ export default defineComponent({
                 ),
             },
         ];
+
+        watch(
+            () => tab.value,
+            (value) => router.push({ query: { tab: value } }),
+        );
 
         return {
             origin,

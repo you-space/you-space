@@ -58,8 +58,8 @@
             <template #body-cell-thumbnail="props">
                 <q-td :props="props">
                     <q-img
-                        v-if="props.row.thumbnailSrc"
-                        :src="props.row.thumbnailSrc"
+                        v-if="props.row.value.thumbnailSrc"
+                        :src="props.row.value.thumbnailSrc"
                         width="100px"
                         height="50px"
                     />
@@ -108,8 +108,13 @@ import { Video } from 'src/types/video';
 import { getOrigins, getVideoPath, getVisibilities } from 'src/functionts';
 import { Origin, Visibility } from 'src/types';
 
+interface Item {
+    id: number;
+    value: Video;
+}
+
 interface VideosResponse {
-    data: Video[];
+    data: Item[];
     meta: {
         total: number;
     };
@@ -130,7 +135,7 @@ export default defineComponent({
     setup() {
         const tm = useI18n();
 
-        const rows = ref<Video[]>([]);
+        const rows = ref<Item[]>([]);
         const selected = ref<Video[]>([]);
 
         const visibilities = ref<Visibility[]>([]);
@@ -163,7 +168,7 @@ export default defineComponent({
             {
                 label: tm.t('title'),
                 name: 'title',
-                field: 'title',
+                field: (row: Item) => row.value.title,
                 align: 'left',
             },
             {
@@ -181,7 +186,7 @@ export default defineComponent({
             {
                 label: tm.t('view', 2),
                 name: 'viewsCount',
-                field: (row: Video) => tm.n(row.viewsCount || 0),
+                field: (row: Item) => tm.n(row.value.viewsCount || 0),
                 align: 'left',
             },
             { name: 'actions' },

@@ -13,7 +13,7 @@
                     <q-item
                         clickable
                         :class="!provider.valid ? 'bg-red-3' : ''"
-                        @click="tab = provider.id"
+                        @click="currentProvider = provider"
                     >
                         <q-item-section>
                             <q-item-label>
@@ -49,15 +49,36 @@
             </q-list>
         </div>
 
-        <div class="col-9 q-pa-md relative">
-            <provider-list-config
-                v-if="currentProvider"
-                :provider-name="currentProvider.name"
-                :fields="currentProvider.fields"
-                :config="currentProvider.config"
-                :origin-id="originId"
-                @save="setProviderList"
-            />
+        <div class="col-9 relative">
+            <q-tabs
+                v-model="tab"
+                inline-label
+                align="left"
+                style="height: 56px"
+            >
+                <q-tab
+                    v-for="option in tabOptions"
+                    :key="option.name"
+                    :name="option.name"
+                    :label="option.label"
+                />
+            </q-tabs>
+            <q-separator class="full-width" />
+
+            <q-tab-panels v-if="currentProvider" v-model="tab">
+                <q-tab-panel
+                    v-for="option in tabOptions"
+                    :key="option.name"
+                    :name="option.name"
+                >
+                    <component
+                        :is="option.component"
+                        :provider="currentProvider"
+                        @reload="setProviderList"
+                    />
+                </q-tab-panel>
+            </q-tab-panels>
+
             <div v-else class="absolute-center">
                 {{ $t('selectAItem') }}
             </div>
@@ -66,19 +87,27 @@
 </template>
 <script lang="ts">
 import { api } from 'src/boot/axios';
-import { defineComponent, ref, defineAsyncComponent, computed } from 'vue';
+import { defineComponent, ref, defineAsyncComponent, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 
-interface Provider {
+export interface Provider {
+    id: number;
+    originId: number;
     name: string;
     active: boolean;
+    config: Record<string, string>;
+    fields: { name: string }[];
+    options: string[];
 }
 
 export default defineComponent({
     components: {
         ProviderListConfig: defineAsyncComponent(
             () => import('./ProviderListConfig.vue'),
+        ),
+        ProviderListImport: defineAsyncComponent(
+            () => import('./ProviderListImport.vue'),
         ),
     },
     props: {
@@ -91,31 +120,56 @@ export default defineComponent({
         const $q = useQuasar();
         const tm = useI18n();
 
+        const tab = ref();
+
+        const tabOptions = ref<Record<string, string>[]>([]);
+
         const providers = ref<Provider[]>([]);
         const availableProviders = ref<Provider[]>([]);
-        const tab = ref(0);
-        const dialog = ref(false);
 
-        const currentProvider = computed(() => providers.value[tab.value]);
+        const currentProvider = ref<Provider | null>(null);
 
         async function setProviderList() {
             const { data } = await api.get<Provider[]>(
                 `admin/origins/${props.originId}/providers`,
             );
-            providers.value = data.map((p, index) => ({
-                ...p,
-                id: index,
-            }));
+
+            currentProvider.value = data[0] || null;
+
+            providers.value = data;
         }
 
         void setProviderList();
+
+        function setTabOptions() {
+            tab.value = 'config';
+
+            tabOptions.value = [
+                {
+                    label: tm.t('config'),
+                    name: 'config',
+                    component: 'provider-list-config',
+                },
+            ];
+
+            if (!currentProvider.value) {
+                return;
+            }
+            if (currentProvider.value.options.includes('import')) {
+                tabOptions.value.push({
+                    label: tm.t('import'),
+                    name: 'import',
+                    component: 'provider-list-import',
+                });
+            }
+        }
+
+        watch(() => currentProvider.value, setTabOptions, { immediate: true });
 
         async function setAvailableProviders() {
             const { data } = await api.get<Provider[]>('admin/providers');
 
             availableProviders.value = data;
-
-            console.log(availableProviders.value, data);
         }
 
         void setAvailableProviders();
@@ -130,7 +184,8 @@ export default defineComponent({
 
         function showDialog() {
             $q.dialog({
-                title: tm.t('add', [tm.t('provider').toLowerCase()]),
+                title: tm.t('availableProviders'),
+                message: tm.t('youCanGetMoreWithPlugins'),
                 cancel: true,
                 options: {
                     type: 'radio',
@@ -146,7 +201,7 @@ export default defineComponent({
         async function toggleProviderStatus(provider: Provider) {
             await api
                 .patch(
-                    `admin/origins/${props.originId}/providers/${provider.name}`,
+                    `admin/origins/${props.originId}/providers/${provider.id}`,
                     { active: provider.active },
                 )
                 .catch(setProviderList);
@@ -154,7 +209,8 @@ export default defineComponent({
 
         return {
             tab,
-            dialog,
+            tabOptions,
+
             providers,
 
             currentProvider,

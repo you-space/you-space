@@ -1,7 +1,7 @@
 <template>
     <div class="flex q-mb-md">
         <h2 class="text-h6 q-my-none text-bold col-grow">
-            {{ $t('config') }} - {{ providerName }}
+            {{ $t('config') }}
         </h2>
         <div class="q-gutter-sm">
             <q-btn
@@ -55,9 +55,7 @@ import { defineComponent, ref, PropType, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 
-interface ProviderField {
-    name: string;
-}
+import { Provider } from './ProviderList.vue';
 
 interface Field {
     name: string;
@@ -67,24 +65,12 @@ interface Field {
 
 export default defineComponent({
     props: {
-        providerName: {
-            type: String,
-            required: true,
-        },
-        fields: {
-            type: Array as PropType<ProviderField[]>,
-            default: () => [],
-        },
-        config: {
-            type: Object as PropType<Record<string, string>>,
-            default: () => ({}),
-        },
-        originId: {
-            type: [String, Number],
+        provider: {
+            type: Object as PropType<Provider>,
             required: true,
         },
     },
-    emits: ['save'],
+    emits: ['reload'],
     setup(props, { emit }) {
         const quasar = useQuasar();
         const tm = useI18n();
@@ -93,14 +79,14 @@ export default defineComponent({
         const loading = ref(false);
 
         function setFields() {
-            const fieldsValues = Object.entries(props.config).map(
+            const fieldsValues = Object.entries(props.provider.config).map(
                 ([key, value]) => ({
                     name: key,
                     value,
                 }),
             );
 
-            configFields.value = props.fields.map((f) => {
+            configFields.value = props.provider.fields.map((f) => {
                 const configValue = fieldsValues.find(
                     (fv) => fv.name === f.name,
                 );
@@ -123,7 +109,7 @@ export default defineComponent({
                 });
         }
 
-        watch(() => props.providerName, setFields, { immediate: true });
+        watch(() => props.provider.id, setFields, { immediate: true });
 
         function removeField(field: Field) {
             const index = configFields.value.indexOf(field);
@@ -142,32 +128,38 @@ export default defineComponent({
         async function save() {
             loading.value = true;
 
-            const config = configFields.value.reduce((result, field) => {
-                return {
-                    ...result,
-                    [field.name]: field.value,
-                };
-            }, {});
+            const config = configFields.value
+                .filter((f) => f.name !== '')
+                .reduce((result, field) => {
+                    return {
+                        ...result,
+                        [field.name]: field.value,
+                    };
+                }, {});
+
+            const { originId, id } = props.provider;
 
             await api
                 .patch(
-                    `admin/origins/${props.originId}/providers/${props.providerName}`,
+                    `admin/origins/${String(originId)}/providers/${String(id)}`,
                     { config },
                 )
                 .catch(() => (loading.value = false));
 
             setTimeout(() => {
                 loading.value = false;
-                emit('save');
+                emit('reload');
             }, 800);
         }
 
         async function deleteProvider() {
+            const { originId, id } = props.provider;
+
             await api.delete(
-                `admin/origins/${props.originId}/providers/${props.providerName}`,
+                `admin/origins/${String(originId)}/providers/${String(id)}`,
             );
 
-            emit('save');
+            emit('reload');
         }
 
         function showDeleteDialog() {

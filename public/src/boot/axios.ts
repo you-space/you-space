@@ -39,7 +39,22 @@ function getArrayOfMessages(requestError: AxiosError) {
     return result;
 }
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        const message = lodash.get(response, 'data.message');
+        const status: number = lodash.get(response, 'data.status');
+
+        const types: Record<number, string> = { 200: 'positive' };
+
+        if (message) {
+            Notify.create({
+                type: types[status] || 'info',
+                position: 'bottom-left',
+                message,
+            });
+        }
+
+        return response;
+    },
     (error) => {
         let messages: string[] = ['Error in server'];
 
