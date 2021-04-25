@@ -11,13 +11,15 @@ import {
 import Origin from './Origin'
 import Visibility from './Visibility'
 import ItemMeta from './ItemMeta'
+import Entity from './Entity'
+import ContentProvider from './ContentProvider'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
   @column()
-  public originId: number
+  public contentProviderId: number
 
   @column()
   public entityId: number
@@ -40,8 +42,13 @@ export default class Item extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @belongsTo(() => Origin)
-  public origin: BelongsTo<typeof Origin>
+  @belongsTo(() => ContentProvider, {
+    serializeAs: null,
+  })
+  public provider: BelongsTo<typeof ContentProvider>
+
+  @belongsTo(() => Entity)
+  public entity: BelongsTo<typeof Entity>
 
   @belongsTo(() => Visibility)
   public visibility: BelongsTo<typeof Visibility>

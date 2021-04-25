@@ -2,12 +2,12 @@ import { DateTime } from 'luxon'
 import { BaseModel, beforeDelete, column } from '@ioc:Adonis/Lucid/Orm'
 import File from './File'
 
-export default class EntityItemMeta extends BaseModel {
+export default class ItemMeta extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
   @column()
-  public entityItemId: number
+  public itemId: number
 
   @column()
   public name: string
@@ -22,7 +22,7 @@ export default class EntityItemMeta extends BaseModel {
   public updatedAt: DateTime
 
   @beforeDelete()
-  public static async deleteFiles(meta: EntityItemMeta) {
+  public static async deleteFiles(meta: ItemMeta) {
     const fileNames = ['fileId', 'thumbnailId']
     if (!fileNames.includes(meta.name)) {
       return

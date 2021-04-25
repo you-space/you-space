@@ -1,34 +1,36 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import ContentService from '@ioc:Providers/ContentService'
-import EntityItem from 'App/Models/EntityItem'
+import YsOption, { BaseOptions } from 'App/Models/YsOption'
+import ItemService from 'App/Services/ItemService'
+import { schema } from '@ioc:Adonis/Core/Validator'
 
 export default class VideosController {
   public async index({ request, auth }: HttpContextContract) {
-    const filter = {
-      page: Number(request.input('page', 1)),
-      limit: Number(request.input('limit', 20)),
-      visibility: request.input('visibility', undefined),
-      originId: request.input('originId', undefined),
-      search: request.input('search', undefined),
-    }
+    const option = await YsOption.firstOrCreate(
+      { name: BaseOptions.EntityVideoNames },
+      { name: BaseOptions.EntityVideoNames, value: '' }
+    )
 
-    return await ContentService.index(filter, auth.user)
-  }
+    const filters = await request.validate({
+      schema: schema.create({
+        page: schema.number.optional(),
+        limit: schema.number.optional(),
 
-  public async show({ params, auth }: HttpContextContract) {
-    const allowedVisibilities = await ContentService.getUserAllowedVisibilities(auth.user)
+        search: schema.string.optional(),
+        visibility: schema.string.optional(),
+        originId: schema.string.optional(),
 
-    const video = await EntityItem.query()
-      .preload('metas')
-      .preload('visibility')
-      .preload('origin')
-      .where('id', params.id)
-      .whereIn(
-        'visibility_id',
-        allowedVisibilities.map((v) => v.id)
-      )
-      .firstOrFail()
+        serializeItems: schema.boolean.optional(),
+      }),
+    })
 
-    return ContentService.getVideoFields(video)
+    return await new ItemService().getItems(
+      {
+        ...filters,
+        entity: option.value,
+      },
+      auth.user
+    )
+
+    // return await ContentService.index(filter, auth.user)
   }
 }

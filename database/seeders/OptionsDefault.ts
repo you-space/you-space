@@ -9,7 +9,7 @@ export default class OptionsDefaultSeeder extends BaseSeeder {
         value: [],
       },
       {
-        name: BaseOptions.ContentProviders,
+        name: BaseOptions.RegisteredContentProviders,
         value: [],
       },
     ])

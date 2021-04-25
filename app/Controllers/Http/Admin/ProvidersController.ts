@@ -10,7 +10,7 @@ interface Provider {
 
 export default class ProvidersController {
   public async index() {
-    const option = await YsOption.findByOrFail('name', BaseOptions.ContentProviders)
+    const option = await YsOption.findByOrFail('name', BaseOptions.RegisteredContentProviders)
     const value = option.value as Provider[]
 
     const providers = await Promise.all(

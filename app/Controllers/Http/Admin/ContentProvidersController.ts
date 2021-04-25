@@ -5,16 +5,17 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Origin from 'App/Models/Origin'
 import YsOption, { BaseOptions } from 'App/Models/YsOption'
 import { schema } from '@ioc:Adonis/Core/Validator'
-import lodash from 'lodash'
+import ContentProvider from 'App/Models/ContentProvider'
+import Entity from 'App/Models/Entity'
 
 interface Provider {
   name: string
   path: string
 }
 
-export default class OriginProvidersController {
+export default class ContentProvidersController {
   private async getValidProvider(providerName: string) {
-    const option = await YsOption.findByOrFail('name', BaseOptions.ContentProviders)
+    const option = await YsOption.findByOrFail('name', BaseOptions.RegisteredContentProviders)
 
     const allProviders = option.value as Provider[]
 
@@ -35,43 +36,26 @@ export default class OriginProvidersController {
     return provider
   }
 
-  private async getActiveProvidersMeta(origin: Origin) {
-    const meta = await origin.related('metas').firstOrCreate(
-      { name: 'active-providers' },
-      {
-        name: 'active-providers',
-        value: [],
-      }
-    )
-
-    return meta
-  }
-
   public async index({ params }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.origin_id)
-    const activeProviderMeta = await this.getActiveProvidersMeta(origin)
-    const activeProviders = activeProviderMeta.value as string[]
 
-    const originProviders = await origin
-      .related('metas')
-      .query()
-      .where('name', 'like', 'provider:%')
-      .orderBy('created_at')
+    const providers = await origin.related('providers').query()
 
     return await Promise.all(
-      originProviders.map(async ({ name, value }) => {
-        const providerName = name.replace('provider:', '')
-
+      providers.map(async (p) => {
         const data = {
-          name: providerName,
+          id: p.id,
+          originId: p.originId,
+          name: p.name,
           valid: false,
           fields: [],
-          active: activeProviders.includes(providerName),
+          options: [],
+          active: p.active,
           entityName: 'unknown',
-          config: value || {},
+          config: p.config,
         }
 
-        const provider = await this.getValidProvider(providerName)
+        const provider = await this.getValidProvider(p.name)
 
         if (provider) {
           const providerPath = Application.makePath('content', 'plugins', provider.path)
@@ -81,6 +65,10 @@ export default class OriginProvidersController {
 
           if (instance.fields) {
             data.fields = instance.fields
+          }
+
+          if (instance.options) {
+            data.options = instance.options
           }
 
           if (instance.entityName) {
@@ -107,17 +95,11 @@ export default class OriginProvidersController {
       throw new Error('Provider was not found or was deleted')
     }
 
-    const metaName = `provider:${name}:config`
-
-    await origin.related('metas').firstOrCreate({
-      name: metaName,
-      value: {},
-    })
+    await origin.related('providers').updateOrCreate({ name }, { name })
   }
 
   public async update({ request, params }: HttpContextContract) {
-    const origin = await Origin.findOrFail(params.origin_id)
-    const providerName = params.id
+    const provider = await ContentProvider.findOrFail(params.id)
 
     const { config, active } = await request.validate({
       schema: schema.create({
@@ -126,47 +108,76 @@ export default class OriginProvidersController {
       }),
     })
 
-    const provider = await this.getValidProvider(providerName)
+    const isValid = await this.getValidProvider(provider.name)
 
-    if (!provider) {
+    if (!isValid) {
       throw new Error('Provider was not found or was deleted')
     }
 
-    const activeProviderMeta = await this.getActiveProvidersMeta(origin)
-    const actives = activeProviderMeta.value as string[]
-
-    if (active === true) {
-      actives.push(providerName)
-      activeProviderMeta.value = lodash.uniq(actives)
-      await activeProviderMeta.save()
-    }
-
-    if (active === false) {
-      activeProviderMeta.value = actives.filter((p: string) => p !== providerName)
-      await activeProviderMeta.save()
-    }
-
     if (config) {
-      const metaName = `provider:${providerName}`
-      await origin.related('metas').updateOrCreate(
-        { name: metaName },
-        {
-          name: metaName,
-          value: config,
-        }
-      )
+      provider.config = config
     }
+
+    if (typeof active === 'boolean') {
+      provider.active = active
+    }
+
+    await provider.save()
   }
 
   public async destroy({ params }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.origin_id)
 
-    const providerName = params.id
+    const provider = await origin.related('providers').query().where('id', params.id).firstOrFail()
 
-    const metaName = `provider:${providerName}`
+    await provider.delete()
+  }
 
-    const meta = await origin.related('metas').query().where('name', metaName).firstOrFail()
+  public async import({ params }: HttpContextContract) {
+    const origin = await Origin.findOrFail(params.origin_id)
 
-    await meta.delete()
+    const contentProvider = await origin
+      .related('providers')
+      .query()
+      .where('id', params.id)
+      .firstOrFail()
+
+    const validProvider = await this.getValidProvider(contentProvider.name)
+
+    if (!validProvider) {
+      throw new Error('erro getting provider')
+    }
+
+    const providerPath = Application.makePath('content', 'plugins', validProvider.path)
+
+    const Provider = (await import(providerPath)).default
+
+    const instance = new Provider()
+
+    instance.config = contentProvider.config
+
+    instance.service = {
+      createMany: async (data) => {
+        const entity = await Entity.firstOrCreate({
+          name: Provider.entityName || 'unknown',
+        })
+
+        await contentProvider.related('items').updateOrCreateMany(
+          data.map((i) => ({
+            sourceId: i.id,
+            value: i.data,
+            entityId: entity.id,
+          })),
+          ['entityId', 'sourceId']
+        )
+      },
+    }
+
+    await instance.import()
+
+    return {
+      status: 200,
+      message: 'data of provider imported',
+    }
   }
 }

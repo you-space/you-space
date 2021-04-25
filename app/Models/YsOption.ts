@@ -13,7 +13,8 @@ import { isJson } from 'App/Services/Helpers'
 export enum BaseOptions {
   CurrentTheme = 'current-theme',
   ActivatedPlugins = 'activated-plugins',
-  ContentProviders = 'content-providers',
+  RegisteredContentProviders = 'registered-content-providers',
+  EntityVideoNames = 'entity-video-names',
 }
 export default class YsOption extends BaseModel {
   @column({ isPrimary: true })
