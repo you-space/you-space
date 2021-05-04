@@ -21,6 +21,7 @@
 import './admin'
 import './videos'
 import './auth'
+import './plugins'
 
 // need to be in the last import
 import './client'

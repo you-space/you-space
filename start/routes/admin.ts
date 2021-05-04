@@ -28,10 +28,6 @@ Route.group(() => {
   Route.post('themes/set-theme', 'Admin/ThemeController.setTheme')
   Route.post('themes/build-theme', 'Admin/ThemeController.buildTheme')
 
-  Route.resource('plugins', 'Admin/PluginsController').only(['index'])
-  Route.post('plugins/start', 'Admin/PluginsController.start')
-  Route.post('plugins/stop', 'Admin/PluginsController.stop')
-
   Route.resource('providers', 'Admin/ProvidersController').only(['index'])
 })
   .prefix('admin')
