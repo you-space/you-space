@@ -13,7 +13,6 @@
                     <q-card-section>
                         <q-select
                             v-model="githubUrl"
-                            autofocus
                             dense
                             use-input
                             new-value-mode="add-unique"
@@ -22,6 +21,7 @@
                             :label="$t('githubUrl')"
                             @new-value="addValue"
                         />
+                        <q-input v-model="branch" :label="$t('branch')" />
                     </q-card-section>
                     <q-card-actions align="right" class="text-primary">
                         <q-btn flat @click="addTheme">{{ $t('add') }}</q-btn>
@@ -86,6 +86,7 @@ export default defineComponent({
         const recommendedThemes = ref<string[]>([]);
 
         const githubUrl = ref('');
+        const branch = ref('theme');
         const dialog = ref(false);
 
         async function setThemes() {
@@ -100,12 +101,16 @@ export default defineComponent({
             const { data } = await api.get('admin/themes/recommended-themes');
 
             recommendedThemes.value = data.map((t: any) => t.url);
+            githubUrl.value = recommendedThemes.value[0];
         }
 
         void setRecommendedThemes();
 
         async function addTheme() {
-            await api.post('admin/themes', { githubUrl: githubUrl.value });
+            await api.post('admin/themes', {
+                githubUrl: githubUrl.value,
+                branch: branch.value,
+            });
 
             await setThemes();
 
@@ -142,11 +147,13 @@ export default defineComponent({
 
         return {
             themes,
+            githubUrl,
+            dialog,
+            branch,
+
             setCurrentTheme,
             buildTheme,
             deleteTheme,
-            githubUrl,
-            dialog,
             addTheme,
             recommendedThemes,
             addValue,

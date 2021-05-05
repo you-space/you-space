@@ -42,9 +42,10 @@ export default class ThemeController {
   }
 
   public async store({ request }: HttpContextContract) {
-    const { githubUrl } = await request.validate({
+    const { githubUrl, branch } = await request.validate({
       schema: schema.create({
         githubUrl: schema.string({}, [rules.url()]),
+        branch: schema.string.optional(),
       }),
     })
 
@@ -52,18 +53,23 @@ export default class ThemeController {
 
     const themesPath = Application.makePath('content', 'themes', repoName)
 
-    await execa('git', ['clone', githubUrl, themesPath], {
+    const args = ['clone']
+
+    if (branch) {
+      args.push('--branch', branch)
+    }
+
+    args.push(githubUrl, themesPath)
+
+    console.log('git ' + args.join(' '))
+
+    await execa('git', args, {
       stdio: 'inherit',
     })
   }
 
   public async destroy({ params }: HttpContextContract) {
     const name = params.id
-    const currentTheme = await YsOption.findBy('name', BaseOptions.CurrentTheme)
-
-    if (name === currentTheme) {
-      throw new Error('Can not delete in use theme')
-    }
 
     const themesPath = Application.makePath('content', 'themes', name)
     const exists = await promisify(fs.exists)(themesPath)
@@ -98,7 +104,7 @@ export default class ThemeController {
     }
 
     await YsOption.updateOrCreate(
-      {},
+      { name: BaseOptions.CurrentTheme },
       {
         name: BaseOptions.CurrentTheme,
         value: name,
