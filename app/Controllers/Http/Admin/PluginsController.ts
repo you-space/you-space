@@ -60,7 +60,7 @@ export default class PluginsController {
 
     const plugin = new PluginClass()
 
-    plugin.service = this.service
+    plugin.service = this.service.createPluginService(name)
 
     if (plugin.start) {
       await plugin.start()
@@ -96,7 +96,7 @@ export default class PluginsController {
 
     const plugin = new PluginClass()
 
-    plugin.service = this.service
+    plugin.service = this.service.createPluginService(name)
 
     if (plugin.stop) {
       await plugin.stop()

@@ -1,39 +1,21 @@
 import Redis from '@ioc:Adonis/Addons/Redis'
 import Logger from '@ioc:Adonis/Core/Logger'
 import OriginException from 'App/Exceptions/OriginException'
-import Origin, { OriginTypes } from 'App/Models/Origin'
-import { OriginLogTypes } from 'App/Models/OriginLog'
+import Origin from 'App/Models/Origin'
 import { CommentSerialized, MountedOriginProvider, VideoSerialized } from './types'
-import lodash from 'lodash'
-import YoutubeProvider from './YouTubeProvider'
-import EntityItem from 'App/Models/EntityItem'
+import EntityItem from 'App/Models/Item'
 import Entity from 'App/Models/Entity'
 import Database from '@ioc:Adonis/Lucid/Database'
-import LocalProvider from './LocalProvider'
 
 /**
  * The OriginService is a class that manage origin providers
  * it call origin provider methods to get data and add/update they in the database
  */
 export default class OriginService {
-  private providers = {
-    [OriginTypes.YouTube]: YoutubeProvider,
-    [OriginTypes.Main]: LocalProvider,
-  }
-
   public async reportError(error: Error, origin: Origin) {
-    const exception = new OriginException(error.message, origin.type, origin.name)
+    const exception = new OriginException(error.message, origin.name)
 
     Logger.child(exception).error(error.message)
-
-    await origin.related('logs').create({
-      message: error.message,
-      type: OriginLogTypes.Error,
-      payload: {
-        config: lodash.get(error, 'config', undefined),
-        response: lodash.get(error, 'response.data', undefined),
-      },
-    })
   }
 
   /**
@@ -186,44 +168,6 @@ export default class OriginService {
     )
 
     await trx.commit()
-
-    // const commentReplies = commentsTopLevel
-    //   .map((c) =>
-    //     c.replies.map((r) => ({
-    //       ...r,
-    //       parentCommentId: c.commentId,
-    //     }))
-    //   )
-    //   .reduce((all, c) => all.concat(c), [])
-
-    // await origin.related('comments').updateOrCreateMany(
-    //   commentsTopLevel.map((c) => ({
-    //     id: `${origin.id}-${c.commentId}`,
-    //     commentId: c.commentId,
-    //     userId: `${origin.id}-${c.userId}`,
-    //     videoId: `${origin.id}-${videoId}`,
-    //     originId: origin.id,
-    //     originLikeCount: provider.serializeComment(c.data).likeCount,
-    //     originUnlikeCount: provider.serializeComment(c.data).unlikeCount,
-    //     originData: c.data,
-    //   })),
-    //   'id'
-    // )
-
-    // await origin.related('comments').updateOrCreateMany(
-    //   commentReplies.map((c) => ({
-    //     id: `${origin.id}-${c.commentId}`,
-    //     commentId: c.commentId,
-    //     parentCommentId: `${origin.id}-${c.parentCommentId}`,
-    //     userId: `${origin.id}-${c.userId}`,
-    //     videoId: `${origin.id}-${videoId}`,
-    //     originId: origin.id,
-    //     originLikeCount: provider.serializeComment(c.data).likeCount,
-    //     originUnlikeCount: provider.serializeComment(c.data).unlikeCount,
-    //     originData: c.data,
-    //   })),
-    //   'id'
-    // )
   }
 
   /**

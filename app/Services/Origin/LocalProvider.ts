@@ -1,6 +1,6 @@
 import OriginMain from '@ioc:Providers/OriginMain'
 import Entity from 'App/Models/Entity'
-import EntityItem from 'App/Models/EntityItem'
+import EntityItem from 'App/Models/Item'
 import { OriginProvider } from './types'
 
 export default class LocalProvider implements OriginProvider {

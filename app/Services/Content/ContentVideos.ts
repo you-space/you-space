@@ -1,13 +1,10 @@
 import Env from '@ioc:Adonis/Core/Env'
 import { pickBy } from 'lodash'
 
-import Origin, { OriginTypes } from 'App/Models/Origin'
 import User from 'App/Models/User'
 import Visibility from 'App/Models/Visibility'
 import Permission from 'App/Models/Permission'
 import OriginService from '@ioc:Providers/OriginService'
-import Redis from '@ioc:Adonis/Addons/Redis'
-import EntityItem from 'App/Models/EntityItem'
 import Entity from 'App/Models/Entity'
 
 export interface VideoFilters {
@@ -21,24 +18,6 @@ export interface VideoFilters {
 }
 
 export default class ContentVideo {
-  public async importVideos(page: number) {
-    const origins = await Origin.query().whereNot('type', OriginTypes.Main)
-
-    await Promise.all(
-      origins.map(async (o) => {
-        const redisKey = `origin:${o.id}:videos:${page}`
-        const cache = await Redis.get(redisKey)
-
-        if (cache) {
-          return
-        }
-
-        await OriginService.importVideos(o, page)
-
-        await Redis.set(redisKey, 'true', 'EX', 60 * 60)
-      })
-    )
-  }
 
   public async getUserAllowedVisibilities(user?: User) {
     const allVisibility = await Visibility.query().preload('requiredPermissions')
@@ -127,8 +106,6 @@ export default class ContentVideo {
         return filters.visibility.split(',').includes(v.name)
       })
       .map((v) => v.id)
-
-    await this.importVideos(filters.page)
 
     const entityVideo = await Entity.firstOrCreate({
       name: 'video',
