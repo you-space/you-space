@@ -12,7 +12,6 @@ import {
 } from '@ioc:Adonis/Lucid/Orm'
 import VisibilityPermission from './VisibilityPermission'
 import Permission from './Permission'
-import NotModifyDefaultEntityException from 'App/Exceptions/NotModifyDefaultEntityException'
 
 export enum DefaultVisibilities {
   public = 'public',
@@ -50,13 +49,5 @@ export default class Visibility extends BaseModel {
   @beforeDelete()
   public static async beforeDelete(visibility: Visibility) {
     await visibility.related('visibilityPermissions').query().delete()
-  }
-
-  @beforeUpdate()
-  @beforeDelete()
-  public static async notModifyDefault(visibility: Visibility) {
-    if (visibility.isDefault) {
-      throw new NotModifyDefaultEntityException('Can not modify default visibilities')
-    }
   }
 }

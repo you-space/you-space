@@ -7,8 +7,6 @@ export default class OriginServiceProvider {
 
   public async boot() {
     await this.registerOriginService()
-    await this.registerContent()
-    await this.registerQueue()
     await this.registerAuthenticateByToken()
     await this.registerSocket()
   }
@@ -19,20 +17,6 @@ export default class OriginServiceProvider {
 
       return new OriginService()
     })
-  }
-
-  public async registerContent() {
-    const ContentService = (await import('App/Services/Content/ContentVideos')).default
-
-    this.application.container.singleton('Providers/ContentService', () => new ContentService())
-  }
-
-  public async registerQueue() {
-    const OriginQueue = (await import('App/Services/Queue/OriginQueue')).default
-
-    const originQueue = new OriginQueue()
-
-    this.application.container.singleton('Providers/Queue/OriginQueue', () => originQueue)
   }
 
   public async registerAuthenticateByToken() {

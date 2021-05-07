@@ -4,40 +4,45 @@ import OriginValidator from 'App/Validators/OriginValidator'
 
 export default class OriginsController {
   public async index() {
-    const origins = await Origin.query()
+    throw new Error('refactoring')
+    // const origins = await Origin.query()
 
-    return origins.map((o) => ({
-      ...o.serialize(),
-      videosCount: Number(o.$extras.videos_count),
-    }))
+    // return origins.map((o) => ({
+    //   ...o.serialize(),
+    //   videosCount: Number(o.$extras.videos_count),
+    // }))
   }
 
   public async store({ request }: HttpContextContract) {
-    const { name } = await request.validate(OriginValidator)
+    throw new Error('refactoring')
+    // const { name } = await request.validate(OriginValidator)
 
-    return await Origin.create({
-      name,
-    })
+    // return await Origin.create({
+    //   name,
+    // })
   }
 
   public async show({ params }: HttpContextContract) {
-    return await Origin.query().where('id', params.id).firstOrFail()
+    throw new Error('refactoring')
+    // return await Origin.query().where('id', params.id).firstOrFail()
   }
 
   public async update({ params, request }: HttpContextContract) {
-    const { name } = await request.validate(OriginValidator)
+    throw new Error('refactoring')
+    // const { name } = await request.validate(OriginValidator)
 
-    const origin = await Origin.findOrFail(params.id)
+    // const origin = await Origin.findOrFail(params.id)
 
-    origin.name = name
+    // origin.name = name
 
-    await origin.save()
+    // await origin.save()
 
-    return origin
+    // return origin
   }
 
   public async destroy({ params }: HttpContextContract) {
-    const origin = await Origin.findOrFail(params.id)
-    await origin.delete()
+    throw new Error('refactoring')
+    // const origin = await Origin.findOrFail(params.id)
+    // await origin.delete()
   }
 }

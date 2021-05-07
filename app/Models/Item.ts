@@ -8,21 +8,19 @@ import {
   HasMany,
   beforeDelete,
 } from '@ioc:Adonis/Lucid/Orm'
-import Origin from './Origin'
 import Visibility from './Visibility'
 import ItemMeta from './ItemMeta'
-import Entity from './Entity'
-import ContentProvider from './ContentProvider'
+import ItemType from './ItemType'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
   @column()
-  public contentProviderId: number
+  public originId: number
 
   @column()
-  public entityId: number
+  public typeId: number
 
   @column()
   public visibilityId: number
@@ -42,13 +40,8 @@ export default class Item extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @belongsTo(() => ContentProvider, {
-    serializeAs: null,
-  })
-  public provider: BelongsTo<typeof ContentProvider>
-
-  @belongsTo(() => Entity)
-  public entity: BelongsTo<typeof Entity>
+  @belongsTo(() => ItemType)
+  public type: BelongsTo<typeof ItemType>
 
   @belongsTo(() => Visibility)
   public visibility: BelongsTo<typeof Visibility>

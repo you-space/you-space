@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, beforeDelete, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import User from './User'
 import Item from './Item'
-import ContentProvider from './ContentProvider'
+
 export default class Origin extends BaseModel {
   @column({ isPrimary: true })
   public id: number
@@ -20,11 +20,6 @@ export default class Origin extends BaseModel {
     foreignKey: 'originId',
   })
   public users: HasMany<typeof User>
-
-  @hasMany(() => ContentProvider, {
-    foreignKey: 'originId',
-  })
-  public providers: HasMany<typeof ContentProvider>
 
   @hasMany(() => Item, {
     foreignKey: 'originId',

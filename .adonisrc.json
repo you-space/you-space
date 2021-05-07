@@ -22,8 +22,7 @@
     "@adonisjs/auth",
     "@adonisjs/view",
     "./providers/ServiceRegisterProvider",
-    "./providers/AppProvider",
-    "./providers/VisibilityProvider"
+    "./providers/AppProvider"
   ],
   "aceProviders": ["@adonisjs/repl"],
   "metaFiles": [

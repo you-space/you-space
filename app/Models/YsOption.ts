@@ -14,7 +14,6 @@ export enum BaseOptions {
   CurrentTheme = 'current-theme',
   ActivatedPlugins = 'activated-plugins',
   RegisteredContentProviders = 'registered-content-providers',
-  EntityVideoNames = 'entity-video-names',
 }
 export default class YsOption extends BaseModel {
   @column({ isPrimary: true })

@@ -1,35 +1,3 @@
-declare module '@ioc:Providers/Visibility' {
-  import VisibilityProvider from 'providers/VisibilityProvider'
-
-  const provider: VisibilityProvider
-
-  export default provider
-}
-
-declare module '@ioc:Providers/OriginService' {
-  import Service from 'App/Services/Origin/OriginService'
-
-  const OriginService: Service
-
-  export default OriginService
-}
-
-declare module '@ioc:Providers/ContentService' {
-  import Service from 'App/Services/Content/ContentVideos'
-
-  const ContentService: Service
-
-  export default ContentService
-}
-
-declare module '@ioc:Providers/Queue/OriginQueue' {
-  import Queue from 'App/Services/Queue/OriginQueue'
-
-  const OriginQueue: Queue
-
-  export default OriginQueue
-}
-
 declare module '@ioc:Providers/AuthenticateByTokenService' {
   import Service from 'App/Services/AuthenticateByTokenService'
 
@@ -44,11 +12,4 @@ declare module '@ioc:Providers/SocketService' {
   const SocketService: Service
 
   export default SocketService
-}
-declare module '@ioc:Providers/ThemeService' {
-  import Service from 'App/Services/ThemeService'
-
-  const ThemeService: Service
-
-  export default ThemeService
 }
