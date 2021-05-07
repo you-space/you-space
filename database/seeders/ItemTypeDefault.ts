@@ -1,9 +1,9 @@
 import BaseSeeder from '@ioc:Adonis/Lucid/Seeder'
-import Entity from 'App/Models/Entity'
+import ItemType from 'App/Models/ItemType'
 
-export default class EntitySeeder extends BaseSeeder {
+export default class ItemTypeSeeder extends BaseSeeder {
   public async run() {
-    await Entity.fetchOrCreateMany('name', [
+    await ItemType.fetchOrCreateMany('name', [
       {
         name: 'video',
       },

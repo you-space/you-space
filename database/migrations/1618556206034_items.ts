@@ -10,8 +10,8 @@ export default class Origins extends BaseSchema {
     })
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
-      table.integer('content_provider_id').references('content_providers.id').notNullable()
-      table.integer('entity_id').references('entities.id').notNullable()
+      table.integer('origin_id').references('origins.id').notNullable()
+      table.integer('type_id').references('item_types.id').notNullable()
 
       table.integer('parent_id').references('items.id')
 
