@@ -10,6 +10,15 @@ export default class Origin extends BaseModel {
   @column()
   public name: string
 
+  @column({ serializeAs: 'providerName' })
+  public providerName: string
+
+  @column()
+  public active: boolean
+
+  @column()
+  public config: Record<string, string>
+
   @column.dateTime({ autoCreate: true, serializeAs: 'createdAt' })
   public createdAt: DateTime
 

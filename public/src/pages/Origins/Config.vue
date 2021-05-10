@@ -1,53 +1,51 @@
 <template>
-    <div class="flex q-mb-md">
-        <h2 class="text-h6 q-my-none text-bold col-grow">
-            {{ $t('config') }}
-        </h2>
-        <div class="q-gutter-sm">
-            <q-btn
-                :label="$t('delete')"
-                color="negative"
-                @click="showDeleteDialog"
-            />
-            <q-btn
-                :loading="loading"
-                :label="$t('save')"
-                color="primary"
-                @click="save"
-            />
+    <q-form @submit="save">
+        <div class="flex q-mb-md">
+            <h2 class="text-h6 q-my-none text-bold col-grow">
+                {{ $t('config') }}
+            </h2>
+            <div class="q-gutter-sm">
+                <q-btn
+                    :loading="loading"
+                    :label="$t('save')"
+                    color="primary"
+                    type="submit"
+                />
+            </div>
         </div>
-    </div>
-    <div class="row full-width">
-        <div
-            v-for="(field, index) in configFields"
-            :key="index"
-            class="q-mb-sm col-12 row items-center"
-        >
-            <q-input
-                v-model="field.name"
-                class="col-4 q-pr-sm"
-                :label="$t('name')"
-                :readonly="field.isRequired"
-                outlined
-                dense
-            />
-            <q-input
-                v-model="field.value"
-                class="col q-px-sm"
-                :label="$t('value')"
-                outlined
-                dense
-            />
-            <q-btn
-                v-if="!field.isRequired"
-                icon="close"
-                flat
-                class="full-height"
-                @click="removeField(field)"
-            />
+
+        <div class="row full-width">
+            <div
+                v-for="(field, index) in configFields"
+                :key="index"
+                class="q-mb-sm col-12 row items-center"
+            >
+                <q-input
+                    v-model="field.name"
+                    class="col-4 q-pr-sm"
+                    :label="$t('name')"
+                    :readonly="field.isRequired"
+                    outlined
+                    dense
+                />
+                <q-input
+                    v-model="field.value"
+                    class="col q-px-sm"
+                    :label="$t('value')"
+                    outlined
+                    dense
+                />
+                <q-btn
+                    v-if="!field.isRequired"
+                    icon="close"
+                    flat
+                    class="full-height"
+                    @click="removeField(field)"
+                />
+            </div>
+            <q-btn class="q-mt-md" :label="$t('addNew')" @click="addField" />
         </div>
-        <q-btn :label="$t('addNew')" @click="addField" />
-    </div>
+    </q-form>
 </template>
 <script lang="ts">
 import { api } from 'src/boot/axios';
@@ -55,7 +53,8 @@ import { defineComponent, ref, PropType, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 
-import { Provider } from './ProviderList.vue';
+import { Origin } from 'src/types';
+import { saveOrigin } from './composition';
 
 interface Field {
     name: string;
@@ -65,8 +64,8 @@ interface Field {
 
 export default defineComponent({
     props: {
-        provider: {
-            type: Object as PropType<Provider>,
+        origin: {
+            type: Object as PropType<Origin>,
             required: true,
         },
     },
@@ -79,23 +78,27 @@ export default defineComponent({
         const loading = ref(false);
 
         function setFields() {
-            const fieldsValues = Object.entries(props.provider.config).map(
+            const provider = props.origin.provider;
+
+            const fieldsValues = Object.entries(props.origin.config).map(
                 ([key, value]) => ({
                     name: key,
                     value,
                 }),
             );
 
-            configFields.value = props.provider.fields.map((f) => {
-                const configValue = fieldsValues.find(
-                    (fv) => fv.name === f.name,
-                );
-                return {
-                    isRequired: true,
-                    ...f,
-                    value: configValue ? configValue.value : '',
-                };
-            });
+            if (provider.fields) {
+                configFields.value = provider.fields.map((f) => {
+                    const configValue = fieldsValues.find(
+                        (fv) => fv.name === f.name,
+                    );
+                    return {
+                        isRequired: true,
+                        ...f,
+                        value: configValue ? configValue.value : '',
+                    };
+                });
+            }
 
             fieldsValues
                 .filter(
@@ -109,7 +112,7 @@ export default defineComponent({
                 });
         }
 
-        watch(() => props.provider.id, setFields, { immediate: true });
+        watch(() => props.origin.id, setFields, { immediate: true });
 
         function removeField(field: Field) {
             const index = configFields.value.indexOf(field);
@@ -137,14 +140,9 @@ export default defineComponent({
                     };
                 }, {});
 
-            const { originId, id } = props.provider;
-
-            await api
-                .patch(
-                    `admin/origins/${String(originId)}/providers/${String(id)}`,
-                    { config },
-                )
-                .catch(() => (loading.value = false));
+            await saveOrigin(props.origin.id, { config }).catch(
+                () => (loading.value = false),
+            );
 
             setTimeout(() => {
                 loading.value = false;

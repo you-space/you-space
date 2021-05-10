@@ -1,10 +1,10 @@
 function state() {
     return {
         authenticated: false,
-        token: null as string | null,
+        token: null,
     };
 }
 
-export type UserState = ReturnType<typeof state>;
+export type AppState = ReturnType<typeof state>;
 
 export default state;

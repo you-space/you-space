@@ -5,7 +5,7 @@
 <script lang="ts">
 import { api } from 'src/boot/axios';
 import { defineComponent, PropType } from 'vue';
-import { Provider } from './ProviderList.vue';
+import { Provider } from './Index.vue';
 export default defineComponent({
     props: {
         provider: {

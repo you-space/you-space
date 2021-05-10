@@ -1,16 +1,37 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Application from '@ioc:Adonis/Core/Application'
+import { promisify } from 'util'
+import fs from 'fs'
+
 import Origin from 'App/Models/Origin'
+import YsOption, { BaseOptions } from 'App/Models/YsOption'
 import OriginValidator from 'App/Validators/OriginValidator'
+import OriginUpdateValidator from 'App/Validators/OriginUpdateValidator'
 
 export default class OriginsController {
-  public async index() {
-    throw new Error('refactoring')
-    // const origins = await Origin.query()
+  public async index({ params }: HttpContextContract) {
+    const { value } = await YsOption.findByOrFail('name', BaseOptions.RegisteredContentProviders)
+    const providers = await Promise.all(
+      value.map(async ({ path, name }) => {
+        const providerPath = Application.makePath('content', 'plugins', path)
+        const exist = await promisify(fs.exists)(providerPath)
+        return {
+          name,
+          path,
+          exist,
+        }
+      })
+    )
 
-    // return origins.map((o) => ({
-    //   ...o.serialize(),
-    //   videosCount: Number(o.$extras.videos_count),
-    // }))
+    const origins = await Origin.query()
+
+    return origins.map((o) => {
+      const provider = providers.find((p) => p.name === o.providerName)
+      return {
+        ...o.serialize(),
+        provider: provider || {},
+      }
+    })
   }
 
   public async store({ request }: HttpContextContract) {
@@ -28,16 +49,20 @@ export default class OriginsController {
   }
 
   public async update({ params, request }: HttpContextContract) {
-    throw new Error('refactoring')
-    // const { name } = await request.validate(OriginValidator)
+    const origin = await Origin.findOrFail(params.id)
 
-    // const origin = await Origin.findOrFail(params.id)
+    const updateData = await request.validate(OriginUpdateValidator)
 
-    // origin.name = name
+    console.log(updateData)
 
-    // await origin.save()
+    Object.assign(origin, updateData)
 
-    // return origin
+    await origin.save()
+
+    return {
+      status: 200,
+      message: 'Origin updated',
+    }
   }
 
   public async destroy({ params }: HttpContextContract) {
