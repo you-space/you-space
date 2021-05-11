@@ -10,7 +10,6 @@ interface Provider {
 
 export class PluginService {
   public async registerProvider(name: string, path: string) {
-    console.log('called', name, path)
     const option = await YsOption.findByOrFail('name', BaseOptions.RegisteredContentProviders)
     const providers = option.value as Provider[]
 

@@ -12,6 +12,10 @@ export default class OptionsDefaultSeeder extends BaseSeeder {
         name: BaseOptions.RegisteredContentProviders,
         value: [],
       },
+      {
+        name: BaseOptions.CurrentTheme,
+        value: null,
+      },
     ])
   }
 }

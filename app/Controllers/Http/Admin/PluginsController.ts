@@ -14,13 +14,7 @@ export default class PluginsController {
     const context = await promisify(fs.readdir)(folderPath, { withFileTypes: true })
     const pluginFolders = context.filter((d) => d.isDirectory()).map((d) => d.name)
 
-    const option = await YsOption.firstOrCreate(
-      { name: BaseOptions.ActivatedPlugins },
-      {
-        name: BaseOptions.ActivatedPlugins,
-        value: [],
-      }
-    )
+    const option = await YsOption.findByOrFail('name', BaseOptions.ActivatedPlugins)
 
     return pluginFolders.map((name) => ({
       name,
@@ -35,13 +29,7 @@ export default class PluginsController {
       }),
     })
 
-    const option = await YsOption.firstOrCreate(
-      { name: BaseOptions.ActivatedPlugins },
-      {
-        name: BaseOptions.ActivatedPlugins,
-        value: [],
-      }
-    )
+    const option = await YsOption.findByOrFail('name', BaseOptions.ActivatedPlugins)
 
     const activePlugins = option.value as string[]
 
@@ -102,13 +90,7 @@ export default class PluginsController {
       await plugin.stop()
     }
 
-    const option = await YsOption.firstOrCreate(
-      { name: BaseOptions.ActivatedPlugins },
-      {
-        name: BaseOptions.ActivatedPlugins,
-        value: [],
-      }
-    )
+    const option = await YsOption.findByOrFail('name', BaseOptions.ActivatedPlugins)
 
     const plugins: string[] = option.value as string[]
 
