@@ -53,8 +53,7 @@ import { defineComponent, ref, PropType, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 
-import { Origin } from 'src/types';
-import { saveOrigin } from './composition';
+import { saveOrigin, Origin } from './composition';
 
 interface Field {
     name: string;
@@ -78,17 +77,14 @@ export default defineComponent({
         const loading = ref(false);
 
         function setFields() {
-            const provider = props.origin.provider;
-
             const fieldsValues = Object.entries(props.origin.config).map(
                 ([key, value]) => ({
                     name: key,
                     value,
                 }),
             );
-
-            if (provider.fields) {
-                configFields.value = provider.fields.map((f) => {
+            if (props.origin.fields) {
+                configFields.value = props.origin.fields.map((f) => {
                     const configValue = fieldsValues.find(
                         (fv) => fv.name === f.name,
                     );
@@ -99,7 +95,6 @@ export default defineComponent({
                     };
                 });
             }
-
             fieldsValues
                 .filter(
                     (f) => !configFields.value.some((cf) => cf.name === f.name),
@@ -151,11 +146,7 @@ export default defineComponent({
         }
 
         async function deleteProvider() {
-            const { originId, id } = props.provider;
-
-            await api.delete(
-                `admin/origins/${String(originId)}/providers/${String(id)}`,
-            );
+            await api.delete(`admin/origins/${String(props.origin.id)}`);
 
             emit('reload');
         }

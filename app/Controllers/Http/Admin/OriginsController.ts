@@ -1,46 +1,39 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Application from '@ioc:Adonis/Core/Application'
-import { promisify } from 'util'
-import fs from 'fs'
-
 import Origin from 'App/Models/Origin'
-import YsOption, { BaseOptions } from 'App/Models/YsOption'
 import OriginValidator from 'App/Validators/OriginValidator'
 import OriginUpdateValidator from 'App/Validators/OriginUpdateValidator'
+import { PluginService } from 'App/Services/PluginService'
 
 export default class OriginsController {
-  public async index({ params }: HttpContextContract) {
-    const { value } = await YsOption.findByOrFail('name', BaseOptions.RegisteredContentProviders)
-    const providers = await Promise.all(
-      value.map(async ({ path, name }) => {
-        const providerPath = Application.makePath('content', 'plugins', path)
-        const exist = await promisify(fs.exists)(providerPath)
+  public async index({ request }: HttpContextContract) {
+    const page = request.input('page', 1)
+    const limit = request.input('page', 20)
+
+    const pluginService = new PluginService()
+    const providers = await pluginService.getRegisteredProviders()
+
+    const pagination = await Origin.query().paginate(page, limit)
+
+    const origins = await Promise.all(
+      pagination.all().map((o) => {
+        let provider = providers.find((p) => p.name === o.providerName)
         return {
-          name,
-          path,
-          exist,
+          ...provider,
+          ...o.serialize(),
         }
       })
     )
 
-    const origins = await Origin.query()
-
-    return origins.map((o) => {
-      const provider = providers.find((p) => p.name === o.providerName)
-      return {
-        ...o.serialize(),
-        provider: provider || {},
-      }
-    })
+    return {
+      data: origins,
+      meta: pagination.getMeta(),
+    }
   }
 
   public async store({ request }: HttpContextContract) {
-    throw new Error('refactoring')
-    // const { name } = await request.validate(OriginValidator)
+    const data = await request.validate(OriginValidator)
 
-    // return await Origin.create({
-    //   name,
-    // })
+    return await Origin.create(data)
   }
 
   public async show({ params }: HttpContextContract) {
@@ -52,8 +45,6 @@ export default class OriginsController {
     const origin = await Origin.findOrFail(params.id)
 
     const updateData = await request.validate(OriginUpdateValidator)
-
-    console.log(updateData)
 
     Object.assign(origin, updateData)
 

@@ -23,6 +23,7 @@ export default {
     noItem: 'No Item | No items',
     value: 'Value',
     selectAItem: 'Select an item | Select the items',
+    provider: 'Provider',
     providerName: 'Provider name',
     active: 'Active',
     activated: 'Activated',
@@ -46,4 +47,6 @@ export default {
     areYouSure: 'Are you sure?',
     thisActionCanNotBeUndone: 'This action can not be undone',
     changesHereNotModifyOriginSource: 'Changes here not modify origin source',
+
+    validation: { rules: { required: 'Field required {0}' } },
 };

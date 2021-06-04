@@ -21,16 +21,14 @@
                             >
                                 <q-item
                                     clickable
-                                    :class="
-                                        !origin.provider.exist ? 'bg-red-3' : ''
-                                    "
+                                    :class="!origin.valid ? 'bg-red-3' : ''"
                                     @click="selected = origin"
                                 >
                                     <q-item-section>
                                         <q-item-label>
                                             {{ origin.name }}
                                             {{
-                                                !origin.provider.exist
+                                                !origin.valid
                                                     ? `(${$t('notFound')})`
                                                     : ''
                                             }}
@@ -112,36 +110,23 @@ import { api } from 'src/boot/axios';
 import { defineComponent, ref, defineAsyncComponent, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { Origin } from 'src/types';
-
-export interface Provider {
-    id: number;
-    originId: number;
-    name: string;
-    active: boolean;
-    config: Record<string, string>;
-    fields: { name: string }[];
-    options: string[];
-}
+import { fetchOrigins, Origin } from 'src/pages/Origins/composition';
 
 export default defineComponent({
     name: 'Origins',
     components: {
         General: defineAsyncComponent(() => import('./General.vue')),
         Config: defineAsyncComponent(() => import('./Config.vue')),
-        // ProviderListImport: defineAsyncComponent(
-        //     () => import('./ProviderListImport.vue'),
-        // ),
     },
     setup() {
         const tm = useI18n();
+        const quasar = useQuasar();
 
         const tab = ref('general');
 
         const tabOptions = ref<Record<string, string>[]>([]);
 
         const origins = ref<Origin[]>([]);
-        const availableProviders = ref<Provider[]>([]);
 
         const selected = ref<Origin | null>(null);
 
@@ -163,7 +148,7 @@ export default defineComponent({
                 return;
             }
 
-            // if (selected.value.provider.options.includes('import')) {
+            // if (selected.value.options.includes('import')) {
             //     tabOptions.value.push({
             //         label: tm.t('import'),
             //         name: 'import',
@@ -174,22 +159,26 @@ export default defineComponent({
 
         watch(() => selected.value, setTabOptions, { immediate: true });
 
-        async function setAvailableProviders() {
-            const { data } = await api.get<Provider[]>('admin/providers');
-
-            // availableProviders.value = data;
-        }
-
         async function setOrigins() {
-            const { data } = await api.get<Origin[]>('admin/origins');
-
+            const { data } = await fetchOrigins();
             origins.value = data;
-            if (origins.value[0]) {
-                selected.value = origins.value[0];
-            }
         }
 
-        function addNew() {}
+        function addNew() {
+            quasar
+                .dialog({
+                    title: tm.t('addNew'),
+                    component: defineAsyncComponent(
+                        () => import('./Dialog.vue'),
+                    ),
+                })
+                .onOk(async (data: { name: string; providerName: string }) => {
+                    await api.post(`admin/origins`, {
+                        name: data.name,
+                        providerName: data.providerName,
+                    });
+                });
+        }
 
         async function toggleStatus(origin: Origin) {
             await api

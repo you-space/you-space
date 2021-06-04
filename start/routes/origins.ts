@@ -1,7 +1,8 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
-  Route.resource('origins', 'Admin/OriginsController').apiOnly().only(['index', 'update'])
+  Route.resource('origins', 'Admin/OriginsController').apiOnly().only(['index', 'store', 'update'])
+  Route.get('providers', 'Admin/ProvidersController.index')
 })
   .prefix('admin')
   .prefix('v1')

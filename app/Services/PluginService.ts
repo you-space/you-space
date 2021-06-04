@@ -36,16 +36,23 @@ export class PluginService {
           name: p.name,
           valid: false,
           fields: [],
+          options: [],
         }
 
         const provider = await this.getValidProvider(p.path)
 
-        if (provider) {
-          data.valid = true
+        if (!provider) {
+          return data
+        }
 
-          if (provider.fields) {
-            data.fields = provider.fields
-          }
+        data.valid = true
+
+        if (provider.fields) {
+          data.fields = provider.fields
+        }
+
+        if (provider.options) {
+          data.options = provider.options
         }
 
         return data

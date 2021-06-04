@@ -23,9 +23,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue';
-import { Origin } from 'src/types';
-import { saveOrigin } from './composition';
+import { defineComponent, PropType, ref, watch } from 'vue';
+import { saveOrigin, Origin } from './composition';
 
 export default defineComponent({
     props: {
@@ -39,8 +38,8 @@ export default defineComponent({
         const loading = ref(false);
 
         const data = ref({
-            name: props.origin.name,
-            providerName: props.origin.providerName,
+            name: '',
+            providerName: '',
         });
 
         async function save() {
@@ -54,6 +53,13 @@ export default defineComponent({
                 emit('reload');
             }, 800);
         }
+
+        function setOrigin() {
+            data.value.name = props.origin.name;
+            data.value.providerName = props.origin.providerName;
+        }
+
+        watch(() => props.origin.id, setOrigin, { immediate: true });
 
         return {
             data,

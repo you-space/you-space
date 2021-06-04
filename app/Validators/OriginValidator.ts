@@ -10,6 +10,7 @@ export default class OriginUpdateValidator {
         column: 'name',
       }),
     ]),
+    providerName: schema.string(),
   })
   public messages = {}
 }

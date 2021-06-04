@@ -106,7 +106,8 @@ import { useI18n } from 'vue-i18n';
 import { api } from 'boot/axios';
 import { Video } from 'src/types/video';
 import { getOrigins, getVideoPath, getVisibilities } from 'src/functionts';
-import { Origin, Visibility } from 'src/types';
+import { Visibility } from 'src/types';
+import { Origin } from 'src/pages/Origins/composition';
 
 interface Item {
     id: number;

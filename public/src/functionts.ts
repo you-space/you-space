@@ -2,7 +2,8 @@ import { api } from 'boot/axios';
 
 import { Video } from './types/video';
 import { router } from 'src/router';
-import { Origin, Visibility } from './types';
+import { Visibility } from './types';
+import { Origin } from 'src/pages/Origins/composition';
 
 export function openVideo(video: Video) {
     return router.push({

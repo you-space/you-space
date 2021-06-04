@@ -1,4 +1,4 @@
-import { Origin } from './origin';
+import { Origin } from 'src/pages/Origins/composition';
 export interface Video {
     id: number;
     videoId: number;

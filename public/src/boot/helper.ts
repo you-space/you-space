@@ -3,7 +3,7 @@ import { boot } from 'quasar/wrappers';
 
 const rules = {
     required: (v?: string) =>
-        (v && v.length > 0) || i18n.global.t('requiredField'),
+        (v && v.length > 0) || i18n.global.t('validation.rules.required'),
 };
 
 const helper = { rules };
