@@ -1,8 +1,5 @@
 function state() {
-    return {
-        authenticated: false,
-        token: null,
-    };
+    return { version: '' };
 }
 
 export type AppState = ReturnType<typeof state>;
