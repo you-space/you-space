@@ -5,5 +5,9 @@ coverage
 .DS_STORE
 .env
 tmp
+
+public/*
+!public/.gitkeep
+
 content/themes/**
 !content/**/.gitkeep
