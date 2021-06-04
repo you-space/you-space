@@ -28,6 +28,7 @@ export default {
     active: 'Active',
     activated: 'Activated',
     deactivated: 'Deactivated',
+    login: 'Login',
 
     apiKey: 'Api key',
     channelId: 'Channel id',

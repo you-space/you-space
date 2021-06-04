@@ -26,12 +26,8 @@
   "aceProviders": ["@adonisjs/repl"],
   "metaFiles": [
     {
-      "pattern": "public/dist/spa/**",
+      "pattern": "public",
       "reloadServer": false
-    },
-    {
-      "pattern": "content/themes/**/**/*.edge",
-      "reloadServer": true
     }
   ]
 }

@@ -60,6 +60,8 @@ module.exports = configure(function (/* ctx */) {
             publicPath:
                 process.env.NODE_ENV === 'development' ? '/' : '/ys-admin',
 
+            distDir: '../public',
+
             // transpile: false,
 
             // Add dependencies for transpiling with Babel (Array of string/regex)

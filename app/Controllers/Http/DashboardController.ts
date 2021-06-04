@@ -5,7 +5,7 @@ import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 export default class DashboardController {
   public async show({ request, response }: HttpContextContract) {
-    const appPath = Application.publicPath('dist/spa')
+    const appPath = Application.publicPath()
     const filename = request.url().replace('/ys-admin', '')
     const extname = path.extname(filename).replace('.', '')
 

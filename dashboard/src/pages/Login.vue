@@ -3,6 +3,9 @@
         <q-card square bordered class="q-pa-lg shadow-1 login-page-card">
             <q-card-section>
                 <q-form class="q-gutter-y-md" @submit="login">
+                    <div class="text-h6">
+                        {{ $t('login') }}
+                    </div>
                     <q-input
                         v-model="emailOrUsername"
                         square
@@ -36,7 +39,7 @@
 
 <script>
 import { ref, defineComponent } from 'vue';
-import { useStore } from 'vuex';
+import { useStore } from 'src/store';
 import { useRouter } from 'vue-router';
 import { api } from 'src/boot/axios';
 export default defineComponent({
