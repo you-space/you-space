@@ -1,5 +1,5 @@
 <template>
-    <q-layout view="hHh Lpr lFf">
+    <q-layout view="hHh Lpr fFf">
         <q-header bordered class="bg-white text-blue-grey-5" height="30px">
             <q-toolbar>
                 <q-btn
@@ -67,6 +67,12 @@
         <q-page-container class="bg-grey-1">
             <router-view />
         </q-page-container>
+
+        <q-footer bordered class="bg-white text-grey-8 q-pa-sm text-right">
+            <div class="text-caption">
+                {{ $store.state.app.version }}
+            </div>
+        </q-footer>
     </q-layout>
 </template>
 
@@ -98,25 +104,30 @@ export default defineComponent({
 
         const leftDrawerOpen = ref(false);
         const menuList = [
-            {
-                label: tm.t('dashboard'),
-                icon: 'home',
-                to: { name: 'home' },
-            },
-            {
-                label: tm.t('video', 2),
-                icon: 'play_circle',
-                to: { name: 'videos-list' },
-            },
-            {
-                label: tm.t('visibility', 2),
-                icon: 'visibility',
-                to: { name: 'visibilities' },
-            },
+            // {
+            //     label: tm.t('dashboard'),
+            //     icon: 'home',
+            //     to: { name: 'home' },
+            // },
+            // {
+            //     label: tm.t('video', 2),
+            //     icon: 'play_circle',
+            //     to: { name: 'videos-list' },
+            // },
+            // {
+            //     label: tm.t('visibility', 2),
+            //     icon: 'visibility',
+            //     to: { name: 'visibilities' },
+            // },
             {
                 label: tm.t('theme', 2),
                 icon: 'color_lens',
                 to: { name: 'themes' },
+            },
+            {
+                label: tm.t('plugin', 2),
+                icon: 'casino',
+                to: { name: 'plugins' },
             },
             {
                 label: tm.t('origin', 2),

@@ -1,7 +1,10 @@
 import Application from '@ioc:Adonis/Core/Application'
 import { promisify } from 'util'
 import fs from 'fs'
-import { schema } from '@ioc:Adonis/Core/Validator'
+import path from 'path'
+
+import execa from 'execa'
+import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import YsOption, { BaseOptions } from 'App/Models/YsOption'
 import { PluginService } from 'App/Services/PluginService'
@@ -20,6 +23,31 @@ export default class PluginsController {
       name,
       active: option.value.includes(name),
     }))
+  }
+
+  public async store({ request }: HttpContextContract) {
+    const { githubUrl, branch } = await request.validate({
+      schema: schema.create({
+        githubUrl: schema.string({}, [rules.url()]),
+        branch: schema.string.optional(),
+      }),
+    })
+
+    const repoName = path.basename(githubUrl).replace('.git', '')
+
+    const pluginPath = Application.makePath('content', 'plugins', repoName)
+
+    const args = ['clone']
+
+    if (branch) {
+      args.push('--branch', branch)
+    }
+
+    args.push(githubUrl, pluginPath)
+
+    await execa('git', args, {
+      stdio: 'inherit',
+    })
   }
 
   public async start({ request }: HttpContextContract) {
@@ -107,6 +135,24 @@ export default class PluginsController {
     return {
       status: 200,
       message: 'Plugin stopped',
+    }
+  }
+
+  public async destroy({ params }: HttpContextContract) {
+    const { id: name } = params
+
+    const folderPath = Application.makePath('content', 'plugins', name)
+    const exists = await promisify(fs.exists)(folderPath)
+
+    if (!exists) {
+      throw new Error('plugin not found')
+    }
+
+    await promisify(fs.rmdir)(folderPath, { recursive: true })
+
+    return {
+      status: 200,
+      message: 'Plugin deleted',
     }
   }
 }

@@ -42,15 +42,12 @@ const routes: RouteRecordRaw[] = [
             {
                 path: 'themes',
                 name: 'themes',
-                component: () => import('layouts/EmptyLayout.vue'),
-                redirect: { name: 'theme-list' },
-                children: [
-                    {
-                        path: 'theme-list',
-                        name: 'theme-list',
-                        component: () => import('pages/ThemeList.vue'),
-                    },
-                ],
+                component: () => import('pages/ThemeList.vue'),
+            },
+            {
+                path: 'plugins',
+                name: 'plugins',
+                component: () => import('pages/Plugins/Index.vue'),
             },
         ],
     },

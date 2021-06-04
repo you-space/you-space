@@ -7,6 +7,7 @@ export default {
     permission: 'Permission | Permissions',
     page: 'Page | Pages',
     theme: 'Theme | Themes',
+    plugin: 'Plugin | Plugins',
 
     config: 'Config',
     general: 'General',
@@ -23,6 +24,9 @@ export default {
     value: 'Value',
     selectAItem: 'Select an item | Select the items',
     providerName: 'Provider name',
+    active: 'Active',
+    activated: 'Activated',
+    deactivated: 'Deactivated',
 
     apiKey: 'Api key',
     channelId: 'Channel id',
