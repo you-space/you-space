@@ -11,6 +11,7 @@
                         square
                         filled
                         clearable
+                        autocomplete
                         label="username/email"
                         :rules="[$helper.rules.required]"
                     />
@@ -19,9 +20,22 @@
                         square
                         filled
                         clearable
-                        type="password"
+                        autocomplete
+                        :type="!showPassword ? 'password' : 'text'"
                         label="password"
-                    />
+                    >
+                        <template #append>
+                            <q-icon
+                                :name="
+                                    showPassword
+                                        ? 'visibility_off'
+                                        : 'visibility'
+                                "
+                                class="cursor-pointer"
+                                @click="showPassword = !showPassword"
+                            />
+                        </template>
+                    </q-input>
                     <q-btn
                         :loading="loading"
                         unelevated
@@ -50,6 +64,7 @@ export default defineComponent({
 
         const emailOrUsername = ref('');
         const password = ref('');
+        const showPassword = ref(false);
         const loading = ref(false);
 
         const login = async () => {
@@ -74,6 +89,7 @@ export default defineComponent({
         return {
             emailOrUsername,
             password,
+            showPassword,
             login,
             loading,
         };

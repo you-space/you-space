@@ -183,7 +183,7 @@ export default defineComponent({
 
         let videoOriginalData: Partial<Video> = {};
 
-        const video = ref<any>({
+        const video = ref({
             title: '',
             type: '',
             thumbnailSrc: '',
@@ -217,9 +217,9 @@ export default defineComponent({
         void setVisibilities();
 
         const setVideo = async () => {
-            const { data } = await api.get<Video>(`/videos/${props.videoId}`);
-            videoOriginalData = JSON.parse(JSON.stringify(data));
-            video.value = data;
+            // const { data } = await api.get<Video>(`/videos/${props.videoId}`);
+            // videoOriginalData = JSON.parse(JSON.stringify(data));
+            // video.value = data;
         };
 
         void setVideo();
@@ -240,23 +240,18 @@ export default defineComponent({
         }
 
         async function saveVideo() {
-            if (!video.value) {
-                return;
-            }
-
-            const formData = new FormData();
-
-            formData.append('title', video.value.title);
-            formData.append('description', video.value.description);
-            formData.append('visibilityId', video.value.visibilityId);
-
-            if (newThumbnailFile.value) {
-                formData.append('thumbnail', newThumbnailFile.value);
-            }
-
-            await api.patch(`admin/videos/${props.videoId}`, formData);
-
-            await reset();
+            // if (!video.value) {
+            //     return;
+            // }
+            // const formData = new FormData();
+            // formData.append('title', video.value.title);
+            // formData.append('description', video.value.description);
+            // formData.append('visibilityId', video.value.visibilityId);
+            // if (newThumbnailFile.value) {
+            //     formData.append('thumbnail', newThumbnailFile.value);
+            // }
+            // await api.patch(`admin/videos/${props.videoId}`, formData);
+            // await reset();
         }
 
         watch(

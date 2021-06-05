@@ -41,3 +41,7 @@ export async function fetchProviders() {
 
     return data;
 }
+
+export async function importOriginData(originId: number) {
+    await api.post(`admin/origins/${originId}/import`);
+}

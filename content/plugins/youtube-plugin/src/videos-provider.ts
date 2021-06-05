@@ -34,7 +34,7 @@ export default class Provider {
                     part: "contentDetails",
                 },
             })
-            .catch(() => {});
+            .catch((err) => this.service.logger.child(err.response).error(err.message));
 
         const channel = lodash.get(request, "data.items[0]", null);
 

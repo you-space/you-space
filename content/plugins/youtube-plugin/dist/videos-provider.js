@@ -22,7 +22,7 @@ class Provider {
                 part: "contentDetails",
             },
         })
-            .catch(() => { });
+            .catch((err) => this.service.logger.child(err.response).error(err.message));
         const channel = lodash_1.default.get(request, "data.items[0]", null);
         if (!channel) {
             throw new Error("you-tube channel not found");

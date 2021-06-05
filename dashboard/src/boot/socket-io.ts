@@ -8,7 +8,7 @@ const useSocketIo = () => {
     });
 };
 
-export default boot(({ app }) => {
+export default boot(() => {
     // Set i18n instance on app
     // app.use(i18n);
 });

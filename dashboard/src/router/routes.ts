@@ -49,6 +49,11 @@ const routes: RouteRecordRaw[] = [
                 name: 'plugins',
                 component: () => import('pages/Plugins/Index.vue'),
             },
+            {
+                path: 'items',
+                name: 'items',
+                component: () => import('pages/Item/Index.vue'),
+            },
         ],
     },
     {

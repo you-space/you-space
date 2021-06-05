@@ -79,25 +79,9 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import lodash from 'lodash';
 
 export default defineComponent({
     name: 'MainLayout',
-
-    preFetch(options) {
-        const store = options.store;
-        const redirect = options.redirect as any;
-        const isAuthenticaed = lodash.get(
-            store,
-            'state.user.authenticated',
-            false,
-        );
-
-        if (isAuthenticaed) {
-            return;
-        }
-        redirect({ name: 'login' });
-    },
 
     setup() {
         const tm = useI18n();
@@ -119,6 +103,11 @@ export default defineComponent({
             //     icon: 'visibility',
             //     to: { name: 'visibilities' },
             // },
+            {
+                label: tm.t('item', 2),
+                icon: 'list',
+                to: { name: 'items' },
+            },
             {
                 label: tm.t('theme', 2),
                 icon: 'color_lens',

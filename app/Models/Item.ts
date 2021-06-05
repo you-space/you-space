@@ -11,6 +11,7 @@ import {
 import Visibility from './Visibility'
 import ItemMeta from './ItemMeta'
 import ItemType from './ItemType'
+import Origin from './Origin'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
@@ -40,8 +41,15 @@ export default class Item extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @belongsTo(() => ItemType)
+  @belongsTo(() => ItemType, {
+    foreignKey: 'typeId',
+  })
   public type: BelongsTo<typeof ItemType>
+
+  @belongsTo(() => Origin, {
+    foreignKey: 'originId',
+  })
+  public origin: BelongsTo<typeof Origin>
 
   @belongsTo(() => Visibility)
   public visibility: BelongsTo<typeof Visibility>

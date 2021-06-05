@@ -28,7 +28,11 @@ export default class PluginsController {
   public async store({ request }: HttpContextContract) {
     const { githubUrl, branch } = await request.validate({
       schema: schema.create({
-        githubUrl: schema.string({}, [rules.url()]),
+        githubUrl: schema.string({}, [
+          rules.url({
+            allowedHosts: ['github.com'],
+          }),
+        ]),
         branch: schema.string.optional(),
       }),
     })

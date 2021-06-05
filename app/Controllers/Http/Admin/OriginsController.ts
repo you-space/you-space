@@ -36,11 +36,6 @@ export default class OriginsController {
     return await Origin.create(data)
   }
 
-  public async show({ params }: HttpContextContract) {
-    throw new Error('refactoring')
-    // return await Origin.query().where('id', params.id).firstOrFail()
-  }
-
   public async update({ params, request }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.id)
 
@@ -60,5 +55,28 @@ export default class OriginsController {
     throw new Error('refactoring')
     // const origin = await Origin.findOrFail(params.id)
     // await origin.delete()
+  }
+
+  public async import({ params }: HttpContextContract) {
+    const origin = await Origin.findOrFail(params.id)
+    const service = new PluginService()
+
+    const provider = await service.findProvider(origin.providerName)
+
+    if (!provider) {
+      throw new Error('provider not found')
+    }
+
+    if (!provider.options.includes('import')) {
+      throw new Error('provider not have option import')
+    }
+
+    const instance = await service.getProviderInstance(origin)
+
+    if (!instance.import) {
+      throw new Error('provider is missing import method')
+    }
+
+    await instance.import()
   }
 }

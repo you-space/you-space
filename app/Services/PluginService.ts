@@ -5,6 +5,9 @@ import { promisify } from 'util'
 import YsOption, { BaseOptions } from 'App/Models/YsOption'
 import Application from '@ioc:Adonis/Core/Application'
 import Logger from '@ioc:Adonis/Core/Logger'
+import Origin from 'App/Models/Origin'
+import Item from 'App/Models/Item'
+import ItemType from 'App/Models/ItemType'
 
 interface Provider {
   name: string
@@ -26,6 +29,39 @@ export class PluginService {
     return instance
   }
 
+  public async findProvider(name: string) {
+    const allProviders = await this.getRegisteredProviders()
+
+    return allProviders.find((p) => p.name === name)
+  }
+
+  public async getProviderInstance(origin: Origin) {
+    const allProviders = await this.getRegisteredProviders()
+
+    const provider = allProviders.find((p) => p.name === origin.providerName)
+
+    if (!provider || !provider.valid) {
+      throw new Error('error in instantiate provider')
+    }
+
+    const ProviderClass = await this.getValidProvider(provider.path)
+
+    const instance = new ProviderClass()
+
+    console.log(ProviderClass.entityName)
+
+    const type = await ItemType.firstOrCreate({
+      name: ProviderClass.entityName || 'unknown',
+    })
+
+    instance.config = origin.config
+    instance.service = this.createOriginProviderService(origin, type)
+
+    console.log(instance)
+
+    return instance
+  }
+
   public async getRegisteredProviders() {
     const option = await YsOption.findByOrFail('name', BaseOptions.RegisteredContentProviders)
     const providers = option.value as Provider[]
@@ -36,7 +72,8 @@ export class PluginService {
           name: p.name,
           valid: false,
           fields: [],
-          options: [],
+          options: [] as string[],
+          path: p.path,
         }
 
         const provider = await this.getValidProvider(p.path)
@@ -103,6 +140,23 @@ export class PluginService {
       makePluginPath: (...args: string[]) => path.join(pluginName, ...args),
       registerProvider: this.registerProvider,
       unregisterProvider: this.unregisterProvider,
+      logger: Logger,
+    }
+  }
+
+  public createOriginProviderService(origin: Origin, type: ItemType) {
+    return {
+      logger: Logger,
+      createMany: (items: any[]) =>
+        Item.updateOrCreateMany(
+          ['sourceId', 'originId', 'typeId'],
+          items.map((item) => ({
+            originId: origin.id,
+            typeId: type.id,
+            sourceId: item.id,
+            value: item.data,
+          }))
+        ),
     }
   }
 }

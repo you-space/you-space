@@ -117,6 +117,7 @@ export default defineComponent({
     components: {
         General: defineAsyncComponent(() => import('./General.vue')),
         Config: defineAsyncComponent(() => import('./Config.vue')),
+        Import: defineAsyncComponent(() => import('./Import.vue')),
     },
     setup() {
         const tm = useI18n();
@@ -148,13 +149,13 @@ export default defineComponent({
                 return;
             }
 
-            // if (selected.value.options.includes('import')) {
-            //     tabOptions.value.push({
-            //         label: tm.t('import'),
-            //         name: 'import',
-            //         component: 'provider-list-import',
-            //     });
-            // }
+            if (selected.value.options.includes('import')) {
+                tabOptions.value.push({
+                    label: tm.t('import'),
+                    name: 'import',
+                    component: 'import',
+                });
+            }
         }
 
         watch(() => selected.value, setTabOptions, { immediate: true });
