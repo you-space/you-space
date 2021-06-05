@@ -10,8 +10,6 @@ import YsOption, { BaseOptions } from 'App/Models/YsOption'
 import { PluginService } from 'App/Services/PluginService'
 
 export default class PluginsController {
-  public service = new PluginService()
-
   public async index() {
     const folderPath = Application.makePath('content', 'plugins')
     const context = await promisify(fs.readdir)(folderPath, { withFileTypes: true })
@@ -80,7 +78,7 @@ export default class PluginsController {
 
     const plugin = new PluginClass()
 
-    plugin.service = this.service.createPluginService(name)
+    plugin.service = new PluginService(name)
 
     if (plugin.start) {
       await plugin.start()
@@ -116,7 +114,7 @@ export default class PluginsController {
 
     const plugin = new PluginClass()
 
-    plugin.service = this.service.createPluginService(name)
+    plugin.service = new PluginService(name)
 
     if (plugin.stop) {
       await plugin.stop()

@@ -61,8 +61,6 @@ export default class ThemeController {
 
     args.push(githubUrl, themesPath)
 
-    console.log('git ' + args.join(' '))
-
     await execa('git', args, {
       stdio: 'inherit',
     })

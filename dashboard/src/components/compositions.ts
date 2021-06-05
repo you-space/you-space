@@ -36,7 +36,6 @@ export function createServerPagination<T = Record<string, never>>(
     });
 
     const reload = async (props: { pagination: Pagination }) => {
-        console.log('called');
         const { data, meta } = await getData(props.pagination);
 
         pagination.value.rowsNumber = meta.total;

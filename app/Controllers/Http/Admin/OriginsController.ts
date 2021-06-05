@@ -2,15 +2,14 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Origin from 'App/Models/Origin'
 import OriginValidator from 'App/Validators/OriginValidator'
 import OriginUpdateValidator from 'App/Validators/OriginUpdateValidator'
-import { PluginService } from 'App/Services/PluginService'
+import PluginHelper from '@ioc:Providers/PluginHelper'
 
 export default class OriginsController {
   public async index({ request }: HttpContextContract) {
     const page = request.input('page', 1)
     const limit = request.input('page', 20)
 
-    const pluginService = new PluginService()
-    const providers = await pluginService.getRegisteredProviders()
+    const providers = await PluginHelper.getRegisteredProviders()
 
     const pagination = await Origin.query().paginate(page, limit)
 
@@ -59,9 +58,8 @@ export default class OriginsController {
 
   public async import({ params }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.id)
-    const service = new PluginService()
 
-    const provider = await service.findProvider(origin.providerName)
+    const provider = await PluginHelper.findProvider(origin.providerName)
 
     if (!provider) {
       throw new Error('provider not found')
@@ -71,7 +69,7 @@ export default class OriginsController {
       throw new Error('provider not have option import')
     }
 
-    const instance = await service.getProviderInstance(origin)
+    const instance = await PluginHelper.createProviderInstance(origin)
 
     if (!instance.import) {
       throw new Error('provider is missing import method')

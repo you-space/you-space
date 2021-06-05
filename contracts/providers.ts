@@ -13,3 +13,11 @@ declare module '@ioc:Providers/SocketService' {
 
   export default SocketService
 }
+
+declare module '@ioc:Providers/PluginHelper' {
+  import Service from 'App/Services/PluginHelper'
+
+  const PluginHelper: Service
+
+  export default PluginHelper
+}
