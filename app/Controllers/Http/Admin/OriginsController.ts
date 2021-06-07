@@ -9,7 +9,7 @@ export default class OriginsController {
     const page = request.input('page', 1)
     const limit = request.input('page', 20)
 
-    const providers = await PluginHelper.getRegisteredProviders()
+    const providers = await PluginHelper.fetchProviders()
 
     const pagination = await Origin.query().paginate(page, limit)
 
@@ -76,5 +76,9 @@ export default class OriginsController {
     }
 
     await instance.import()
+
+    return {
+      message: 'Data imported',
+    }
   }
 }

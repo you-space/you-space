@@ -13,7 +13,6 @@ import { isJson } from 'App/Services/Helpers'
 export enum BaseOptions {
   CurrentTheme = 'current-theme',
   ActivatedPlugins = 'activated-plugins',
-  RegisteredContentProviders = 'registered-content-providers',
 }
 export default class YsOption extends BaseModel {
   @column({ isPrimary: true })
@@ -30,6 +29,11 @@ export default class YsOption extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  public static fetchByName(name: string) {
+    const like = name.replace(/\*/g, '%')
+    return this.query().where('name', 'like', like)
+  }
 
   @beforeCreate()
   @beforeSave()

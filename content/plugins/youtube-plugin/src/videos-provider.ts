@@ -2,19 +2,6 @@ import axios from "axios";
 import lodash from "lodash";
 
 export default class Provider {
-    public static options = ["import"];
-    public static entityName = "video-youtube";
-    public static fields = [
-        {
-            name: "apiKey",
-            label: "Api key",
-        },
-        {
-            name: "channelId",
-            label: "Channel id",
-        },
-    ];
-
     public config: any;
     public service: any;
 

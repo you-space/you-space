@@ -85,15 +85,3 @@ class Provider {
     }
 }
 exports.default = Provider;
-Provider.options = ["import"];
-Provider.entityName = "video-youtube";
-Provider.fields = [
-    {
-        name: "apiKey",
-        label: "Api key",
-    },
-    {
-        name: "channelId",
-        label: "Channel id",
-    },
-];
