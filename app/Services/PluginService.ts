@@ -1,13 +1,15 @@
 import path from 'path'
 import YsOption from 'App/Models/YsOption'
 import Logger from '@ioc:Adonis/Core/Logger'
-import ItemType from 'App/Models/ItemType'
+import ItemType, { ItemTypeOptions } from 'App/Models/ItemType'
+import { DateTime } from 'luxon'
 
 interface ProviderOptions {
   name: string
   itemType: string
   path: string
 }
+
 export class PluginService {
   public logger = Logger
 
@@ -17,8 +19,8 @@ export class PluginService {
     return path.join(this.pluginName, ...args)
   }
 
-  public async registerItemType(name: string) {
-    await ItemType.updateOrCreate({ name }, { name })
+  public async registerItemType(name: string, options: ItemTypeOptions) {
+    await ItemType.updateOrCreate({ name }, { name, options, deletedAt: null })
   }
 
   public async unregisterItemType(name: string) {
@@ -28,7 +30,9 @@ export class PluginService {
       throw new Error(`type ${name} not registered`)
     }
 
-    await type.delete()
+    type.deletedAt = DateTime.now()
+
+    await type.save()
   }
 
   public async registerProvider(options: ProviderOptions) {

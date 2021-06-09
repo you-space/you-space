@@ -3,6 +3,8 @@ import path from 'path'
 import { promisify } from 'util'
 import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import YsOption from 'App/Models/YsOption'
+import ItemType from 'App/Models/ItemType'
 export default class DashboardController {
   public async show({ request, response }: HttpContextContract) {
     const appPath = Application.publicPath()
@@ -24,5 +26,17 @@ export default class DashboardController {
     response.safeHeader('Content-type', 'text/html')
 
     return await promisify(fs.readFile)(`${appPath}/index.html`, 'utf-8')
+  }
+
+  public async showMenu() {
+    const types = await ItemType.query()
+      .whereRaw(`"options"->'showInMenu' = 'true'`)
+      .whereNull('deletedAt')
+
+    return types.map((type) => ({
+      name: type.name,
+      label: type.options.label || type.name,
+      icon: type.options.icon,
+    }))
   }
 }

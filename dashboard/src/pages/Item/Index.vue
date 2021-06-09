@@ -23,7 +23,7 @@
 import { useQuasar } from 'quasar';
 import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { fetchItems, Item } from './compositions';
+import { AllItem, fetchAllItems } from './compositions';
 import { createServerPagination } from 'src/components/compositions';
 
 export default defineComponent({
@@ -31,7 +31,7 @@ export default defineComponent({
         const tm = useI18n();
         const quasar = useQuasar();
 
-        const rows = ref<Item[]>([]);
+        const rows = ref<AllItem[]>([]);
         const columns = [
             {
                 name: 'id',
@@ -66,14 +66,14 @@ export default defineComponent({
             },
         ];
 
-        const { pagination, reload } = createServerPagination<Item>(
-            fetchItems,
+        const { pagination, reload } = createServerPagination<AllItem>(
+            fetchAllItems,
             (data) => {
                 rows.value = data.data;
             },
         );
 
-        function viewValue(item: Item) {
+        function viewValue(item: AllItem) {
             quasar.dialog({
                 component: defineAsyncComponent(
                     () => import('src/components/YsJsonViwerDialog.vue'),

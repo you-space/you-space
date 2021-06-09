@@ -1,9 +1,13 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema } from '@ioc:Adonis/Core/Validator'
+import { types } from '@ioc:Adonis/Core/Helpers'
 import Item from 'App/Models/Item'
+import ItemType from 'App/Models/ItemType'
+import lodash from 'lodash'
+import Logger from '@ioc:Adonis/Core/Logger'
 
 export default class ItemsController {
-  public async index({ request }: HttpContextContract) {
+  public async all({ request }: HttpContextContract) {
     const filters = await request.validate({
       schema: schema.create({
         page: schema.number.optional(),
@@ -27,6 +31,62 @@ export default class ItemsController {
 
       visibilityName: i.visibility.name,
     }))
+
+    return {
+      data,
+      meta: pagination.getMeta(),
+    }
+  }
+
+  public async index({ request, params }: HttpContextContract) {
+    const filters = await request.validate({
+      schema: schema.create({
+        page: schema.number.optional(),
+        limit: schema.number.optional(),
+      }),
+    })
+
+    let type: ItemType
+
+    if (types.isNumber(params.item_type_id)) {
+      type = await ItemType.query()
+        .where('id', params.item_type_id)
+        .whereNull('deletedAt')
+        .firstOrFail()
+    } else {
+      type = await ItemType.query()
+        .where('name', params.item_type_id)
+        .whereNull('deletedAt')
+        .firstOrFail()
+    }
+
+    const query = type.related('items').query().preload('visibility').preload('origin')
+
+    const pagination = await query.paginate(filters.page || 1, filters.limit)
+
+    const data = pagination.all().map((i) => {
+      const fields = type.options.fields || []
+
+      const values = fields.reduce((all, f) => {
+        return {
+          ...all,
+          [f.name]: lodash.get(i.value, f.mapValue || f.name),
+        }
+      }, {})
+
+      return {
+        id: i.id,
+        sourceId: i.sourceId,
+
+        typeId: type.id,
+        typeName: type.name,
+
+        visibilityId: i.visibilityId,
+        visibilityName: i.visibility.name,
+
+        ...values,
+      }
+    })
 
     return {
       data,

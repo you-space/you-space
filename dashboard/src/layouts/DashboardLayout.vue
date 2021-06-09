@@ -16,6 +16,7 @@
         </q-header>
 
         <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+            <q-inner-loading :showing="loading"> </q-inner-loading>
             <q-list class="text-blue-grey-5">
                 <template v-for="(item, index) in menuList" :key="index">
                     <q-item
@@ -77,56 +78,85 @@
 </template>
 
 <script lang="ts">
+import { api } from 'src/boot/axios';
+import { useEvents } from 'src/boot/events';
 import { defineComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+
+interface ServerMenu {
+    name: string;
+    icon?: string;
+}
+interface MenuItem {
+    label: string;
+    icon: string;
+    to: {
+        name: string;
+        params?: Record<string, string | number>;
+    };
+}
 
 export default defineComponent({
     name: 'MainLayout',
 
     setup() {
         const tm = useI18n();
+        const events = useEvents();
 
         const leftDrawerOpen = ref(false);
-        const menuList = [
-            // {
-            //     label: tm.t('dashboard'),
-            //     icon: 'home',
-            //     to: { name: 'home' },
-            // },
-            // {
-            //     label: tm.t('video', 2),
-            //     icon: 'play_circle',
-            //     to: { name: 'videos-list' },
-            // },
-            // {
-            //     label: tm.t('visibility', 2),
-            //     icon: 'visibility',
-            //     to: { name: 'visibilities' },
-            // },
-            {
-                label: tm.t('item', 2),
-                icon: 'list',
-                to: { name: 'items' },
-            },
-            {
-                label: tm.t('theme', 2),
-                icon: 'color_lens',
-                to: { name: 'themes' },
-            },
-            {
-                label: tm.t('plugin', 2),
-                icon: 'casino',
-                to: { name: 'plugins' },
-            },
-            {
-                label: tm.t('origin', 2),
-                icon: 'view_in_ar',
-                to: { name: 'origins' },
-            },
-        ];
+        const loading = ref(false);
+        const menuList = ref<MenuItem[]>([]);
+
+        async function setMenus() {
+            loading.value = true;
+
+            menuList.value = [
+                {
+                    label: tm.t('item', 2),
+                    icon: 'list',
+                    to: { name: 'items-all', params: {} },
+                },
+                {
+                    label: tm.t('theme', 2),
+                    icon: 'color_lens',
+                    to: { name: 'themes' },
+                },
+                {
+                    label: tm.t('plugin', 2),
+                    icon: 'casino',
+                    to: { name: 'plugins' },
+                },
+                {
+                    label: tm.t('origin', 2),
+                    icon: 'view_in_ar',
+                    to: { name: 'origins' },
+                },
+            ];
+
+            const { data: menus } = await api.get<ServerMenu[]>(
+                'admin/dashboard/menus',
+            );
+
+            menus.forEach((menu) => {
+                menuList.value.push({
+                    label: menu.name,
+                    icon: menu.icon || 'list',
+                    to: {
+                        name: 'items',
+                        params: { type: menu.name },
+                    },
+                });
+            });
+
+            setTimeout(() => (loading.value = false), 800);
+        }
+
+        void setMenus();
+        events.subscribe('plugins:update', () => void setMenus());
 
         return {
             menuList,
+            loading,
             leftDrawerOpen,
             toggleLeftDrawer() {
                 leftDrawerOpen.value = !leftDrawerOpen.value;

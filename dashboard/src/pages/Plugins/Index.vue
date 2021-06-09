@@ -89,6 +89,7 @@ import { api } from 'src/boot/axios';
 import { useQuasar } from 'quasar';
 import { defineComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useEvents } from 'src/boot/events';
 
 interface Plugin {
     name: string;
@@ -98,6 +99,7 @@ export default defineComponent({
     setup() {
         const quasar = useQuasar();
         const tm = useI18n();
+        const events = useEvents();
 
         const plugins = ref<Plugin[]>([]);
         const dialog = ref(false);
@@ -137,6 +139,8 @@ export default defineComponent({
                 }
 
                 await setPlugins();
+
+                events.notifyAll('plugins:update');
             } catch (error) {
                 await setPlugins();
             }

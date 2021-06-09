@@ -7,7 +7,10 @@ export default class Origins extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
       table.string('name').notNullable().unique()
+      table.jsonb('options').notNullable().defaultTo('{}')
+
       table.timestamps(true)
+      table.dateTime('deleted_at')
     })
   }
 

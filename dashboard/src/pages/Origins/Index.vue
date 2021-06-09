@@ -178,6 +178,8 @@ export default defineComponent({
                         name: data.name,
                         providerName: data.providerName,
                     });
+
+                    await setOrigins();
                 });
         }
 

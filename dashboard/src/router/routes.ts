@@ -51,8 +51,20 @@ const routes: RouteRecordRaw[] = [
             },
             {
                 path: 'items',
-                name: 'items',
+                name: 'items-all',
                 component: () => import('pages/Item/Index.vue'),
+            },
+            {
+                path: 'items/:type',
+                name: 'items',
+                props: true,
+                component: () => import('pages/Item/List.vue'),
+            },
+            {
+                path: 'items/:type/:id',
+                props: true,
+                name: 'item-single',
+                component: () => import('pages/Item/Single.vue'),
             },
         ],
     },

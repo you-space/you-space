@@ -12,6 +12,7 @@ export default class Origins extends BaseSchema {
       table.jsonb('config').notNullable().defaultTo(JSON.stringify({}))
 
       table.timestamps(true)
+      table.dateTime('deleted_at')
     })
   }
 

@@ -10,10 +10,10 @@ export default class Origins extends BaseSchema {
     })
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
-      table.integer('origin_id').references('origins.id').notNullable()
-      table.integer('type_id').references('item_types.id').notNullable()
 
-      table.integer('parent_id').references('items.id')
+      table.integer('origin_id').references('origins.id').notNullable().onDelete('CASCATE')
+      table.integer('type_id').references('item_types.id').notNullable().onDelete('CASCATE')
+      table.integer('parent_id').references('items.id').onDelete('CASCATE')
 
       table.text('source_id').notNullable()
 
@@ -26,6 +26,7 @@ export default class Origins extends BaseSchema {
       table.jsonb('value').notNullable().defaultTo('{}')
 
       table.timestamps(true)
+      table.dateTime('deleted_at')
     })
   }
 
