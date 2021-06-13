@@ -19,9 +19,10 @@ export default class ClientController {
     const extname = path.extname(request.url()).replace('.', '')
     const currentTheme = await YsOption.findBy('name', BaseOptions.CurrentTheme)
 
-    if (!currentTheme) {
+    if (!currentTheme || !currentTheme.value) {
       throw new Error('theme not defined')
     }
+
     const themePath = Application.makePath('content', 'themes', currentTheme.value, 'index.js')
 
     const exists = await promisify(fs.exists)(themePath)

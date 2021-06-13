@@ -3,7 +3,7 @@ import path from 'path'
 import { promisify } from 'util'
 import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import YsOption from 'App/Models/YsOption'
+
 import ItemType from 'App/Models/ItemType'
 export default class DashboardController {
   public async show({ request, response }: HttpContextContract) {
