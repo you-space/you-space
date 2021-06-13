@@ -23,7 +23,7 @@
 import { useQuasar } from 'quasar';
 import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { AllItem, fetchAllItems } from './compositions';
+import { AllItem, fetchItemsRaw } from './compositions';
 import { createServerPagination } from 'src/components/compositions';
 
 export default defineComponent({
@@ -67,7 +67,7 @@ export default defineComponent({
         ];
 
         const { pagination, reload } = createServerPagination<AllItem>(
-            fetchAllItems,
+            fetchItemsRaw,
             (data) => {
                 rows.value = data.data;
             },

@@ -48,17 +48,10 @@
 import { useQuasar, date } from 'quasar';
 import { defineComponent, ref, defineAsyncComponent, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { fetchItems, Item } from 'src/pages/Item/compositions';
+import { fetchItems, Item, ItemType } from 'src/pages/Item/compositions';
 import { createServerPagination } from 'src/components/compositions';
 import { api } from 'src/boot/axios';
 import lodash from 'lodash';
-
-interface Field {
-    name: string;
-    label: string;
-    type?: string;
-    mapValue?: string;
-}
 
 export default defineComponent({
     props: { type: { type: String, required: true } },
@@ -98,17 +91,27 @@ export default defineComponent({
             const { data } = await api.get(`admin/item-types/${props.type}`);
             type.value = data;
 
-            const fields: Field[] = lodash.get(data, 'options.fields', []);
+            const fields: ItemType['options']['fields'] = lodash.get(
+                data,
+                'options.fields',
+                [],
+            );
 
-            fields.forEach((field) => {
-                columns.value.push({
-                    name: field.name,
-                    label: field.label,
-                    type: field.type,
-                    field: field.name,
-                    align: 'left',
+            const filteredFields = fields.filter(
+                (f) => f.table?.show === true || f.table?.show === undefined,
+            );
+
+            lodash
+                .orderBy(filteredFields, (i) => i.table?.order)
+                .forEach((field) => {
+                    columns.value.push({
+                        name: field.name,
+                        label: field.label,
+                        type: lodash.get(field, 'table.type', 'text'),
+                        field: field.name,
+                        align: 'left',
+                    });
                 });
-            });
 
             columns.value.push({ name: 'actions' });
         }
@@ -163,12 +166,18 @@ export default defineComponent({
             return tm.n(Number(value));
         }
 
+        function getColunmType(name: string) {
+            console.log(name);
+            return 'text';
+        }
+
         return {
             columns,
             rows,
             pagination,
             reload,
 
+            getColunmType,
             getItemTo,
             getDatetime,
             getNumber,
