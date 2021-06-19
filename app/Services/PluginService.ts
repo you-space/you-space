@@ -3,6 +3,7 @@ import YsOption from 'App/Models/YsOption'
 import Logger from '@ioc:Adonis/Core/Logger'
 import ItemType, { ItemTypeOptions } from 'App/Models/ItemType'
 import { DateTime } from 'luxon'
+import ItemTypeField from 'App/Models/ItemTypeField'
 
 interface ProviderOptions {
   name: string
@@ -10,6 +11,7 @@ interface ProviderOptions {
   path: string
 }
 
+type FieldRegister = ItemTypeField['options'] & { name: string }
 export class PluginService {
   public logger = Logger
 
@@ -21,6 +23,21 @@ export class PluginService {
 
   public async registerItemType(name: string, options: ItemTypeOptions) {
     await ItemType.updateOrCreate({ name }, { name, options, deletedAt: null })
+  }
+
+  public async registerItemTypeFields(name: string, fields: FieldRegister[]) {
+    const type = await ItemType.findBy('name', name)
+
+    if (!type) {
+      throw new Error(`type ${name} not registered`)
+    }
+
+    await type.related('fields').updateOrCreateMany(
+      fields.map(({ name, ...options }) => ({
+        name,
+        options,
+      }))
+    )
   }
 
   public async unregisterItemType(name: string) {

@@ -11,9 +11,9 @@ export default class Origins extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
 
-      table.integer('origin_id').references('origins.id').notNullable().onDelete('CASCATE')
-      table.integer('type_id').references('item_types.id').notNullable().onDelete('CASCATE')
-      table.integer('parent_id').references('items.id').onDelete('CASCATE')
+      table.integer('origin_id').references('origins.id').notNullable().onDelete('CASCADE')
+      table.integer('type_id').references('item_types.id').notNullable().onDelete('CASCADE')
+      table.integer('parent_id').references('items.id').onDelete('CASCADE')
 
       table.text('source_id').notNullable()
 

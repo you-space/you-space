@@ -1,18 +1,12 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Item from './Item'
-
-interface ItemTypeField {
-  name: string
-  label?: string
-  mapValue?: string
-}
+import ItemTypeField from './ItemTypeField'
 
 export interface ItemTypeOptions {
   label?: string
   icon?: string
   showInMenu?: boolean
-  fields?: ItemTypeField[]
 }
 
 export default class ItemType extends BaseModel {
@@ -38,4 +32,9 @@ export default class ItemType extends BaseModel {
 
   @column.dateTime()
   public deletedAt: DateTime | null
+
+  @hasMany(() => ItemTypeField, {
+    foreignKey: 'typeId',
+  })
+  public fields: HasMany<typeof ItemTypeField>
 }
