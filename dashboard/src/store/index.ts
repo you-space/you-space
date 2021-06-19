@@ -1,17 +1,22 @@
-import { InjectionKey } from 'vue';
 import { store } from 'quasar/wrappers';
+import { InjectionKey } from 'vue';
 import {
     createStore,
     Store as VuexStore,
     useStore as vuexUseStore,
 } from 'vuex';
-import app, { AppState } from './modules/app';
-import user, { UserState } from './modules/user';
+
+import { AppState } from './modules/app/state';
+import app from './modules/app';
+
+import auth from './modules/auth';
+import { AuthState } from './modules/auth/state';
 
 export interface RootState {
+    auth: AuthState;
     app: AppState;
-    user: UserState;
 }
+
 // provide typings for `this.$store`
 declare module '@vue/runtime-core' {
     interface ComponentCustomProperties {
@@ -24,7 +29,10 @@ export const storeKey: InjectionKey<VuexStore<RootState>> = Symbol('vuex-key');
 
 export default store(function (/* { ssrContext } */) {
     const Store = createStore<RootState>({
-        modules: { user, app },
+        modules: {
+            auth,
+            app,
+        },
         strict: !!process.env.DEBUGGING,
     });
 

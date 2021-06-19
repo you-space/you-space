@@ -67,23 +67,28 @@ export default defineComponent({
         const showPassword = ref(false);
         const loading = ref(false);
 
-        const login = async () => {
-            loading.value = true;
+        if (store.state.auth.isAuthenticated) {
+            void router.push({ name: 'home' });
+        }
 
-            const request = await api
-                .post('/login', {
+        const login = async () => {
+            try {
+                loading.value = true;
+
+                const request = await api.post('auth/login', {
                     emailOrUsername: emailOrUsername.value,
                     password: password.value,
-                })
-                .catch(() => (loading.value = false));
+                });
 
-            const token = request.data.token;
-            setTimeout(() => {
+                await store.dispatch('auth/login', request.data.token);
+
+                await router.push({ name: 'home' });
+
+                setTimeout(() => (loading.value = false), 800);
+            } catch (error) {
                 loading.value = false;
-                store.commit('user/login', token);
-
-                void router.push({ name: 'home' });
-            }, 800);
+                throw new Error(error);
+            }
         };
 
         return {

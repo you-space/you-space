@@ -21,11 +21,16 @@ export default class AuthController {
       password,
     })
   }
+
   public async login({ request, auth }: HttpContextContract) {
     const uuid = request.input('emailOrUsername')
     const password = request.input('password')
 
     const token = await auth.use('api').attempt(uuid, password)
     return token.toJSON()
+  }
+
+  public async logout({ auth }: HttpContextContract) {
+    return auth.logout()
   }
 }

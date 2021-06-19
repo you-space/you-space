@@ -1,17 +1,6 @@
 import { boot } from 'quasar/wrappers';
-export default boot(({
-    store, redirect, urlPath 
-}) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        return;
-    }
 
-    store.commit('user/login', token);
-
-    if (urlPath === "/login") {
-        redirect({name: 'home'});
-    }
-    
-    
+export default boot(({ store }) => {
+    const token = localStorage.getItem('auth:token');
+    void store.dispatch('auth/login', token);
 });

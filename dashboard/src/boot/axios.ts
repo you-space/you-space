@@ -73,19 +73,7 @@ api.interceptors.response.use(
     },
 );
 
-export default boot(async ({ app, store }) => {
-    let token = lodash.get(store, 'state.user.token', null);
-
-    await axios
-        .get('who-i-am', {
-            baseURL: baseURL,
-            headers: { Authorization: `Bearer ${String(token)}` },
-        })
-        .catch(() => {
-            store.commit('user/logout');
-            token = null;
-        });
-
+export default boot(({ app }) => {
     app.config.globalProperties.$axios = axios;
 
     app.config.globalProperties.$api = api;

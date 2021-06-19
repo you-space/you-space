@@ -16,7 +16,7 @@ export default defineComponent({
         store.commit('app/setVersion', packageJSON.version);
 
         watch(
-            () => store.state.user.authenticated,
+            () => store.state.auth.isAuthenticated,
             async (value) => {
                 if (!value) {
                     await router.push({ name: 'login' });
