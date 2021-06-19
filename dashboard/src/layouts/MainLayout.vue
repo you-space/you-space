@@ -1,21 +1,8 @@
 <template>
     <q-layout view="hHh Lpr fFf">
-        <q-header bordered class="bg-white text-blue-grey-5" height="30px">
-            <q-toolbar>
-                <q-btn
-                    flat
-                    dense
-                    round
-                    icon="menu"
-                    aria-label="Menu"
-                    @click="toggleLeftDrawer"
-                />
+        <app-header v-model:drawer="drawer" />
 
-                <q-toolbar-title> You space </q-toolbar-title>
-            </q-toolbar>
-        </q-header>
-
-        <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+        <q-drawer v-model="drawer" show-if-above bordered>
             <q-inner-loading :showing="loading"> </q-inner-loading>
             <q-list class="text-blue-grey-5">
                 <template v-for="(item, index) in menuList" :key="index">
@@ -80,7 +67,7 @@
 <script lang="ts">
 import { api } from 'src/boot/axios';
 import { useEvents } from 'src/boot/events';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 interface ServerMenu {
@@ -98,12 +85,16 @@ interface MenuItem {
 
 export default defineComponent({
     name: 'MainLayout',
-
+    components: {
+        AppHeader: defineAsyncComponent(
+            () => import('src/components/AppHeader.vue'),
+        ),
+    },
     setup() {
         const tm = useI18n();
         const events = useEvents();
 
-        const leftDrawerOpen = ref(false);
+        const drawer = ref(false);
         const loading = ref(false);
         const menuList = ref<MenuItem[]>([]);
 
@@ -157,10 +148,7 @@ export default defineComponent({
         return {
             menuList,
             loading,
-            leftDrawerOpen,
-            toggleLeftDrawer() {
-                leftDrawerOpen.value = !leftDrawerOpen.value;
-            },
+            drawer,
         };
     },
 });

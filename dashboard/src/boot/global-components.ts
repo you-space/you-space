@@ -40,6 +40,10 @@ export default boot(({ app }) => {
             return;
         }
 
+        if (componentName.slice(0, 2) !== 'Ys') {
+            return;
+        }
+
         componentsLoaded.push(componentName);
 
         app.component(componentName, component.default || component);
