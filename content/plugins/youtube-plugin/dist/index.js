@@ -57,6 +57,9 @@ class Plugin {
                     name: 'publishedAt',
                     label: 'Published at',
                     mapValue: 'snippet.publishedAt',
+                    table: {
+                        type: 'datetime',
+                    },
                     input: {
                         position: 'sidebar',
                         order: 3,
@@ -66,6 +69,9 @@ class Plugin {
                     name: 'viewCount',
                     label: 'Views',
                     mapValue: 'statistics.viewCount',
+                    table: {
+                        type: 'number',
+                    },
                     input: {
                         position: 'sidebar',
                         order: 4,
@@ -75,6 +81,9 @@ class Plugin {
                     name: 'likeCount',
                     label: 'Likes',
                     mapValue: 'statistics.likeCount',
+                    table: {
+                        type: 'number',
+                    },
                     input: {
                         position: 'sidebar',
                         order: 4,

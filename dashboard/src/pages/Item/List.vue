@@ -15,6 +15,10 @@
                         width="120px"
                     />
 
+                    <template v-else-if="props.col.type === 'date'">
+                        {{ getDate(props.value) }}
+                    </template>
+
                     <template v-else-if="props.col.type === 'datetime'">
                         {{ getDatetime(props.value, 'long') }}
                     </template>
@@ -154,6 +158,18 @@ export default defineComponent({
             return tm.d(value, 'long');
         }
 
+        function getDate(value: string) {
+            if (typeof value !== 'string' || !value) {
+                return '';
+            }
+
+            if (!date.isValid(value)) {
+                return 'invalid date';
+            }
+
+            return tm.d(value);
+        }
+
         function getNumber(value: string | Record<string, string>) {
             if (!value) {
                 return '';
@@ -180,6 +196,7 @@ export default defineComponent({
             getColunmType,
             getItemTo,
             getDatetime,
+            getDate,
             getNumber,
             isImgPath,
         };
