@@ -35,7 +35,7 @@ export interface ItemType {
 }
 
 export async function findItemType(idOrName: string | number) {
-    const request = await api.get<ItemType>(`admin/item-types/${idOrName}`);
+    const request = await api.get<ItemType>(`item-types/${idOrName}`);
 
     return request.data;
 }

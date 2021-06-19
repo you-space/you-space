@@ -112,11 +112,6 @@ export default defineComponent({
 
             menuList.value = [
                 {
-                    label: tm.t('item', 2),
-                    icon: 'list',
-                    to: { name: 'items-all', params: {} },
-                },
-                {
                     label: tm.t('theme', 2),
                     icon: 'color_lens',
                     to: { name: 'themes' },
@@ -130,6 +125,11 @@ export default defineComponent({
                     label: tm.t('origin', 2),
                     icon: 'view_in_ar',
                     to: { name: 'origins' },
+                },
+                {
+                    label: tm.t('item', 2),
+                    icon: 'list_alt',
+                    to: { name: 'items-all', params: {} },
                 },
             ];
 

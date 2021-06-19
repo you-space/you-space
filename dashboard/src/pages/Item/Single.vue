@@ -85,13 +85,6 @@ export default defineComponent({
         const autocomplete = createVisibilityAutocomplete();
 
         const fields = computed(() => {
-            if (!itemType.value.options) {
-                return [];
-            }
-
-            if (!itemType.value.options.fields) {
-                return [];
-            }
             const fields = typeFields.value.filter(
                 (f) => !f.input || f.input.position !== 'sidebar',
             );
@@ -100,13 +93,6 @@ export default defineComponent({
         });
 
         const sidebarFields = computed(() => {
-            if (!itemType.value.options) {
-                return [];
-            }
-
-            if (!itemType.value.options.fields) {
-                return [];
-            }
             const fields = typeFields.value.filter(
                 (f) => f.input && f.input.position === 'sidebar',
             );
@@ -153,6 +139,7 @@ export default defineComponent({
         return {
             item,
             itemType,
+            typeFields,
             fields,
             sidebarFields,
 

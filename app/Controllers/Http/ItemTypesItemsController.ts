@@ -83,19 +83,7 @@ export default class ItemsController {
   }
 
   public async show({ params }: HttpContextContract) {
-    let type: ItemType
-
-    if (types.isNumber(params.item_type_id)) {
-      type = await ItemType.query()
-        .where('id', params.item_type_id)
-        .whereNull('deletedAt')
-        .firstOrFail()
-    } else {
-      type = await ItemType.query()
-        .where('name', params.item_type_id)
-        .whereNull('deletedAt')
-        .firstOrFail()
-    }
+    const type = await ItemType.fetchByIdOrName(params.item_type_id).preload('fields').firstOrFail()
 
     const item = await type
       .related('items')
@@ -105,12 +93,12 @@ export default class ItemsController {
       .where('id', params.id)
       .firstOrFail()
 
-    const fields = type.options.fields || []
+    const fields = type.fields || []
 
     const values = fields.reduce((all, f) => {
       return {
         ...all,
-        [f.name]: lodash.get(item.value, f.mapValue || f.name),
+        [f.name]: lodash.get(item.value, f.options.mapValue || f.name),
       }
     }, {})
 
