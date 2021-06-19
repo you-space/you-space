@@ -46,31 +46,19 @@ export default class ItemsController {
       }),
     })
 
-    let type: ItemType
-
-    if (types.isNumber(params.item_type_id)) {
-      type = await ItemType.query()
-        .where('id', params.item_type_id)
-        .whereNull('deletedAt')
-        .firstOrFail()
-    } else {
-      type = await ItemType.query()
-        .where('name', params.item_type_id)
-        .whereNull('deletedAt')
-        .firstOrFail()
-    }
+    const type = await ItemType.fetchByIdOrName(params.item_type_id).preload('fields').firstOrFail()
 
     const query = type.related('items').query().preload('visibility').preload('origin')
 
     const pagination = await query.paginate(filters.page || 1, filters.limit)
 
     const data = pagination.all().map((i) => {
-      const fields = type.options.fields || []
+      const fields = type.fields || []
 
       const values = fields.reduce((all, f) => {
         return {
           ...all,
-          [f.name]: lodash.get(i.value, f.mapValue || f.name),
+          [f.name]: lodash.get(i.value, f.options.mapValue || f.name),
         }
       }, {})
 
