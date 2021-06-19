@@ -36,7 +36,8 @@ export class PluginService {
       fields.map(({ name, ...options }) => ({
         name,
         options,
-      }))
+      })),
+      'name'
     )
   }
 

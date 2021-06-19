@@ -81,7 +81,10 @@ export default class Provider {
         const videos = lodash.get(requestVideos, "data.items", []);
         const data = videos.map((i: any) => ({
             id: i.id,
-            data: i,
+            data: {
+                ...i,
+                src: `https://www.youtube.com/embed/${i.id}`
+            },
         }));
 
         this.videos = this.videos.concat(data);

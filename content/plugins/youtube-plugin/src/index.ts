@@ -10,6 +10,25 @@ export default class Plugin {
 
         await this.service.registerItemTypeFields("youtube-videos",[
             {
+                name: 'src',
+                label: 'Video',
+                mapValue: 'src',
+                showInTable: true,
+                table: {
+                    show: false,
+                },
+                input: {
+                    editable: true,
+                    type: 'video',
+                    order: 1,
+                    props: {
+                        style: {
+                            height: '500px'
+                        }
+                    }
+                },
+            },
+            {
                 name: 'title',
                 label: 'Title',
                 mapValue: 'snippet.title',

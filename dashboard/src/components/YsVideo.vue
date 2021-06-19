@@ -1,30 +1,29 @@
 <template>
-    <q-card
-        dark
-        class="full-width full-height q-video"
-    >
+    <q-card dark class="full-width full-height q-video">
         <q-video
             class="full-width full-height ys-video"
             controls
             :src="src"
+            v-bind="$attrs"
         />
     </q-card>
 </template>
 
-<script lang='ts' >
+<script lang="ts">
 import { defineComponent } from 'vue';
 
 export default defineComponent({
     name: 'Video',
+    inheritAttrs: false,
     props: {
         src: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
-    setup(){
+    setup() {
         return {};
-    }
+    },
 });
 </script>
 

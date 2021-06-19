@@ -61,7 +61,10 @@ class Provider {
         const videos = lodash_1.default.get(requestVideos, "data.items", []);
         const data = videos.map((i) => ({
             id: i.id,
-            data: i,
+            data: {
+                ...i,
+                src: `https://www.youtube.com/embed/${i.id}`
+            },
         }));
         this.videos = this.videos.concat(data);
         if (nextPageToken) {

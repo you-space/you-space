@@ -25,6 +25,7 @@ export default defineComponent({
             text: defineAsyncComponent(() => import('./Text.vue')),
             textarea: defineAsyncComponent(() => import('./Text.vue')),
             image: defineAsyncComponent(() => import('./Image.vue')),
+            video: defineAsyncComponent(() => import('./Video.vue')),
         };
 
         let type: TypeFieldInputTypes = lodash.get(

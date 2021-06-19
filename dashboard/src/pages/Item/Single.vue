@@ -27,7 +27,10 @@
                     <div
                         v-for="(field, index) in fields"
                         :key="index"
-                        :class="getColunmClass(field)"
+                        :class="[
+                            getColunmClass(field),
+                            index > 0 ? 'q-mt-md' : '',
+                        ]"
                     >
                         <type-field v-model="item[field.name]" :field="field" />
                     </div>
