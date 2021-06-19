@@ -9,6 +9,8 @@ export default {
     theme: 'Theme | Themes',
     plugin: 'Plugin | Plugins',
 
+    item: 'Item | Items',
+
     config: 'Config',
     general: 'General',
 

@@ -62,6 +62,7 @@ import {
 } from './compositions';
 import { createVisibilityAutocomplete } from 'src/pages/Visilibilty/compositions';
 import lodash from 'lodash';
+import { api } from 'src/boot/axios';
 
 export default defineComponent({
     components: {
@@ -80,6 +81,7 @@ export default defineComponent({
     setup(props) {
         const item = ref<Partial<Item>>({});
         const itemType = ref<Partial<ItemType>>({});
+        const typeFields = ref<TypeField[]>([]);
         const autocomplete = createVisibilityAutocomplete();
 
         const fields = computed(() => {
@@ -90,7 +92,7 @@ export default defineComponent({
             if (!itemType.value.options.fields) {
                 return [];
             }
-            const fields = itemType.value.options.fields.filter(
+            const fields = typeFields.value.filter(
                 (f) => !f.input || f.input.position !== 'sidebar',
             );
 
@@ -105,7 +107,7 @@ export default defineComponent({
             if (!itemType.value.options.fields) {
                 return [];
             }
-            const fields = itemType.value.options.fields.filter(
+            const fields = typeFields.value.filter(
                 (f) => f.input && f.input.position === 'sidebar',
             );
 
@@ -116,12 +118,19 @@ export default defineComponent({
             itemType.value = await findItemType(props.type);
         }
 
+        async function setTypeFields() {
+            const { data } = await api.get(`item-types/${props.type}/fields`);
+
+            typeFields.value = data;
+        }
+
         async function setItem() {
             item.value = await findItem(props.type, props.id);
         }
 
         async function setData() {
             await setType();
+            await setTypeFields();
             await setItem();
         }
 

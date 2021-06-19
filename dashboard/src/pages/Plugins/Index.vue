@@ -130,12 +130,12 @@ export default defineComponent({
 
         async function toggleActivePlugin(plugin: Plugin, value: boolean) {
             try {
+                const data = { name: plugin.name };
+
                 if (value) {
-                    await api.post('admin/plugins/start', {
-                        name: plugin.name,
-                    });
+                    await api.post('admin/plugins/start', data);
                 } else {
-                    await api.post('admin/plugins/stop', { name: plugin.name });
+                    await api.post('admin/plugins/stop', data);
                 }
 
                 await setPlugins();

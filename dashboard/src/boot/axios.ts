@@ -21,11 +21,11 @@ function getArrayOfMessages(requestError: AxiosError) {
     const status = lodash.get(requestError, 'response.status', null);
 
     if (errors.length && status === 422) {
-        errors.map((err: any) =>
+        errors.map((err: Record<string, string>) =>
             result.push(`${String(err.message)}: ${String(err.field)}`),
         );
     } else if (errors.length) {
-        errors.map((err: any) => result.push(err.message));
+        errors.map((err: Record<string, string>) => result.push(err.message));
     }
 
     if (message) {

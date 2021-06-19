@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { api } from 'src/boot/axios';
 
 export interface Permission {

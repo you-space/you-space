@@ -100,7 +100,7 @@ export default defineComponent({
         async function setRecommendedThemes() {
             const { data } = await api.get('admin/themes/recommended-themes');
 
-            recommendedThemes.value = data.map((t: any) => t.url);
+            recommendedThemes.value = data.map((t: { url: string }) => t.url);
             githubUrl.value = recommendedThemes.value[0];
         }
 

@@ -49,19 +49,29 @@
     </q-page>
 </template>
 <script lang="ts">
-import { useQuasar, date } from 'quasar';
-import { defineComponent, ref, defineAsyncComponent, onMounted } from 'vue';
+import { date } from 'quasar';
+import { defineComponent, ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { fetchItems, Item, ItemType } from 'src/pages/Item/compositions';
+import {
+    fetchItems,
+    Item,
+    ItemType,
+    TypeField,
+} from 'src/pages/Item/compositions';
 import { createServerPagination } from 'src/components/compositions';
 import { api } from 'src/boot/axios';
 import lodash from 'lodash';
 
 export default defineComponent({
-    props: { type: { type: String, required: true } },
+    props: {
+        type: {
+            type: String,
+            required: true,
+            default: null,
+        },
+    },
     setup(props) {
         const tm = useI18n();
-        const quasar = useQuasar();
 
         const rows = ref<Item[]>([]);
         const type = ref({
@@ -69,7 +79,7 @@ export default defineComponent({
             options: {},
         });
 
-        const columns = ref<any[]>([
+        const columns = ref<Record<string, string>[]>([
             {
                 name: 'id',
                 label: tm.t('id'),
@@ -91,15 +101,15 @@ export default defineComponent({
             },
         );
 
-        async function setColumns() {
-            const { data } = await api.get(`admin/item-types/${props.type}`);
+        async function setType() {
+            const { data } = await api.get(`item-types/${props.type}`);
             type.value = data;
+        }
 
-            const fields: ItemType['options']['fields'] = lodash.get(
-                data,
-                'options.fields',
-                [],
-            );
+        async function setColumns() {
+            const { data } = await api.get(`item-types/${props.type}/fields`);
+
+            const fields: TypeField[] = data || [];
 
             const filteredFields = fields.filter(
                 (f) => f.table?.show === true || f.table?.show === undefined,
@@ -121,6 +131,7 @@ export default defineComponent({
         }
 
         onMounted(async () => {
+            await setType();
             await setColumns();
             await reload({ pagination: pagination.value });
         });

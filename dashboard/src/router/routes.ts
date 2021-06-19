@@ -11,30 +11,6 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/Index.vue'),
             },
             {
-                path: 'videos',
-                name: 'videos',
-                component: () => import('layouts/EmptyLayout.vue'),
-                redirect: { name: 'videos-list' },
-                children: [
-                    {
-                        path: 'videos-list',
-                        name: 'videos-list',
-                        component: () => import('pages/VideoList.vue'),
-                    },
-                    {
-                        path: ':videoId',
-                        name: 'video',
-                        component: () => import('src/pages/VideoSingle.vue'),
-                        props: true,
-                    },
-                    {
-                        path: 'visibilities',
-                        name: 'visibilities',
-                        component: () => import('src/pages/VisibilityList.vue'),
-                    },
-                ],
-            },
-            {
                 path: 'origins',
                 name: 'origins',
                 component: () => import('pages/Origins/Index.vue'),

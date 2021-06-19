@@ -31,9 +31,7 @@ export interface TypeField {
 export interface ItemType {
     id: number;
     name: string;
-    options: {
-        fields: TypeField[];
-    };
+    options: Record<string, string | number | boolean>;
 }
 
 export async function findItemType(idOrName: string | number) {
@@ -52,13 +50,11 @@ export interface AllItem {
 type Filters = Pagination;
 
 export async function fetchItemsRaw(filters?: Partial<Filters>) {
-    const filledFilters = pickBy(
-        filters,
-        (v) => v !== null && v !== undefined && v !== '',
-    );
-
     const request = await api.get<ServerResponse<AllItem>>('admin/items', {
-        params: filledFilters,
+        params: pickBy(
+            filters,
+            (v) => v !== null && v !== undefined && v !== '',
+        ),
     });
 
     return request.data;
