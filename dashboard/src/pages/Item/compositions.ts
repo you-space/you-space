@@ -47,9 +47,7 @@ export interface AllItem {
     value: Record<string, string>;
 }
 
-type Filters = Pagination;
-
-export async function fetchItemsRaw(filters?: Partial<Filters>) {
+export async function fetchItemsRaw(filters?: Partial<Pagination>) {
     const request = await api.get<ServerResponse<AllItem>>('admin/items', {
         params: pickBy(
             filters,
@@ -73,7 +71,7 @@ export interface Item {
     [prop: string]: string | number | Record<string, never>;
 }
 
-export async function fetchItems(type: string, filters?: Partial<Filters>) {
+export async function fetchItems(type: string, filters?: Partial<Pagination>) {
     const filledFilters = pickBy(
         filters,
         (v) => v !== null && v !== undefined && v !== '',
@@ -87,8 +85,52 @@ export async function fetchItems(type: string, filters?: Partial<Filters>) {
     return data;
 }
 
-export async function findItem(type: string, id: number | string) {
-    const { data } = await api.get<Item>(`item-types/${type}/items/${id}`);
+interface Filters {
+    showOriginalValues: boolean;
+}
+
+export async function findItem(
+    type: string,
+    id: number | string,
+    filters?: Partial<Filters>,
+) {
+    const path = `item-types/${type}/items/${id}`;
+
+    const { data } = await api.get<Item>(path, { params: filters });
+
+    return data;
+}
+
+export async function saveItem(
+    typeName: string,
+    item: Record<string, unknown>,
+    id?: number,
+) {
+    const form = new FormData();
+
+    Object.entries(item).forEach(([key, value]) => {
+        if (value === undefined) {
+            return;
+        }
+
+        if (value === null) {
+            form.append(key, '');
+            return;
+        }
+
+        form.append(key, value as string);
+    });
+
+    if (id) {
+        const { data } = await api.patch(
+            `item-types/${typeName}/items/${id}`,
+            form,
+        );
+
+        return data;
+    }
+
+    const { data } = await api.post(`item-types/${typeName}/items`, form);
 
     return data;
 }

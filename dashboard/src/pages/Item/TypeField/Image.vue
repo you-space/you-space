@@ -1,14 +1,28 @@
 <template>
     <q-card bordered flat class="img-picker">
-        <q-card-section>
+        <q-card-section class="flex justify-between">
             <div class="text-body2">{{ label }}</div>
+            <template v-if="showViewOriginalButton">
+                <q-btn
+                    v-if="!viewOriginal"
+                    size="sm"
+                    @click="viewOriginal = true"
+                >
+                    {{ $t('viewOriginal') }}
+                </q-btn>
+                <q-btn v-else size="sm" @click="viewOriginal = false">
+                    {{ $t('back') }}
+                </q-btn>
+            </template>
         </q-card-section>
+
         <div
             class="relative"
             :class="[readonly ? '' : 'cursor-pointer']"
             @click="showPicker"
         >
             <q-img v-if="preview" :src="preview" height="210px" />
+
             <q-icon
                 v-else
                 class="full-width bg-grey-5"
@@ -34,11 +48,7 @@
                     />
 
                     <div v-else class="absolute-bottom-left q-pa-md">
-                        <q-btn
-                            color="primary"
-                            size="sm"
-                            @click.stop="model = null"
-                        >
+                        <q-btn color="primary" size="sm" @click.stop="reset">
                             {{ $t('reset') }}
                         </q-btn>
                     </div>
@@ -60,6 +70,14 @@ export default defineComponent({
             type: String,
             default: null,
         },
+        originalValue: {
+            type: String,
+            default: null,
+        },
+        currentValue: {
+            type: String,
+            default: null,
+        },
         modelValue: {
             type: [String, Object],
             default: null,
@@ -75,14 +93,23 @@ export default defineComponent({
 
         const innerSrc = ref<string | null>(null);
         const picker = ref<QFile>();
-        const originalSrc = ref<null | string>(null);
+        const viewOriginal = ref(false);
 
         const preview = computed(() => {
+            if (viewOriginal.value) {
+                return props.originalValue;
+            }
+
             if (innerSrc.value) {
                 return innerSrc.value;
             }
-            if (originalSrc.value) {
-                return originalSrc.value;
+
+            if (props.currentValue) {
+                return props.currentValue;
+            }
+
+            if (props.originalValue) {
+                return props.originalValue;
             }
 
             return null;
@@ -100,10 +127,28 @@ export default defineComponent({
             },
         });
 
+        const showViewOriginalButton = computed(() => {
+            if (model.value) {
+                return true;
+            }
+
+            if (
+                props.currentValue &&
+                props.originalValue !== props.currentValue
+            ) {
+                return true;
+            }
+
+            return false;
+        });
+
         function showPicker() {
             if (picker.value) {
                 picker.value.pickFiles();
             }
+        }
+        function reset() {
+            model.value = null;
         }
 
         watch(
@@ -116,22 +161,19 @@ export default defineComponent({
 
                 const base64 = await helper.getFileBase64(model.value);
 
+                viewOriginal.value = false;
+
                 innerSrc.value = base64;
             },
         );
-
-        function preLoad() {
-            if (props.modelValue && typeof props.modelValue === 'string') {
-                originalSrc.value = props.modelValue;
-                model.value = null;
-            }
-        }
-        watch(() => props.modelValue, preLoad, { immediate: true });
 
         return {
             model,
             preview,
             picker,
+            viewOriginal,
+            reset,
+            showViewOriginalButton,
 
             showPicker,
         };

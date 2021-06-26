@@ -4,12 +4,25 @@
             <q-toolbar-title>
                 {{ `${$t('edit')} #${item.id || ''}` }}
             </q-toolbar-title>
-            <q-btn color="primary" flat style="margin-right: 16px">
+
+            <q-btn
+                :disable="saving"
+                color="primary"
+                flat
+                style="margin-right: 16px"
+            >
                 {{ $t('cancel') }}
             </q-btn>
-            <q-btn color="primary" style="margin-right: 16px">
+
+            <q-btn
+                :loading="saving"
+                color="primary"
+                style="margin-right: 16px"
+                @click="save"
+            >
                 {{ $t('save') }}
             </q-btn>
+
             <div style="width: 300px" class="q-pa-sm">
                 <q-select
                     v-model="item.visibilityId"
@@ -21,6 +34,7 @@
                 />
             </div>
         </q-toolbar>
+
         <div class="row items-stretch item-page-content">
             <div class="col-9 q-pa-md full-height overflow-auto">
                 <div class="row">
@@ -32,7 +46,12 @@
                             index > 0 ? 'q-mt-md' : '',
                         ]"
                     >
-                        <type-field v-model="item[field.name]" :field="field" />
+                        <type-field
+                            v-model="item[field.name]"
+                            :original-value="item[`original:${field.name}`]"
+                            :field="field"
+                            :loading="loading"
+                        />
                     </div>
                 </div>
             </div>
@@ -47,7 +66,12 @@
                             index > 0 ? 'q-mt-md' : '',
                         ]"
                     >
-                        <type-field v-model="item[field.name]" :field="field" />
+                        <type-field
+                            v-model="item[field.name]"
+                            :original-value="item[`original:${field.name}`]"
+                            :field="field"
+                            :loading="loading"
+                        />
                     </div>
                 </div>
             </q-card>
@@ -61,6 +85,7 @@ import {
     findItemType,
     Item,
     ItemType,
+    saveItem,
     TypeField,
 } from './compositions';
 import { createVisibilityAutocomplete } from 'src/pages/Visilibilty/compositions';
@@ -86,6 +111,8 @@ export default defineComponent({
         const itemType = ref<Partial<ItemType>>({});
         const typeFields = ref<TypeField[]>([]);
         const autocomplete = createVisibilityAutocomplete();
+        const loading = ref(false);
+        const saving = ref(false);
 
         const fields = computed(() => {
             const fields = typeFields.value.filter(
@@ -114,16 +141,26 @@ export default defineComponent({
         }
 
         async function setItem() {
-            item.value = await findItem(props.type, props.id);
+            item.value = await findItem(props.type, props.id, {
+                showOriginalValues: true,
+            });
         }
 
-        async function setData() {
-            await setType();
-            await setTypeFields();
-            await setItem();
+        async function load() {
+            try {
+                loading.value = true;
+                await setType();
+                await setTypeFields();
+                await setItem();
+
+                setTimeout(() => (loading.value = false), 800);
+            } catch (error) {
+                loading.value = false;
+                throw new Error(error);
+            }
         }
 
-        void setData();
+        void load();
 
         function getColunmClass(field: TypeField) {
             if (!field.input?.cols) {
@@ -139,15 +176,28 @@ export default defineComponent({
             );
         }
 
+        async function save() {
+            try {
+                saving.value = true;
+                await saveItem(props.type, item.value, item.value.id);
+                setTimeout(() => (saving.value = false), 800);
+            } catch (error) {
+                saving.value = false;
+            }
+        }
+
         return {
             item,
             itemType,
             typeFields,
             fields,
             sidebarFields,
+            loading,
+            saving,
 
             autocomplete,
             getColunmClass,
+            save,
         };
     },
 });

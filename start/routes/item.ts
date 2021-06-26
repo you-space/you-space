@@ -8,6 +8,10 @@ Route.group(() => {
   Route.resource('item-types.items', 'ItemTypesItemsController')
     .apiOnly()
     .only(['index', 'show', 'store', 'update'])
+    .middleware({
+      store: ['auth:api', 'acl:admin'],
+      update: ['auth:api', 'acl:admin'],
+    })
 })
   .prefix('v1')
   .prefix('api')

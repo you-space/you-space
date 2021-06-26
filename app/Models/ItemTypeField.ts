@@ -1,9 +1,13 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
+interface OptionInput {
+  editable: boolean
+}
 interface Options {
   label: string
   mapValue: string
+  input: OptionInput
 }
 
 export default class ItemTypeField extends BaseModel {
