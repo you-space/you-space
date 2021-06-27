@@ -115,7 +115,7 @@ export default defineComponent({
             return null;
         });
 
-        const model = computed<File | null>({
+        const model = computed<File | null | undefined>({
             get() {
                 if (typeof props.modelValue === 'string') {
                     return null;
@@ -147,9 +147,12 @@ export default defineComponent({
                 picker.value.pickFiles();
             }
         }
+
         function reset() {
-            model.value = null;
+            model.value = undefined;
         }
+
+        reset();
 
         watch(
             () => model.value,

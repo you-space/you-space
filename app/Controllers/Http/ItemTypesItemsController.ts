@@ -1,8 +1,9 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { schema } from '@ioc:Adonis/Core/Validator'
+import { schema, TypedSchema } from '@ioc:Adonis/Core/Validator'
 import { types } from '@ioc:Adonis/Core/Helpers'
 import Item from 'App/Models/Item'
 import ItemType from 'App/Models/ItemType'
+import File from 'App/Models/File'
 import lodash from 'lodash'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Database from '@ioc:Adonis/Lucid/Database'
@@ -55,7 +56,7 @@ export default class ItemsController {
       .query()
       .preload('origin')
       .preload('visibility')
-      .preload('metas')
+      .preload('fields')
 
     const pagination = await query.paginate(filters.page || 1, filters.limit)
 
@@ -63,8 +64,8 @@ export default class ItemsController {
       const fields = type.fields || []
 
       const metaValues = fields.map((f) => {
-        const meta = i.metas.find((m) => m.name === f.name)
-        return { name: f.name, value: meta?.value }
+        const itemField = i.fields.find((m) => m.name === f.name)
+        return { name: f.name, value: itemField ? itemField.serialize().value : undefined }
       })
 
       const originalValues = fields.map((f) => ({
@@ -124,15 +125,15 @@ export default class ItemsController {
       .query()
       .preload('visibility')
       .preload('origin')
-      .preload('metas')
+      .preload('fields')
       .where('id', params.id)
       .firstOrFail()
 
     const fields = type.fields || []
 
     const metaValues = fields.map((f) => {
-      const meta = item.metas.find((m) => m.name === f.name)
-      return { name: f.name, value: meta?.value }
+      const itemField = item.fields.find((m) => m.name === f.name)
+      return { name: f.name, value: itemField ? itemField.serialize().value : undefined }
     })
 
     const originalValues = fields.map((f) => ({
@@ -174,32 +175,90 @@ export default class ItemsController {
   }
 
   public async update({ params, request }: HttpContextContract) {
-    const body = request.all()
     const type = await ItemType.fetchByIdOrName(params.item_type_id).preload('fields').firstOrFail()
-    const item = await Item.findOrFail(params.id)
+    const item = await Item.query().where('id', params.id).preload('fields').firstOrFail()
 
-    const trx = await Database.transaction()
+    const itemSchema = type.fields
+      .filter((f) => f.options.input?.editable)
+      .filter((f) => !['image', 'video'].includes(f.options.input?.type || ''))
+      .reduce(
+        (all, f) => ({
+          ...all,
+          [f.name]: schema.string.optional(),
+        }),
+        {}
+      )
 
-    item.useTransaction(trx)
+    const itemFileSchema: TypedSchema = type.fields
+      .filter((f) => f.options.input?.editable)
+      .filter((f) => ['image', 'video'].includes(f.options.input?.type || ''))
+      .reduce(
+        (all, f) => ({
+          ...all,
+          [f.name]: schema.file.optional(),
+        }),
+        {}
+      )
 
-    const metasToDelete = type.fields
-      .filter((f) => body[f.name] === null || !f.options.input?.editable)
+    const itemFiles = await request.validate({
+      schema: schema.create(itemFileSchema),
+    })
+
+    const normalFields = await request.validate({
+      schema: schema.create({
+        visibilityId: schema.number.optional(),
+        ...itemSchema,
+      }),
+    })
+
+    const normalFieldsToCreate = type.fields
+      .filter((f) => f.options.input?.editable)
+      .filter((f) => normalFields[f.name])
+      .filter((f) => lodash.get(item.value, f.options.mapValue || '') !== normalFields[f.name])
+      .map((f) => ({ name: f.name, value: normalFields[f.name] }))
+
+    const normalFieldsToDelete = type.fields
+      .filter((f) => normalFields[f.name] === null || !f.options.input?.editable)
       .map((f) => f.name)
 
-    const metasToCreate = type.fields
-      .filter((f) => f.options.input?.editable)
-      .filter((f) => body[f.name])
-      .filter((f) => lodash.get(item.value, f.options.mapValue || '') !== body[f.name])
-      .map((f) => ({ name: f.name, value: body[f.name] }))
+    const fileFieldsToDelete = type.fields
+      .filter((f) => ['image', 'video'].includes(f.options.input?.type || ''))
+      .filter((f) => request.body()[f.name] !== undefined || itemFiles[f.name])
+      .map((f) => item.fields.find((itemField) => itemField.name === f.name))
 
-    if (body.visibilityId) {
-      item.visibilityId = body.visibilityId
+    await Promise.all(
+      fileFieldsToDelete.map(async (itemField) => (itemField ? await itemField.delete() : null))
+    )
+
+    const uploadFiles = await Promise.all(
+      Object.entries(itemFiles).map(async ([name, file]) => ({
+        name,
+        file: await File.upload(file),
+      }))
+    )
+
+    await item.related('fields').updateOrCreateMany(
+      uploadFiles.map(({ name, file }) => ({
+        name: name,
+        type: 'file',
+        value: String(file.id),
+      })),
+      ['name']
+    )
+
+    if (normalFields.visibilityId) {
+      item.visibilityId = normalFields.visibilityId
     }
 
-    await item.related('metas').query().delete().whereIn('name', metasToDelete)
+    await item.related('fields').query().delete().whereIn('name', normalFieldsToDelete)
 
-    await item.related('metas').updateOrCreateMany(metasToCreate, ['name'])
+    await item.related('fields').updateOrCreateMany(normalFieldsToCreate, ['name'])
 
-    await trx.commit()
+    await item.save()
+
+    return {
+      status: 200,
+      message: 'Item updated',
+    }
   }
 }

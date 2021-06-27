@@ -1,14 +1,10 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeDelete, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, beforeDelete, column, computed } from '@ioc:Adonis/Lucid/Orm'
 import fs from 'fs'
 import { promisify } from 'util'
 import Application from '@ioc:Adonis/Core/Application'
-
-export enum FileTypes {
-  Image = 'image',
-  Video = 'video',
-  Other = 'other',
-}
+import { MultipartFileContract } from '@ioc:Adonis/Core/BodyParser'
+import { cuid } from '@ioc:Adonis/Core/Helpers'
 
 export default class File extends BaseModel {
   @column({ isPrimary: true })
@@ -18,7 +14,7 @@ export default class File extends BaseModel {
   public filename: string
 
   @column()
-  public type: FileTypes
+  public type: string
 
   @column()
   public extname: string
@@ -29,12 +25,32 @@ export default class File extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
+  @computed({ serializeAs: null })
+  public get filepath() {
+    return Application.makePath('content', 'uploads', this.filename)
+  }
+
   @beforeDelete()
   public static async deleteFile(file: File) {
-    const filePath = Application.tmpPath('uploads', file.filename)
+    const filePath = Application.makePath('content', 'uploads', file.filename)
     const exist = await promisify(fs.exists)(filePath)
     if (exist) {
       await promisify(fs.unlink)(filePath)
     }
+  }
+
+  public static async upload(file: MultipartFileContract) {
+    const uploadFolders = Application.makePath('content', 'uploads')
+    const filename = `${cuid()}.${file.extname}`
+
+    await file.move(uploadFolders, {
+      name: filename,
+    })
+
+    return this.create({
+      extname: file.extname,
+      filename: filename,
+      type: file.type,
+    })
   }
 }

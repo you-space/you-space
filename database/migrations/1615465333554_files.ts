@@ -8,7 +8,7 @@ export default class Files extends BaseSchema {
       table.increments('id').primary()
       table.enum('type', ['video', 'image', 'other']).notNullable().defaultTo('other')
       table.string('extname').notNullable()
-      table.string('filename').notNullable()
+      table.string('filename').notNullable().unique()
       table.timestamps(true)
     })
   }

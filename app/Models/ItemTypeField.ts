@@ -3,6 +3,7 @@ import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
 interface OptionInput {
   editable: boolean
+  type: string
 }
 interface Options {
   label: string

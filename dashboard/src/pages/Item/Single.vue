@@ -180,7 +180,10 @@ export default defineComponent({
             try {
                 saving.value = true;
                 await saveItem(props.type, item.value, item.value.id);
-                setTimeout(() => (saving.value = false), 800);
+                setTimeout(() => {
+                    saving.value = false;
+                    void load();
+                }, 800);
             } catch (error) {
                 saving.value = false;
             }

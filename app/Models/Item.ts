@@ -1,15 +1,7 @@
 import { DateTime } from 'luxon'
-import {
-  BaseModel,
-  column,
-  belongsTo,
-  BelongsTo,
-  hasMany,
-  HasMany,
-  beforeDelete,
-} from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, belongsTo, BelongsTo, hasMany, HasMany } from '@ioc:Adonis/Lucid/Orm'
 import Visibility from './Visibility'
-import ItemMeta from './ItemMeta'
+import ItemField from './ItemField'
 import ItemType from './ItemType'
 import Origin from './Origin'
 
@@ -60,14 +52,6 @@ export default class Item extends BaseModel {
   })
   public child: HasMany<typeof Item>
 
-  @hasMany(() => ItemMeta)
-  public metas: HasMany<typeof ItemMeta>
-
-  @beforeDelete()
-  public static async beforeDelete(item: Item) {
-    await item.related('child').query().delete()
-    const metas = await item.related('metas').query()
-
-    await Promise.all(metas.map(async (m) => await m.delete()))
-  }
+  @hasMany(() => ItemField)
+  public fields: HasMany<typeof ItemField>
 }
