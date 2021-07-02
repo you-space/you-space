@@ -10,13 +10,15 @@ a {
 }
 
 $borders: (
+    't': 'top',
     'b': 'bottom',
-    'r': 'bottom',
+    'l': 'left',
+    'r': 'right',
 );
 
 $colors: (
     'grey-4': $grey-4,
-    'r': 'bottom',
+    'r': 'right',
 );
 
 @each $name, $color in $colors {
