@@ -54,11 +54,4 @@ export default class Item extends BaseModel {
 
   @hasMany(() => ItemField)
   public fields: HasMany<typeof ItemField>
-
-  public serializedByType() {
-    if (!this.type || !this.fields) {
-      throw new Error('type and fields must be defined to serialize by type')
-    }
-    console.log(this.type, this.fields)
-  }
 }

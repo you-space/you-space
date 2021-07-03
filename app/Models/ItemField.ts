@@ -41,8 +41,6 @@ export default class ItemField extends BaseModel {
 
     const file = await File.find(field.value)
 
-    console.log(field, file)
-
     if (!file) {
       return
     }
