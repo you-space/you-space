@@ -1,41 +1,47 @@
 <template>
-    <q-skeleton v-if="loading" type="rect" />
-
-    <q-card v-else flat :square='isSidebar' :bordered='!isSidebar'>
-        <q-expansion-item 
-            v-model="expand"
-            class="bg-grey-1"
-        >
+    <q-card flat :square="isSidebar" :bordered="!isSidebar">
+        <q-expansion-item v-model="expand" class="bg-grey-1">
             <template #header>
                 <q-item-section>
-                    {{field.label || field.name}}
+                    {{ field.label || field.name }}
                 </q-item-section>
 
-                <q-item-section v-if="expand" side>
+                <q-item-section
+                    v-if="expand && modelValue !== originalValue"
+                    side
+                >
                     <q-icon name="more_vert" @click.stop="">
                         <q-menu>
                             <q-list style="min-width: 150px">
-                                <q-item v-close-popup clickable @click="tab = 'original'">
+                                <q-item
+                                    v-close-popup
+                                    clickable
+                                    @click="tab = 'original'"
+                                >
                                     <q-item-section>
-                                        {{$t('show', ['original'])}}
+                                        {{ $t('show', ['original']) }}
                                     </q-item-section>
                                 </q-item>
-                                <q-item v-close-popup clickable @click="tab = 'current'">
+                                <q-item
+                                    v-close-popup
+                                    clickable
+                                    @click="tab = 'current'"
+                                >
                                     <q-item-section>
-                                        {{$t('show', ['current'])}}
+                                        {{ $t('show', ['current']) }}
                                     </q-item-section>
                                 </q-item>
                             </q-list>
                         </q-menu>
                     </q-icon>
                 </q-item-section>
-
             </template>
 
             <q-separator></q-separator>
 
-            <q-tab-panels v-model="tab" animated >
-            
+            <q-skeleton v-if="loading" square style="min-height: 150px" />
+
+            <q-tab-panels v-else v-model="tab" animated>
                 <q-tab-panel name="original">
                     <component
                         :is="component"
@@ -46,18 +52,16 @@
                     />
                 </q-tab-panel>
 
-                <q-tab-panel name="current"  >
+                <q-tab-panel name="current">
                     <component :is="component" v-model="model" v-bind="binds" />
                 </q-tab-panel>
-
             </q-tab-panels>
-
         </q-expansion-item>
-
-       
     </q-card>
 </template>
 <script lang="ts">
+import lodash from 'lodash';
+
 import {
     defineComponent,
     PropType,
@@ -66,8 +70,11 @@ import {
     watch,
     ref,
 } from 'vue';
-import { TypeFieldInputTypes, TypeField } from 'src/pages/Item/compositions';
-import lodash from 'lodash';
+
+import {
+    TypeFieldInputTypes,
+    TypeField,
+} from 'src/pages/ItemType/compositions';
 
 export default defineComponent({
     name: 'TypeField',
@@ -147,7 +154,7 @@ export default defineComponent({
         return {
             tab,
             expand,
-            
+
             component,
             binds,
             model,

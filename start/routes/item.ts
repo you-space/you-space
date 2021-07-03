@@ -1,17 +1,16 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
-  Route.get('admin/items', 'ItemTypesItemsController.all')
-    .middleware('auth:api')
-    .middleware('acl:admin')
-
-  Route.resource('item-types.items', 'ItemTypesItemsController')
-    .apiOnly()
-    .only(['index', 'show', 'store', 'update'])
+  Route.resource('items', 'ItemsController')
+    .only(['index', 'show', 'update'])
     .middleware({
-      store: ['auth:api', 'acl:admin'],
       update: ['auth:api', 'acl:admin'],
     })
+
+  Route.patch('items/:id/files', 'ItemsController.updateItemFiles').middleware([
+    'auth:api',
+    'acl:admin',
+  ])
 })
   .prefix('v1')
   .prefix('api')

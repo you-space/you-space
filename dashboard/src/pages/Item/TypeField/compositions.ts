@@ -1,17 +1,17 @@
-export function createTypeField(){
+export function createTypeField() {
     const props = {
         currentValue: {
             type: [String, Number, Object, Array],
-            default: null
+            default: null,
         },
         originalValue: {
             type: [String, Number, Object, Array],
             default: null,
         },
         modelValue: {
-            type: [String, Number, Object, Array],
+            type: [String, Number, Object, Array, Blob],
             default: null,
-        },        
+        },
         readonly: {
             type: Boolean,
             default: false,
@@ -19,7 +19,6 @@ export function createTypeField(){
     };
 
     const emits = ['update:modelValue'];
-
 
     return { props, emits };
 }

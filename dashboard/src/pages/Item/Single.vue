@@ -6,16 +6,17 @@
             </q-toolbar-title>
 
             <q-btn
-                :disable="saving"
+                :loading="saving || loading"
                 color="primary"
                 flat
                 style="margin-right: 16px"
+                @click="load"
             >
                 {{ $t('cancel') }}
             </q-btn>
 
             <q-btn
-                :loading="saving"
+                :loading="saving || loading"
                 color="primary"
                 style="margin-right: 16px"
                 @click="save"
@@ -56,15 +57,15 @@
                 </div>
             </div>
 
-            <q-card flat class="col-3 full-height overflow-auto border-l border-grey-4">
+            <q-card
+                flat
+                class="col-3 full-height overflow-auto border-l border-grey-4"
+            >
                 <div class="row">
                     <div
                         v-for="(field, index) in sidebarFields"
                         :key="index"
-                        :class="[
-                            'col-12',
-                            'border-b border-grey-4',
-                        ]"
+                        :class="['col-12', 'border-b border-grey-4']"
                     >
                         <type-field
                             v-model="item[field.name]"
@@ -80,21 +81,24 @@
     </q-page>
 </template>
 <script lang="ts">
-import { defineComponent, ref, computed, defineAsyncComponent } from 'vue';
-import {
-    findItem,
-    findItemType,
-    Item,
-    ItemType,
-    saveItem,
-    TypeField,
-} from './compositions';
-import { createVisibilityAutocomplete } from 'src/pages/Visilibilty/compositions';
 import lodash from 'lodash';
+import { defineComponent, ref, computed, defineAsyncComponent } from 'vue';
+
+import { findItem, Item, saveItem, saveItemFiles } from './compositions';
+
+import {
+    findItemType,
+    ItemType,
+    TypeField,
+} from 'src/pages/ItemType/compositions';
+
+import { createVisibilityAutocomplete } from 'src/pages/Visilibilty/compositions';
 import { api } from 'src/boot/axios';
 
 export default defineComponent({
-    components: {TypeField: defineAsyncComponent(() => import('./TypeField/Index.vue')), },
+    components: {
+        TypeField: defineAsyncComponent(() => import('./TypeField/Index.vue')),
+    },
     props: {
         type: {
             type: String,
@@ -140,7 +144,10 @@ export default defineComponent({
         }
 
         async function setItem() {
-            item.value = await findItem(props.type, props.id, {showOriginalValues: true, });
+            item.value = await findItem(props.id, {
+                showOriginals: true,
+                serialize: true,
+            });
         }
 
         async function load() {
@@ -176,7 +183,38 @@ export default defineComponent({
         async function save() {
             try {
                 saving.value = true;
-                await saveItem(props.type, item.value, item.value.id);
+
+                const itemFiles = typeFields.value
+                    .filter((f) =>
+                        ['image', 'video'].includes(f.input?.type || ''),
+                    )
+                    .reduce(
+                        (all, f) => ({
+                            ...all,
+                            [f.name]: item.value[f.name],
+                        }),
+                        {},
+                    );
+
+                const itemInputs = typeFields.value
+                    .filter(
+                        (f) =>
+                            !['image', 'video'].includes(f.input?.type || ''),
+                    )
+                    .reduce(
+                        (all, f) => ({
+                            ...all,
+                            [f.name]: item.value[f.name],
+                        }),
+                        {},
+                    );
+
+                await saveItem(itemInputs, item.value.id);
+
+                if (item.value.id) {
+                    await saveItemFiles(itemFiles, item.value.id);
+                }
+
                 setTimeout(() => {
                     saving.value = false;
                     void load();
@@ -197,6 +235,8 @@ export default defineComponent({
 
             autocomplete,
             getColunmClass,
+
+            load,
             save,
         };
     },

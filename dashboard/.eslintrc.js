@@ -81,30 +81,10 @@ module.exports = {
         indent: ['error', 4],
         'vue/html-indent': ['error', 4],
         semi: ['error', 'always'],
-        // 'object-property-newline': ['error', { allowMultiplePropertiesPerLine: true}],
-        'object-curly-newline': [
-            'warn',
-            {
-                ObjectPattern: {
-                    multiline: true,
-                    minProperties: 3,
-                },
-                ObjectExpression: {
-                    multiline: true,
-                    minProperties: 3,
-                },
-            },
-        ],
         'comma-spacing': ['error'],
-        // "object-curly-spacing": ["error", "always"],
         'no-unsafe-assignment': 'off',
         'no-unsafe-call': 'off',
         'no-unsafe-member-access': 'off',
-        // quotes: ['error', 'single', { avoidEscape: true }],
-        // 'vue/max-attributes-per-line': ["error", {
-        //     singleLine: 1
-        //   }
-        // ],
 
         '@typescript-eslint/no-unsafe-return': 'off',
         '@typescript-eslint/no-unsafe-assignment': 'off',

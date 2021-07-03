@@ -49,18 +49,16 @@
     </q-page>
 </template>
 <script lang="ts">
+import lodash from 'lodash';
 import { date } from 'quasar';
 import { defineComponent, ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import {
-    fetchItems,
-    Item,
-    ItemType,
-    TypeField,
-} from 'src/pages/Item/compositions';
-import { createServerPagination } from 'src/components/compositions';
+
 import { api } from 'src/boot/axios';
-import lodash from 'lodash';
+
+import { fetchItems, Item } from 'src/pages/Item/compositions';
+import { ItemType, TypeField } from 'src/pages/ItemType/compositions';
+import { createServerPagination } from 'src/components/compositions';
 
 export default defineComponent({
     props: {
@@ -74,7 +72,7 @@ export default defineComponent({
         const tm = useI18n();
 
         const rows = ref<Item[]>([]);
-        const type = ref({
+        const type = ref<Partial<ItemType>>({
             name: '',
             options: {},
         });
@@ -95,7 +93,12 @@ export default defineComponent({
         ]);
 
         const { pagination, reload } = createServerPagination<Item>(
-            (pagination) => fetchItems(props.type, pagination),
+            (pagination) =>
+                fetchItems({
+                    typeId: type.value.id,
+                    serialize: true,
+                    ...pagination,
+                }),
             (data) => {
                 rows.value = data.data;
             },
@@ -193,18 +196,12 @@ export default defineComponent({
             return tm.n(Number(value));
         }
 
-        function getColunmType(name: string) {
-            console.log(name);
-            return 'text';
-        }
-
         return {
             columns,
             rows,
             pagination,
             reload,
 
-            getColunmType,
             getItemTo,
             getDatetime,
             getDate,

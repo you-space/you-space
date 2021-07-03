@@ -31,7 +31,10 @@
                         name="file_upload"
                     />
 
-                    <div v-if="model || currentValue != null"  class="absolute-bottom-left q-pa-md">
+                    <div
+                        v-if="model || currentValue != null"
+                        class="absolute-bottom-left q-pa-md"
+                    >
                         <q-btn color="primary" size="sm" @click.stop="reset">
                             {{ $t('reset') }}
                         </q-btn>
@@ -46,15 +49,15 @@ import { QFile } from 'quasar';
 import { defineComponent, computed, ref, watch } from 'vue';
 
 import { useHelper } from 'src/boot/helper';
-import { createTypeField  } from './compositions';
+import { createTypeField } from './compositions';
 
 const typeField = createTypeField();
 
 export default defineComponent({
     name: 'TypeFieldImage',
     inheritAttrs: false,
-    props: {...typeField.props, },
-    emits: [...typeField.emits],
+    props: { ...typeField.props },
+    emits: [...typeField.emits, 'update:modelValue'],
     setup(props, { emit }) {
         const helper = useHelper();
 
@@ -66,8 +69,8 @@ export default defineComponent({
                 return innerSrc.value;
             }
 
-            if (props.currentValue) {
-                return props.currentValue;
+            if (typeof props.modelValue === 'string') {
+                return props.modelValue;
             }
 
             if (props.originalValue) {
@@ -77,11 +80,8 @@ export default defineComponent({
             return null;
         });
 
-        const model = computed<File | null | undefined>({
+        const model = computed({
             get() {
-                if (typeof props.modelValue === 'string') {
-                    return null;
-                }
                 return props.modelValue;
             },
             set(value) {
@@ -96,20 +96,18 @@ export default defineComponent({
         }
 
         function reset() {
-            model.value = undefined;
+            model.value = null;
         }
-
-        reset();
 
         watch(
             () => model.value,
             async () => {
-                if (!model.value) {
+                if (!model.value || typeof model.value === 'string') {
                     innerSrc.value = null;
                     return;
                 }
 
-                const base64 = await helper.getFileBase64(model.value);
+                const base64 = await helper.getFileBase64(model.value as File);
 
                 innerSrc.value = base64;
             },
