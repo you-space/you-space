@@ -1,6 +1,15 @@
 <template>
     <q-card dark class="full-width full-height q-video">
         <q-video
+            v-if="isYoutubeUrl"
+            class="full-width full-height ys-video"
+            controls
+            :src="src"
+            v-bind="$attrs"
+        />
+
+        <video
+            v-else
             class="full-width full-height ys-video"
             controls
             :src="src"
@@ -10,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
 
 export default defineComponent({
     name: 'Video',
@@ -21,8 +30,14 @@ export default defineComponent({
             required: true,
         },
     },
-    setup() {
-        return {};
+    setup(props) {
+        const isYoutubeUrl = computed(() => {
+            return props.src.includes('youtube.com/embed');
+        });
+
+        return {
+            isYoutubeUrl,
+        };
     },
 });
 </script>

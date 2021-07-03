@@ -2,26 +2,6 @@ import { Pagination, ServerResponse } from 'src/components/compositions';
 import { api } from 'src/boot/axios';
 import { pickBy } from 'lodash';
 
-// item-types
-
-// raw items
-export interface AllItem {
-    id: number;
-    typeName: string;
-    value: Record<string, string>;
-}
-
-export async function fetchItemsRaw(filters?: Partial<Pagination>) {
-    const request = await api.get<ServerResponse<AllItem>>('items', {
-        params: pickBy(
-            filters,
-            (v) => v !== null && v !== undefined && v !== '',
-        ),
-    });
-
-    return request.data;
-}
-
 // items
 export interface Item {
     id: number;
@@ -37,6 +17,7 @@ export interface Item {
 
 interface Filters extends Pagination {
     serialize: boolean;
+    showOriginals: boolean;
     typeId: number;
 }
 
@@ -51,11 +32,6 @@ export async function fetchItems(filters?: Partial<Filters>) {
     });
 
     return data;
-}
-
-interface Filters {
-    showOriginals: boolean;
-    serialize: boolean;
 }
 
 export async function findItem(

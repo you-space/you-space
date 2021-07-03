@@ -9,9 +9,11 @@ export default class FilesController {
   public async show({ params, response }: HttpContextContract) {
     const file = await File.findOrFail(params.id)
 
-    response.safeHeader('Content-type', `${file.type}/${file.extname}`)
+    const fileStream = fs.createReadStream(file.filepath)
 
-    return response.attachment(file.filepath)
+    response.type(`${file.type}/${file.extname}`)
+
+    response.stream(fileStream)
   }
 
   public async showStatic() {}

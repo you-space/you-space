@@ -7,7 +7,7 @@
                 </q-item-section>
 
                 <q-item-section
-                    v-if="expand && modelValue !== originalValue"
+                    v-if="expand && modelValue && modelValue !== originalValue"
                     side
                 >
                     <q-icon name="more_vert" @click.stop="">
