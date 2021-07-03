@@ -11,3 +11,5 @@ public/*
 
 content/themes/**
 !content/**/.gitkeep
+
+content/uploads
