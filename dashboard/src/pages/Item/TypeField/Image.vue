@@ -1,21 +1,5 @@
 <template>
     <q-card bordered flat class="img-picker">
-        <q-card-section class="flex justify-between">
-            <div class="text-body2">{{ label }}</div>
-            <template v-if="showViewOriginalButton">
-                <q-btn
-                    v-if="!viewOriginal"
-                    size="sm"
-                    @click="viewOriginal = true"
-                >
-                    {{ $t('viewOriginal') }}
-                </q-btn>
-                <q-btn v-else size="sm" @click="viewOriginal = false">
-                    {{ $t('back') }}
-                </q-btn>
-            </template>
-        </q-card-section>
-
         <div
             class="relative"
             :class="[readonly ? '' : 'cursor-pointer']"
@@ -47,7 +31,7 @@
                         name="file_upload"
                     />
 
-                    <div v-else class="absolute-bottom-left q-pa-md">
+                    <div v-if="model || currentValue != null"  class="absolute-bottom-left q-pa-md">
                         <q-btn color="primary" size="sm" @click.stop="reset">
                             {{ $t('reset') }}
                         </q-btn>
@@ -59,47 +43,25 @@
 </template>
 <script lang="ts">
 import { QFile } from 'quasar';
-import { useHelper } from 'src/boot/helper';
 import { defineComponent, computed, ref, watch } from 'vue';
+
+import { useHelper } from 'src/boot/helper';
+import { createTypeField  } from './compositions';
+
+const typeField = createTypeField();
 
 export default defineComponent({
     name: 'TypeFieldImage',
     inheritAttrs: false,
-    props: {
-        label: {
-            type: String,
-            default: null,
-        },
-        originalValue: {
-            type: String,
-            default: null,
-        },
-        currentValue: {
-            type: String,
-            default: null,
-        },
-        modelValue: {
-            type: [String, Object],
-            default: null,
-        },
-        readonly: {
-            type: Boolean,
-            default: false,
-        },
-    },
-    emits: ['update:modelValue'],
+    props: {...typeField.props, },
+    emits: [...typeField.emits],
     setup(props, { emit }) {
         const helper = useHelper();
 
         const innerSrc = ref<string | null>(null);
         const picker = ref<QFile>();
-        const viewOriginal = ref(false);
 
         const preview = computed(() => {
-            if (viewOriginal.value) {
-                return props.originalValue;
-            }
-
             if (innerSrc.value) {
                 return innerSrc.value;
             }
@@ -127,21 +89,6 @@ export default defineComponent({
             },
         });
 
-        const showViewOriginalButton = computed(() => {
-            if (model.value) {
-                return true;
-            }
-
-            if (
-                props.currentValue &&
-                props.originalValue !== props.currentValue
-            ) {
-                return true;
-            }
-
-            return false;
-        });
-
         function showPicker() {
             if (picker.value) {
                 picker.value.pickFiles();
@@ -164,8 +111,6 @@ export default defineComponent({
 
                 const base64 = await helper.getFileBase64(model.value);
 
-                viewOriginal.value = false;
-
                 innerSrc.value = base64;
             },
         );
@@ -174,9 +119,7 @@ export default defineComponent({
             model,
             preview,
             picker,
-            viewOriginal,
             reset,
-            showViewOriginalButton,
 
             showPicker,
         };

@@ -82,7 +82,7 @@ export default class ItemsController {
           [f.name]: meta?.value || original?.value,
         }
 
-        if (filters.showOriginalValues && f.options.input?.editable) {
+        if (filters.showOriginalValues) {
           return {
             ...currentValues,
             [`original:${f.name}`]: original?.value,
@@ -150,7 +150,7 @@ export default class ItemsController {
         [f.name]: meta?.value || original?.value,
       }
 
-      if (filters.showOriginalValues && f.options.input?.editable) {
+      if (filters.showOriginalValues) {
         return {
           ...currentValues,
           [`original:${f.name}`]: original?.value,

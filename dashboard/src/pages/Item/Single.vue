@@ -56,14 +56,14 @@
                 </div>
             </div>
 
-            <q-card square falt class="col-3 q-pa-md overflow-y-auto">
+            <q-card flat class="col-3 full-height overflow-auto border-l border-grey-4">
                 <div class="row">
                     <div
                         v-for="(field, index) in sidebarFields"
                         :key="index"
                         :class="[
-                            getColunmClass(field),
-                            index > 0 ? 'q-mt-md' : '',
+                            'col-12',
+                            'border-b border-grey-4',
                         ]"
                     >
                         <type-field
@@ -71,6 +71,7 @@
                             :original-value="item[`original:${field.name}`]"
                             :field="field"
                             :loading="loading"
+                            is-sidebar
                         />
                     </div>
                 </div>
@@ -93,9 +94,7 @@ import lodash from 'lodash';
 import { api } from 'src/boot/axios';
 
 export default defineComponent({
-    components: {
-        TypeField: defineAsyncComponent(() => import('./TypeField/Index.vue')),
-    },
+    components: {TypeField: defineAsyncComponent(() => import('./TypeField/Index.vue')), },
     props: {
         type: {
             type: String,
@@ -141,9 +140,7 @@ export default defineComponent({
         }
 
         async function setItem() {
-            item.value = await findItem(props.type, props.id, {
-                showOriginalValues: true,
-            });
+            item.value = await findItem(props.type, props.id, {showOriginalValues: true, });
         }
 
         async function load() {

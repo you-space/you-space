@@ -82,7 +82,7 @@ export default defineComponent({
         const columns = ref<Record<string, string>[]>([
             {
                 name: 'id',
-                label: tm.t('id'),
+                label: '#',
                 field: 'id',
                 align: 'left',
             },

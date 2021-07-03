@@ -1,6 +1,61 @@
 <template>
     <q-skeleton v-if="loading" type="rect" />
-    <component :is="component" v-else v-model="model" v-bind="binds" />
+
+    <q-card v-else flat :square='isSidebar' :bordered='!isSidebar'>
+        <q-expansion-item 
+            v-model="expand"
+            class="bg-grey-1"
+        >
+            <template #header>
+                <q-item-section>
+                    {{field.label || field.name}}
+                </q-item-section>
+
+                <q-item-section v-if="expand" side>
+                    <q-icon name="more_vert" @click.stop="">
+                        <q-menu>
+                            <q-list style="min-width: 150px">
+                                <q-item v-close-popup clickable @click="tab = 'original'">
+                                    <q-item-section>
+                                        {{$t('show', ['original'])}}
+                                    </q-item-section>
+                                </q-item>
+                                <q-item v-close-popup clickable @click="tab = 'current'">
+                                    <q-item-section>
+                                        {{$t('show', ['current'])}}
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+                        </q-menu>
+                    </q-icon>
+                </q-item-section>
+
+            </template>
+
+            <q-separator></q-separator>
+
+            <q-tab-panels v-model="tab" animated >
+            
+                <q-tab-panel name="original">
+                    <component
+                        :is="component"
+                        v-bind="binds"
+                        :model-value="originalValue"
+                        :current-value="originalValue"
+                        readonly
+                    />
+                </q-tab-panel>
+
+                <q-tab-panel name="current"  >
+                    <component :is="component" v-model="model" v-bind="binds" />
+                </q-tab-panel>
+
+            </q-tab-panels>
+
+        </q-expansion-item>
+
+       
+    </q-card>
 </template>
 <script lang="ts">
 import {
@@ -34,9 +89,16 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        isSidebar: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ['update:modelValue'],
     setup(props, { emit }) {
+        const tab = ref('current');
+        const expand = ref(true);
+
         const allComponents = {
             text: defineAsyncComponent(() => import('./Text.vue')),
             textarea: defineAsyncComponent(() => import('./Text.vue')),
@@ -58,7 +120,6 @@ export default defineComponent({
 
         function setBinds() {
             binds.value = {
-                label: props.field.label,
                 type: type,
                 readonly: !props.field.input?.editable,
                 originalValue: props.originalValue,
@@ -84,6 +145,9 @@ export default defineComponent({
         const component = allComponents[type];
 
         return {
+            tab,
+            expand,
+            
             component,
             binds,
             model,

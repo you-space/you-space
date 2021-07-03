@@ -33,6 +33,7 @@ export default {
     login: 'Login',
     noData: 'No data',
     viewData: 'View data',
+    show: 'Show {0}',
 
     apiKey: 'Api key',
     channelId: 'Channel id',

@@ -1,3 +1,3 @@
 <template>
-    <q-input v-bind="$attrs" outlined />
+    <q-input v-bind="$attrs" dense outlined />
 </template>

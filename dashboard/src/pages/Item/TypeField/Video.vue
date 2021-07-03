@@ -1,54 +1,42 @@
 <template>
     <q-card bordered flat class="video-picker">
-        <q-card-section>
-            <div class="text-body2">{{ label }}</div>
-        </q-card-section>
         <div class="relative" :style="style">
             <ys-video v-if="src" :src="src" />
         </div>
     </q-card>
 </template>
 <script lang="ts">
-import { QFile } from 'quasar';
-import { useHelper } from 'src/boot/helper';
 import { defineComponent, computed, ref, watch } from 'vue';
+import { createTypeField  } from './compositions';
+
+const typeField = createTypeField();
 
 export default defineComponent({
     name: 'TypeFieldVideo',
     inheritAttrs: false,
     props: {
-        label: {
-            type: String,
-            default: null,
-        },
-        modelValue: {
-            type: [String, Object],
-            default: null,
-        },
-        readonly: {
-            type: Boolean,
-            default: false,
-        },
+        ...typeField.props,
         style: {
             type: [String, Object],
             default: () => ({}),
         },
     },
-    emits: ['update:modelValue'],
+    emits: [...typeField.emits],
     setup(props, { emit }) {
-        const helper = useHelper();
 
         const innerSrc = ref<string | null>(null);
-        // const picker = ref<QFile>();
-        const originalSrc = ref<null | string>(null);
 
         const src = computed(() => {
             if (innerSrc.value) {
                 return innerSrc.value;
             }
 
-            if (originalSrc.value) {
-                return originalSrc.value;
+            if (props.currentValue) {
+                return props.currentValue;
+            }
+
+            if (props.originalValue) {
+                return props.originalValue;
             }
 
             return null;
@@ -85,15 +73,6 @@ export default defineComponent({
         //         innerSrc.value = base64;
         //     },
         // );
-
-        function preLoad() {
-            if (props.modelValue && typeof props.modelValue === 'string') {
-                originalSrc.value = props.modelValue;
-                model.value = null;
-            }
-        }
-
-        watch(() => props.modelValue, preLoad, { immediate: true });
 
         return {
             model,
