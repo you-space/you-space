@@ -10,8 +10,6 @@ export default class ItemIndexValidator {
 
     // only available if typeid is defined options
     serialize: schema.boolean.optional(),
-    showOriginals: schema.boolean.optional(),
-
     typeId: schema.number.optional([
       rules.requiredIfExistsAny(['serialize']),
       rules.exists({

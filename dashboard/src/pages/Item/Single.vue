@@ -184,7 +184,11 @@ export default defineComponent({
             try {
                 saving.value = true;
 
-                const itemFiles = typeFields.value
+                const editableFields = typeFields.value.filter(
+                    (f) => f.type === 'editable',
+                );
+
+                const itemFiles = editableFields
                     .filter((f) =>
                         ['image', 'video'].includes(f.input?.type || ''),
                     )
@@ -196,7 +200,7 @@ export default defineComponent({
                         {},
                     );
 
-                const itemInputs = typeFields.value
+                const itemInputs = editableFields
                     .filter(
                         (f) =>
                             !['image', 'video'].includes(f.input?.type || ''),

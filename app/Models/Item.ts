@@ -1,9 +1,12 @@
+import lodash from 'lodash'
 import { DateTime } from 'luxon'
 import { BaseModel, column, belongsTo, BelongsTo, hasMany, HasMany } from '@ioc:Adonis/Lucid/Orm'
+
 import Visibility from './Visibility'
 import ItemField from './ItemField'
 import ItemType from './ItemType'
 import Origin from './Origin'
+import ItemTypeField from './ItemTypeField'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
@@ -54,4 +57,38 @@ export default class Item extends BaseModel {
 
   @hasMany(() => ItemField)
   public fields: HasMany<typeof ItemField>
+
+  public serializeByType(type: ItemType) {
+    const typeFields: ItemTypeField[] = lodash.get(type, 'fields', [])
+
+    const itemFields = this.fields.reduce(
+      (all, f) => ({
+        ...all,
+        [f.name]: f.serialize().value,
+      }),
+      {}
+    )
+
+    const mappedValues = typeFields.reduce(
+      (all, f) => ({
+        ...all,
+        [f.name]: lodash.get(this.value, f.options?.mapValue || '', this.value[f.name]),
+      }),
+      {}
+    )
+
+    return {
+      id: this.id,
+      sourceId: this.sourceId,
+
+      typeId: type.id,
+      typeName: type.name,
+
+      visibilityId: this.visibilityId,
+      visibilityName: this.visibility?.name,
+
+      ...mappedValues,
+      ...itemFields,
+    }
+  }
 }

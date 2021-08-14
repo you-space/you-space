@@ -6,6 +6,7 @@ interface OptionInput {
   type: string
 }
 interface Options {
+  type?: 'editable'
   label: string
   mapValue: string
   input: OptionInput

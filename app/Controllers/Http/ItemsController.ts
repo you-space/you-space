@@ -7,7 +7,6 @@ import ItemType from 'App/Models/ItemType'
 import File from 'App/Models/File'
 
 import ItemIndexValidator from 'App/Validators/ItemIndexValidator'
-import { serializedItemByType } from 'App/Services/ItemService'
 
 export default class ItemsController {
   public async index({ request }: HttpContextContract) {
@@ -33,12 +32,11 @@ export default class ItemsController {
 
     const items = pagination.all().map((item) => {
       if (filters.serialize) {
-        return serializedItemByType(type, item, filters.showOriginals)
+        return item.serializeByType(type)
       }
 
       return {
         id: item.id,
-        value: item.value,
 
         originId: item.originId,
         originName: item.origin.name,
@@ -47,6 +45,8 @@ export default class ItemsController {
         typeName: item.type.name,
 
         visibilityName: item.visibility.name,
+
+        value: item.value,
       }
     })
 
@@ -72,7 +72,7 @@ export default class ItemsController {
         .preload('visibility')
         .firstOrFail()
 
-      return serializedItemByType(item.type, item, filters.showOriginals)
+      return item.serializeByType(item.type)
     }
 
     const item = await Item.query()
@@ -84,7 +84,6 @@ export default class ItemsController {
 
     return {
       id: item.id,
-      value: item.value,
 
       originId: item.originId,
       originName: item.origin.name,
@@ -93,6 +92,8 @@ export default class ItemsController {
       typeName: item.type.name,
 
       visibilityName: item.visibility?.name,
+
+      value: item.value,
     }
   }
 
@@ -105,7 +106,7 @@ export default class ItemsController {
       .firstOrFail()
 
     const fileFields = item.type.fields
-      .filter((f) => f.options.input?.editable)
+      .filter((f) => f.options.type === 'editable')
       .filter((f) => ['image', 'video'].includes(f.options.input?.type || ''))
 
     const fileFieldsSchema: TypedSchema = fileFields.reduce(
@@ -129,10 +130,18 @@ export default class ItemsController {
     )
 
     const uploadFiles = await Promise.all(
-      Object.entries(payload).map(async ([name, file]) => ({
-        name,
-        file: await File.upload(file as any),
-      }))
+      Object.entries(payload).map(async ([name, file]) => {
+        const oldItemField = item.fields.find((f) => f.name === name)
+
+        if (oldItemField) {
+          await oldItemField.delete()
+        }
+
+        return {
+          name,
+          file: await File.upload(file as any),
+        }
+      })
     )
 
     await item.related('fields').updateOrCreateMany(
@@ -154,7 +163,7 @@ export default class ItemsController {
       .firstOrFail()
 
     const typeSchema = item.type.fields
-      .filter((f) => f.options.input?.editable)
+      .filter((f) => f.options.type === 'editable')
       .filter((f) => !['image', 'video'].includes(f.options.input?.type || ''))
       .reduce(
         (all, f) => ({

@@ -20,7 +20,11 @@
                 <q-file ref="picker" v-model="model" class="hidden" />
 
                 <div
-                    class="absolute-center full-height full-width img-picker-overlay"
+                    class="
+                        absolute-center
+                        full-height full-width
+                        img-picker-overlay
+                    "
                     style="background-color: rgba(0, 0, 0, 0.4)"
                 >
                     <q-icon
@@ -31,10 +35,7 @@
                         name="file_upload"
                     />
 
-                    <div
-                        v-if="model || currentValue != null"
-                        class="absolute-bottom-left q-pa-md"
-                    >
+                    <div v-if="model" class="absolute-bottom-left q-pa-md">
                         <q-btn color="primary" size="sm" @click.stop="reset">
                             {{ $t('reset') }}
                         </q-btn>
@@ -46,18 +47,21 @@
 </template>
 <script lang="ts">
 import { QFile } from 'quasar';
-import { defineComponent, computed, ref, watch } from 'vue';
-
+import { defineComponent, ref, computed, watch } from 'vue';
 import { useHelper } from 'src/boot/helper';
-import { createTypeField } from './compositions';
-
-const typeField = createTypeField();
 
 export default defineComponent({
-    name: 'TypeFieldImage',
-    inheritAttrs: false,
-    props: { ...typeField.props },
-    emits: [...typeField.emits, 'update:modelValue'],
+    props: {
+        readonly: {
+            type: Boolean,
+            default: true,
+        },
+        modelValue: {
+            type: [String, File],
+            default: null,
+        },
+    },
+    emits: ['update:modelValue'],
     setup(props, { emit }) {
         const helper = useHelper();
 
@@ -73,10 +77,6 @@ export default defineComponent({
                 return props.modelValue;
             }
 
-            if (props.originalValue) {
-                return props.originalValue;
-            }
-
             return null;
         });
 
@@ -88,16 +88,6 @@ export default defineComponent({
                 emit('update:modelValue', value);
             },
         });
-
-        function showPicker() {
-            if (picker.value) {
-                picker.value.pickFiles();
-            }
-        }
-
-        function reset() {
-            model.value = null;
-        }
 
         watch(
             () => model.value,
@@ -113,13 +103,24 @@ export default defineComponent({
             },
         );
 
+        function showPicker() {
+            if (picker.value) {
+                picker.value.pickFiles();
+            }
+        }
+
+        function reset() {
+            model.value = null;
+        }
+
         return {
-            model,
-            preview,
             picker,
-            reset,
+
+            preview,
+            model,
 
             showPicker,
+            reset,
         };
     },
 });

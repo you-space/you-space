@@ -11,12 +11,10 @@ class Plugin {
                 name: 'src',
                 label: 'Video',
                 mapValue: 'src',
-                showInTable: true,
                 table: {
                     show: false,
                 },
                 input: {
-                    editable: true,
                     type: 'video',
                     order: 1,
                     props: {
@@ -30,13 +28,11 @@ class Plugin {
                 name: 'title',
                 label: 'Title',
                 mapValue: 'snippet.title',
-                showInTable: true,
                 table: {
                     order: 2,
                 },
                 input: {
                     position: 'sidebar',
-                    editable: true,
                     order: 1,
                 },
             },
@@ -44,13 +40,11 @@ class Plugin {
                 name: 'description',
                 label: 'Description',
                 mapValue: 'snippet.description',
-                showInTable: true,
                 table: {
                     show: false,
                 },
                 input: {
                     type: 'textarea',
-                    editable: true,
                     order: 4,
                     props: {
                         dense: false,
@@ -68,7 +62,21 @@ class Plugin {
                 },
                 input: {
                     type: 'image',
-                    editable: true,
+                    position: 'sidebar',
+                    order: 2,
+                },
+            },
+            {
+                name: 'replaceThumbnailSrc',
+                label: 'Replace thumbnail',
+                type: 'editable',
+                table: {
+                    type: 'image',
+                    order: 1,
+                    show: false
+                },
+                input: {
+                    type: 'image',
                     position: 'sidebar',
                     order: 2,
                 },
