@@ -7,6 +7,7 @@ import ItemField from './ItemField'
 import TypeField from './TypeField'
 import Origin from './Origin'
 import TypeFieldField from './TypeField'
+import Type from './Type'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
@@ -58,26 +59,10 @@ export default class Item extends BaseModel {
   @hasMany(() => ItemField)
   public fields: HasMany<typeof ItemField>
 
-  public serializeByType(type: TypeField) {
+  public serializeByType(type: Type) {
     const typeFields: TypeFieldField[] = lodash.get(type, 'fields', [])
 
-    const itemFields = this.fields.reduce(
-      (all, f) => ({
-        ...all,
-        [f.name]: f.serialize().value,
-      }),
-      {}
-    )
-
-    const mappedValues = typeFields.reduce(
-      (all, f) => ({
-        ...all,
-        [f.name]: lodash.get(this.value, f.options?.mapValue || '', this.value[f.name]),
-      }),
-      {}
-    )
-
-    return {
+    const item: any = {
       id: this.id,
       sourceId: this.sourceId,
 
@@ -86,9 +71,12 @@ export default class Item extends BaseModel {
 
       visibilityId: this.visibilityId,
       visibilityName: this.visibility?.name,
-
-      ...mappedValues,
-      ...itemFields,
     }
+
+    typeFields.forEach(({ name, options }) => {
+      item[name] = lodash.get(this.value, options?.mapValue || '', this.value[name])
+    })
+
+    return item
   }
 }

@@ -23,6 +23,9 @@ export default class TypeField extends BaseModel {
   public name: string
 
   @column()
+  public type: string
+
+  @column()
   public options: Partial<Options>
 
   @column.dateTime({ autoCreate: true })
