@@ -3,11 +3,10 @@ import { DateTime } from 'luxon'
 import { BaseModel, column, belongsTo, BelongsTo, hasMany, HasMany } from '@ioc:Adonis/Lucid/Orm'
 
 import Visibility from './Visibility'
-import ItemField from './ItemField'
 import TypeField from './TypeField'
 import Origin from './Origin'
-import TypeFieldField from './TypeField'
 import Type from './Type'
+import ItemMeta from './ItemMeta'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
@@ -56,12 +55,10 @@ export default class Item extends BaseModel {
   })
   public child: HasMany<typeof Item>
 
-  @hasMany(() => ItemField)
-  public fields: HasMany<typeof ItemField>
+  @hasMany(() => ItemMeta)
+  public metas: HasMany<typeof ItemMeta>
 
   public serializeByType(type: Type) {
-    const typeFields: TypeFieldField[] = lodash.get(type, 'fields', [])
-
     const item: any = {
       id: this.id,
       sourceId: this.sourceId,
@@ -73,10 +70,17 @@ export default class Item extends BaseModel {
       visibilityName: this.visibility?.name,
     }
 
-    typeFields
+    type.fields
       .filter((f) => f.type === 'mapped')
       .forEach(({ name, options }) => {
         item[name] = lodash.get(this.value, options?.path || '', this.value[name])
+      })
+
+    type.fields
+      .filter((f) => f.type === 'editable')
+      .forEach(({ name }) => {
+        const meta = this.metas.find((m) => m.name === name)
+        item[name] = lodash.get(meta, 'value', null)
       })
 
     return item
