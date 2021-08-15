@@ -36,10 +36,10 @@ export default class Item extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @belongsTo(() => TypeField, {
+  @belongsTo(() => Type, {
     foreignKey: 'typeId',
   })
-  public type: BelongsTo<typeof TypeField>
+  public type: BelongsTo<typeof Type>
 
   @belongsTo(() => Origin, {
     foreignKey: 'originId',

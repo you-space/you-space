@@ -4,7 +4,7 @@ import { promisify } from 'util'
 import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
-import ItemType from 'App/Models/ItemType'
+import Type from 'App/Models/Type'
 export default class DashboardController {
   public async show({ request, response }: HttpContextContract) {
     const appPath = Application.publicPath()
@@ -29,7 +29,7 @@ export default class DashboardController {
   }
 
   public async showMenu() {
-    const types = await ItemType.query()
+    const types = await Type.query()
       .whereRaw(`"options"->'showInMenu' = 'true'`)
       .whereNull('deletedAt')
 

@@ -5,7 +5,7 @@ import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Item from './Item'
 import TypeField from './TypeField'
 
-export interface ItemTypeOptions {
+export interface TypeOptions {
   label?: string
   icon?: string
   showInMenu?: boolean
@@ -19,7 +19,7 @@ export default class Type extends BaseModel {
   public name: string
 
   @column()
-  public options: ItemTypeOptions
+  public options: TypeOptions
 
   @hasMany(() => Item, {
     foreignKey: 'typeId',

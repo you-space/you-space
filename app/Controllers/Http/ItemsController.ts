@@ -13,7 +13,10 @@ export default class ItemsController {
       }),
     })
 
-    return Item.query().paginate(filters.page || 1, filters.limit)
+    return await Item.query()
+      .preload('type', (q) => q.select('name'))
+      .preload('visibility', (q) => q.select('name'))
+      .paginate(filters.page || 1, filters.limit)
   }
 
   public async store({ request }: HttpContextContract) {

@@ -20,6 +20,7 @@
     </q-page>
 </template>
 <script lang="ts">
+import lodash from 'lodash';
 import { useQuasar } from 'quasar';
 import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -42,19 +43,19 @@ export default defineComponent({
             {
                 name: 'type',
                 label: tm.t('type'),
-                field: 'typeName',
+                field: (item: Item) => lodash.get(item, 'type.name'),
                 align: 'left',
             },
             {
                 name: 'origin',
                 label: tm.t('origin'),
-                field: 'originName',
+                field: (item: Item) => lodash.get(item, 'origin.name', 'none'),
                 align: 'left',
             },
             {
                 name: 'visibility',
                 label: tm.t('visibility'),
-                field: 'visibilityName',
+                field: (item: Item) => lodash.get(item, 'visibility.name'),
                 align: 'left',
             },
             {
