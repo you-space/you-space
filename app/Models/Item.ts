@@ -73,9 +73,11 @@ export default class Item extends BaseModel {
       visibilityName: this.visibility?.name,
     }
 
-    typeFields.forEach(({ name, options }) => {
-      item[name] = lodash.get(this.value, options?.mapValue || '', this.value[name])
-    })
+    typeFields
+      .filter((f) => f.type === 'mapped')
+      .forEach(({ name, options }) => {
+        item[name] = lodash.get(this.value, options?.path || '', this.value[name])
+      })
 
     return item
   }

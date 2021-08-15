@@ -1,7 +1,9 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import Type from 'App/Models/Type'
+import TypeField from 'App/Models/TypeField'
 import TypeFieldStoreValidator from 'App/Validators/TypeFieldStoreValidator'
+import TypeFieldUpdateValidator from 'App/Validators/TypeFieldUpdateValidator'
 
 export default class TypesController {
   public async index({ request, params }: HttpContextContract) {
@@ -26,5 +28,22 @@ export default class TypesController {
     const payload = await request.validate(TypeFieldStoreValidator)
 
     return type.related('fields').create(payload)
+  }
+
+  public async update({ request, params }: HttpContextContract) {
+    const field = await TypeField.query()
+      .where('typeId', params.type_id)
+      .andWhere('id', params.id)
+      .firstOrFail()
+
+    const payload = await request.validate(TypeFieldUpdateValidator)
+
+    Object.assign(field, payload)
+
+    await field.save()
+
+    return {
+      message: 'field updated',
+    }
   }
 }

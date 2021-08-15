@@ -23,10 +23,10 @@ export default class TypeField extends BaseModel {
   public name: string
 
   @column()
-  public type: string
+  public type: 'mapped' | 'editable'
 
   @column()
-  public options: Partial<Options>
+  public options: any
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

@@ -1,14 +1,13 @@
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
-export default class TypeFieldStoreValidator {
+export default class TypeFieldUpdateValidator {
   constructor(protected ctx: HttpContextContract) {}
   public schema = schema.create({
     name: schema.string({}, [rules.regex(/^[a-zA-Z0-9_.-]*$/)]),
-    type: schema.string(),
+    type: schema.string.optional(),
     options: schema.object.optional().anyMembers(),
   })
-
   public messages = {
     'name.regex': "name can't contain special chars or spaces",
   }

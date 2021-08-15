@@ -13,6 +13,8 @@ export default class TypeItemsController {
       }),
     })
 
+    console.log(type.serialize())
+
     const pagination = await type
       .related('items')
       .query()
