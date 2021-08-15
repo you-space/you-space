@@ -4,9 +4,9 @@ import { BaseModel, column, belongsTo, BelongsTo, hasMany, HasMany } from '@ioc:
 
 import Visibility from './Visibility'
 import ItemField from './ItemField'
-import ItemType from './ItemType'
+import TypeField from './TypeField'
 import Origin from './Origin'
-import ItemTypeField from './ItemTypeField'
+import TypeFieldField from './TypeField'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
@@ -36,10 +36,10 @@ export default class Item extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @belongsTo(() => ItemType, {
+  @belongsTo(() => TypeField, {
     foreignKey: 'typeId',
   })
-  public type: BelongsTo<typeof ItemType>
+  public type: BelongsTo<typeof TypeField>
 
   @belongsTo(() => Origin, {
     foreignKey: 'originId',
@@ -58,8 +58,8 @@ export default class Item extends BaseModel {
   @hasMany(() => ItemField)
   public fields: HasMany<typeof ItemField>
 
-  public serializeByType(type: ItemType) {
-    const typeFields: ItemTypeField[] = lodash.get(type, 'fields', [])
+  public serializeByType(type: TypeField) {
+    const typeFields: TypeFieldField[] = lodash.get(type, 'fields', [])
 
     const itemFields = this.fields.reduce(
       (all, f) => ({

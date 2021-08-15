@@ -3,7 +3,7 @@ import { types } from '@ioc:Adonis/Core/Helpers'
 import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 
 import Item from './Item'
-import ItemTypeField from './ItemTypeField'
+import TypeField from './TypeField'
 
 export interface ItemTypeOptions {
   label?: string
@@ -11,7 +11,7 @@ export interface ItemTypeOptions {
   showInMenu?: boolean
 }
 
-export default class ItemType extends BaseModel {
+export default class Type extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
@@ -35,16 +35,16 @@ export default class ItemType extends BaseModel {
   @column.dateTime()
   public deletedAt: DateTime | null
 
-  @hasMany(() => ItemTypeField, {
+  @hasMany(() => TypeField, {
     foreignKey: 'typeId',
   })
-  public fields: HasMany<typeof ItemTypeField>
+  public fields: HasMany<typeof TypeField>
 
   public static fetchByIdOrName(idOrName: string | number) {
     if (types.isNumber(idOrName)) {
-      return ItemType.query().where('id', idOrName).whereNull('deletedAt')
+      return Type.query().where('id', idOrName).whereNull('deletedAt')
     }
 
-    return ItemType.query().where('name', idOrName).whereNull('deletedAt')
+    return Type.query().where('name', idOrName).whereNull('deletedAt')
   }
 }

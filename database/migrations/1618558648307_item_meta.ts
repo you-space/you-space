@@ -1,7 +1,7 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class EntityItemMetas extends BaseSchema {
-  protected tableName = 'item_fields'
+  protected tableName = 'item_metas'
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
@@ -10,13 +10,11 @@ export default class EntityItemMetas extends BaseSchema {
       table.integer('item_id').references('items.id').notNullable().onDelete('CASCADE')
 
       table.string('name').notNullable()
-      table.string('type').notNullable().defaultTo('text')
-
       table.text('value')
 
       table.unique(['item_id', 'name'])
 
-      table.timestamps(true)
+      table.timestamps(true, true)
     })
   }
 

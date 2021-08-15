@@ -4,7 +4,7 @@ import { promisify } from 'util'
 import Application from '@ioc:Adonis/Core/Application'
 import YsOption from 'App/Models/YsOption'
 import Origin from 'App/Models/Origin'
-import ItemType from 'App/Models/ItemType'
+import ItemType from 'App/Models/Type'
 import PluginProviderService from './PluginProviderService'
 
 export default class PluginHelper {

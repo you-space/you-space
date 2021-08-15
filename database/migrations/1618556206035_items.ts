@@ -12,7 +12,7 @@ export default class Origins extends BaseSchema {
       table.increments('id').primary()
 
       table.integer('origin_id').references('origins.id').notNullable().onDelete('CASCADE')
-      table.integer('type_id').references('item_types.id').notNullable().onDelete('CASCADE')
+      table.integer('type_id').references('types.id').notNullable().onDelete('CASCADE')
       table.integer('parent_id').references('items.id').onDelete('CASCADE')
 
       table.text('source_id').notNullable()
@@ -25,7 +25,7 @@ export default class Origins extends BaseSchema {
 
       table.jsonb('value').notNullable().defaultTo('{}')
 
-      table.timestamps(true)
+      table.timestamps(true, true)
       table.dateTime('deleted_at')
     })
   }

@@ -3,7 +3,7 @@ import YsOption from 'App/Models/YsOption'
 import Logger from '@ioc:Adonis/Core/Logger'
 import ItemType, { ItemTypeOptions } from 'App/Models/ItemType'
 import { DateTime } from 'luxon'
-import ItemTypeField from 'App/Models/ItemTypeField'
+import ItemTypeField from 'App/Models/TypeField'
 
 interface ProviderOptions {
   name: string

@@ -12,7 +12,7 @@ interface Options {
   input: OptionInput
 }
 
-export default class ItemTypeField extends BaseModel {
+export default class TypeField extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
