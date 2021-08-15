@@ -2,6 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import Item from 'App/Models/Item'
 import ItemStoreValidator from 'App/Validators/ItemStoreValidator'
+import ItemUpdateValidator from 'App/Validators/ItemUpdateValidator'
 
 export default class ItemsController {
   public async index({ request }: HttpContextContract) {
@@ -19,5 +20,19 @@ export default class ItemsController {
     const payload = await request.validate(ItemStoreValidator)
 
     return await Item.create(payload)
+  }
+
+  public async update({ request, params }: HttpContextContract) {
+    const item = await Item.findOrFail(params.id)
+
+    const payload = await request.validate(ItemUpdateValidator)
+
+    Object.assign(item, payload)
+
+    await item.save()
+
+    return {
+      message: 'item updated',
+    }
   }
 }
