@@ -14,7 +14,13 @@
                 <q-card class="plugin-card">
                     <div class="row items-stretch full-height full-width">
                         <div
-                            class="col-1 bg-grey-7 row items-center justify-center"
+                            class="
+                                col-1
+                                bg-grey-7
+                                row
+                                items-center
+                                justify-center
+                            "
                         >
                             <q-icon name="extension" color="grey-2" size="lg" />
                         </div>
@@ -140,7 +146,7 @@ export default defineComponent({
 
                 await setPlugins();
 
-                events.notifyAll('plugins:update');
+                events.notifyAll('menu:update');
             } catch (error) {
                 await setPlugins();
             }

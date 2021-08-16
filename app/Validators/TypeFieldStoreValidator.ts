@@ -5,7 +5,7 @@ export default class TypeFieldStoreValidator {
   constructor(protected ctx: HttpContextContract) {}
   public schema = schema.create({
     name: schema.string({}, [rules.regex(/^[a-zA-Z0-9_.-]*$/)]),
-    type: schema.string(),
+    type: schema.enum(['mapped', 'editable']),
     options: schema.object.optional().anyMembers(),
   })
 

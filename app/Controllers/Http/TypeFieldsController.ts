@@ -22,12 +22,20 @@ export default class TypesController {
       .paginate(filters.page || 1, filters.limit)
   }
 
+  public async show({ params }: HttpContextContract) {
+    return TypeField.query().where('typeId', params.type_id).where('id', params.id).firstOrFail()
+  }
+
   public async store({ request, params }: HttpContextContract) {
     const type = await Type.findOrFail(params.type_id)
 
     const payload = await request.validate(TypeFieldStoreValidator)
 
-    return type.related('fields').create(payload)
+    return type.related('fields').create({
+      name: payload.name,
+      type: payload.type as TypeField['type'],
+      options: payload.options,
+    })
   }
 
   public async update({ request, params }: HttpContextContract) {
@@ -44,6 +52,19 @@ export default class TypesController {
 
     return {
       message: 'field updated',
+    }
+  }
+
+  public async destroy({ params }: HttpContextContract) {
+    const field = await TypeField.query()
+      .where('typeId', params.type_id)
+      .andWhere('id', params.id)
+      .firstOrFail()
+
+    await field.delete()
+
+    return {
+      message: 'field deleted',
     }
   }
 }

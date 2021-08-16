@@ -55,4 +55,8 @@ export default {
     changesHereNotModifyOriginSource: 'Changes here not modify origin source',
 
     validation: { rules: { required: 'Field required {0}' } },
+
+    type: 'Type | Types',
+    field: 'Field | Fields',
+    option: 'Option | Options',
 };

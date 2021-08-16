@@ -1,6 +1,14 @@
 import { DateTime } from 'luxon'
 import { types } from '@ioc:Adonis/Core/Helpers'
-import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  beforeFetch,
+  beforeFind,
+  column,
+  HasMany,
+  hasMany,
+  ModelQueryBuilderContract,
+} from '@ioc:Adonis/Lucid/Orm'
 
 import Item from './Item'
 import TypeField from './TypeField'
@@ -39,6 +47,12 @@ export default class Type extends BaseModel {
     foreignKey: 'typeId',
   })
   public fields: HasMany<typeof TypeField>
+
+  @beforeFetch()
+  @beforeFind()
+  public static beforeFind(query: ModelQueryBuilderContract<typeof Type>) {
+    query.whereNull('deletedAt')
+  }
 
   public static fetchByIdOrName(idOrName: string | number) {
     if (types.isNumber(idOrName)) {

@@ -122,6 +122,11 @@ export default defineComponent({
                     icon: 'list_alt',
                     to: { name: 'items-all', params: {} },
                 },
+                {
+                    label: tm.t('type', 2),
+                    icon: 'list_alt',
+                    to: { name: 'types' },
+                },
             ];
 
             const { data: menus } = await api.get<ServerMenu[]>(
@@ -143,7 +148,7 @@ export default defineComponent({
         }
 
         void setMenus();
-        events.subscribe('plugins:update', () => void setMenus());
+        events.subscribe('menu:update', () => void setMenus());
 
         return {
             menuList,

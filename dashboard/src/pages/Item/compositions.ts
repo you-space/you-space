@@ -1,4 +1,4 @@
-import { Pagination, ServerResponse } from 'src/components/compositions';
+import { Pagination, ServerPagination } from 'src/components/compositions';
 import { api } from 'src/boot/axios';
 import { pickBy } from 'lodash';
 
@@ -27,7 +27,7 @@ export async function fetchItems(filters?: Partial<Filters>) {
         (v) => v !== null && v !== undefined && v !== '',
     );
 
-    const { data } = await api.get<ServerResponse<Item>>(`items`, {
+    const { data } = await api.get<ServerPagination<Item>>(`items`, {
         params: filledFilters,
     });
 

@@ -8,7 +8,7 @@ export interface Pagination {
     rowsNumber: number;
 }
 
-export interface ServerResponse<T = Record<string, never>> {
+export interface ServerPagination<T = Record<string, never>> {
     data: T[];
     meta: {
         total: number;
@@ -16,11 +16,11 @@ export interface ServerResponse<T = Record<string, never>> {
 }
 
 interface SetDataCallback<T> {
-    (response: ServerResponse<T>): void;
+    (response: ServerPagination<T>): void;
 }
 
 interface GetDataCallback<T> {
-    (pagination: Pagination): Promise<ServerResponse<T>>;
+    (pagination: Pagination): Promise<ServerPagination<T>>;
 }
 
 export function createServerPagination<T = Record<string, never>>(

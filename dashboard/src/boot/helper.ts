@@ -14,7 +14,16 @@ function getFileBase64(file: File) {
     });
 }
 
-const helper = { rules, getFileBase64 };
+export function isJsonString(str: string) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
+const helper = { rules, getFileBase64, isJsonString };
 
 function useHelper() {
     return helper;
