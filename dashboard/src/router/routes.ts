@@ -31,18 +31,6 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/Item/Index.vue'),
             },
             {
-                path: 'items/:type',
-                name: 'items',
-                props: true,
-                component: () => import('pages/Item/List.vue'),
-            },
-            {
-                path: 'items/:type/:id',
-                props: true,
-                name: 'item-single',
-                component: () => import('pages/Item/Single.vue'),
-            },
-            {
                 path: 'types',
                 name: 'types',
                 component: () => import('pages/Type/Index.vue'),
@@ -52,6 +40,24 @@ const routes: RouteRecordRaw[] = [
                 name: 'type-single',
                 props: true,
                 component: () => import('pages/Type/Single.vue'),
+            },
+            {
+                path: '/types/:typeId/items',
+                name: 'type-items',
+                props: true,
+                component: () => import('pages/TypeItem/Index.vue'),
+            },
+            {
+                path: '/types/:typeId/items/new',
+                name: 'type-item-new',
+                props: true,
+                component: () => import('pages/TypeItem/Single.vue'),
+            },
+            {
+                path: '/types/:typeId/items/:itemId',
+                name: 'type-item-single',
+                props: true,
+                component: () => import('pages/TypeItem/Single.vue'),
             },
         ],
     },

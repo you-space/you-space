@@ -5,12 +5,20 @@
 
             <div
                 v-if="readonly"
-                class="absolute-center full-height full-width img-picker-overlay"
+                class="
+                    absolute-center
+                    full-height full-width
+                    img-picker-overlay
+                "
             />
 
             <div
                 v-else
-                class="absolute-center full-height full-width img-picker-overlay"
+                class="
+                    absolute-center
+                    full-height full-width
+                    img-picker-overlay
+                "
                 @click="showPicker"
             >
                 <q-file
@@ -52,7 +60,7 @@
     </q-card>
 </template>
 <script lang="ts">
-import { defineComponent, computed, ref, watch } from 'vue';
+import { defineComponent, computed, ref } from 'vue';
 import { QFile } from 'quasar';
 
 import { useTypeField } from './compositions';

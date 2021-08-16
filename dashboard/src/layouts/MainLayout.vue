@@ -73,6 +73,7 @@ import { useI18n } from 'vue-i18n';
 interface ServerMenu {
     name: string;
     icon?: string;
+    typeId: number;
 }
 interface MenuItem {
     label: string;
@@ -138,8 +139,8 @@ export default defineComponent({
                     label: menu.name,
                     icon: menu.icon || 'list',
                     to: {
-                        name: 'items',
-                        params: { type: menu.name },
+                        name: 'type-items',
+                        params: { typeId: menu.typeId },
                     },
                 });
             });

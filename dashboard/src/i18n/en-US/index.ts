@@ -43,7 +43,7 @@ export default {
 
     addNew: 'Add new',
     add: 'Add {0}',
-    edit: 'Edit',
+    edit: 'Edit {0}',
     delete: 'Delete',
     startImport: 'Start import',
 

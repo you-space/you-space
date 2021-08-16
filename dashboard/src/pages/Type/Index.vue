@@ -4,6 +4,7 @@
             v-model:pagination="pagination"
             :rows="rows"
             :columns="columns"
+            :title="$t('type', 2)"
         >
             <template #top-right>
                 <q-btn :label="$t('addNew')" color="primary" @click="addType" />

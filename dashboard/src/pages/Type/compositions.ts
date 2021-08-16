@@ -15,6 +15,7 @@ export interface Type {
 export interface TypeField {
     id: number;
     typeId: number;
+    type: string;
     name: string;
 }
 

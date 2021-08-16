@@ -36,6 +36,7 @@ export default class DashboardController {
     return types.map((type) => ({
       name: type.name,
       label: type.options.label || type.name,
+      typeId: type.id,
       icon: type.options.icon,
     }))
   }

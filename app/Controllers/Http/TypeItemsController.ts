@@ -29,6 +29,52 @@ export default class TypeItemsController {
     }
   }
 
+  public async show({ params }: HttpContextContract) {
+    const type = await Type.query().preload('fields').where('id', params.type_id).firstOrFail()
+
+    const item = await Item.query()
+      .preload('metas')
+      .where('id', params.id)
+      .where('typeId', params.type_id)
+      .firstOrFail()
+
+    return item.serializeByType(type)
+  }
+
+  public async store({ request, params }: HttpContextContract) {
+    const type = await Type.query().preload('fields').where('id', params.type_id).firstOrFail()
+
+    const fieldsSchema = {
+      visibilityId: schema.number(),
+    }
+
+    type.fields
+      .filter((f) => f.type === 'editable')
+      .forEach((field) => {
+        fieldsSchema[field.name] = schema.string()
+      })
+
+    const payload = await request.validate({
+      schema: schema.create(fieldsSchema),
+    })
+
+    const item = await type.related('items').create({
+      visibilityId: payload.visibilityId,
+    })
+
+    await item.related('metas').updateOrCreateMany(
+      Object.entries(payload).map(([key, value]) => ({
+        name: key,
+        value: value as any,
+      }))
+    )
+
+    return {
+      id: item.id,
+      message: 'Item created',
+    }
+  }
+
   public async update({ request, params }: HttpContextContract) {
     const item = await Item.query()
       .where('id', params.id)
@@ -58,6 +104,19 @@ export default class TypeItemsController {
 
     return {
       message: 'item updated',
+    }
+  }
+
+  public async destroy({ params }: HttpContextContract) {
+    const item = await Item.query()
+      .where('id', params.id)
+      .where('typeId', params.type_id)
+      .firstOrFail()
+
+    await item.delete()
+
+    return {
+      message: 'item deleted',
     }
   }
 }
