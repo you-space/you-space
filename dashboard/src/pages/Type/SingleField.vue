@@ -33,7 +33,6 @@
 <script lang="ts">
 import { defineComponent, defineAsyncComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 
 import { createServerPagination } from 'src/components/compositions';

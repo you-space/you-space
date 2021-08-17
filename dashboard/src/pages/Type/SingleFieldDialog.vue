@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue';
+import { ref, defineComponent } from 'vue';
 import { useDialogPluginComponent } from 'quasar';
 import {
     findTypeField,
@@ -41,7 +41,7 @@ import {
     createTypeField,
 } from './compositions';
 
-export default {
+export default defineComponent({
     props: {
         typeId: {
             type: Number,
@@ -85,5 +85,5 @@ export default {
             onDialogOK,
         };
     },
-};
+});
 </script>

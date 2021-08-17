@@ -1,5 +1,5 @@
 <template>
-    <q-page>
+    <q-page :style-fn="pageStyle">
         <q-toolbar class="bg-white border-grey-4 border-b">
             <q-toolbar-title>
                 {{ title }}
@@ -35,23 +35,32 @@
             </div>
         </q-toolbar>
 
-        <q-card class="q-mx-auto q-mt-md" style="width: 500px">
-            <q-card-section>
-                <template v-for="(field, index) in fields" :key="index">
-                    <q-input
-                        v-model="item[field.name]"
-                        filled
-                        class="q-mb-md"
-                        :label="field.name"
-                    />
-                </template>
-            </q-card-section>
-        </q-card>
+        <div class="row" style="height: calc(100% - 57px)">
+            <div class="col-9 q-pa-md bg-white">
+                <single-field
+                    v-for="(field, index) in bodyFields"
+                    :key="index"
+                    v-model="item[field.name]"
+                    :field="field"
+                    class="q-mb-md"
+                />
+            </div>
+
+            <div class="col full-height q-pa-md border-l border-grey-4">
+                <single-field
+                    v-for="(field, index) in rightFields"
+                    :key="index"
+                    v-model="item[field.name]"
+                    :field="field"
+                    class="q-mb-md"
+                />
+            </div>
+        </div>
     </q-page>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, defineAsyncComponent, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
@@ -65,6 +74,9 @@ import {
 import { findTypeItem, createTypeItem } from './compositions';
 
 export default defineComponent({
+    components: {
+        SingleField: defineAsyncComponent(() => import('./SingleField.vue')),
+    },
     props: {
         typeId: {
             type: [Number, String],
@@ -91,12 +103,22 @@ export default defineComponent({
             return tm.t('addNew');
         });
 
+        const rightFields = computed(() =>
+            fields.value?.filter((f) => f.options.position === 'right-sidebar'),
+        );
+
+        const bodyFields = computed(() =>
+            fields.value?.filter(
+                (f) => !f.options.position || f.options.position === 'body',
+            ),
+        );
+
         async function setType() {
             type.value = await findType(Number(props.typeId));
 
             const { data } = await fetchTypeFields(Number(props.typeId));
 
-            fields.value = data.filter((f) => f.type === 'editable');
+            fields.value = data;
         }
 
         async function setTypeItem() {
@@ -120,14 +142,23 @@ export default defineComponent({
             await createTypeItem(Number(props.typeId), item.value);
         }
 
+        function pageStyle(offset: number) {
+            return {
+                height: offset ? `calc(100vh - ${offset}px)` : '100vh',
+            };
+        }
+
         return {
             title,
             loading,
             fields,
+            rightFields,
+            bodyFields,
             item,
 
             save,
             cancel,
+            pageStyle,
         };
     },
 });

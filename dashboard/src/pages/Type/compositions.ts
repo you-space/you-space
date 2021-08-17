@@ -11,12 +11,16 @@ export interface Type {
     name: string;
     options: any;
 }
-
+export interface TypeFieldOptions {
+    component?: string;
+    position?: 'right-sidebar' | 'body';
+}
 export interface TypeField {
     id: number;
     typeId: number;
     type: string;
     name: string;
+    options: TypeFieldOptions;
 }
 
 export async function fetchTypes(filters?: Partial<Filters>) {

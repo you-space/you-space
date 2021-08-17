@@ -44,7 +44,7 @@ import { useQuasar } from 'quasar';
 import { createServerPagination } from 'src/components/compositions';
 import { defineComponent, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 import {
     Type,
@@ -65,7 +65,6 @@ export default defineComponent({
     setup(props) {
         const tm = useI18n();
         const router = useRouter();
-        const route = useRoute();
         const quasar = useQuasar();
 
         const type = ref<Type>();
