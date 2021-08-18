@@ -63,10 +63,12 @@ export default class TypeItemsController {
     })
 
     await item.related('metas').updateOrCreateMany(
-      Object.entries(payload).map(([key, value]) => ({
-        name: key,
-        value: value as any,
-      }))
+      type.fields
+        .filter((f) => f.type === 'editable')
+        .map((f) => ({
+          name: f.name,
+          value: payload[f.name],
+        }))
     )
 
     return {

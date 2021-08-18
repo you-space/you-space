@@ -71,7 +71,7 @@ import {
     fetchTypeFields,
 } from '../Type/compositions';
 
-import { findTypeItem, createTypeItem } from './compositions';
+import { findTypeItem, createTypeItem, updateTypeItem } from './compositions';
 
 export default defineComponent({
     components: {
@@ -139,7 +139,15 @@ export default defineComponent({
         }
 
         async function save() {
-            await createTypeItem(Number(props.typeId), item.value);
+            if (props.itemId) {
+                await updateTypeItem(
+                    Number(props.typeId),
+                    Number(props.itemId),
+                    item.value,
+                );
+            } else {
+                await createTypeItem(Number(props.typeId), item.value);
+            }
         }
 
         function pageStyle(offset: number) {

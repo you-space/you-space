@@ -39,6 +39,19 @@ export async function createTypeItem(
     return data;
 }
 
+export async function updateTypeItem(
+    typeId: number,
+    itemId: number,
+    payload?: Partial<TypeItem>,
+) {
+    const { data } = await api.patch<TypeItem>(
+        `types/${typeId}/items/${itemId}`,
+        payload,
+    );
+
+    return data;
+}
+
 export async function deleteTypeItem(typeId: number, id: number) {
     await api.delete(`types/${typeId}/items/${id}`);
 }
