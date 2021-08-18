@@ -16,6 +16,7 @@ export default class ItemsController {
     return await Item.query()
       .preload('type', (q) => q.select('name'))
       .preload('visibility', (q) => q.select('name'))
+      .preload('origin', (q) => q.select('name'))
       .paginate(filters.page || 1, filters.limit)
   }
 

@@ -40,6 +40,9 @@ const fields = [
         type: 'mapped',
         options: {
             path: 'snippet.description',
+            componentProps: {
+                type: 'textarea'
+            },
             table: {
                 show: false
             }

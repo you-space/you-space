@@ -1,6 +1,5 @@
 import Logger from '@ioc:Adonis/Core/Logger'
 import Item from 'App/Models/Item'
-import ItemType from 'App/Models/Type'
 import Origin from 'App/Models/Origin'
 import Type from 'App/Models/Type'
 

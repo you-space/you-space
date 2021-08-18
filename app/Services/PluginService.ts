@@ -42,8 +42,6 @@ export class PluginService {
       throw new Error(`type ${name} not registered`)
     }
 
-    console.log(name, fields)
-
     await type.related('fields').query().delete().whereIn('name', fields)
   }
 
