@@ -1,5 +1,5 @@
 <template>
-    <q-header bordered class="bg-white text-grey-5">
+    <q-header bordered class="bg-white text-grey-8">
         <q-toolbar>
             <q-btn
                 v-if="drawer !== null"

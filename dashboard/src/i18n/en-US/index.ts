@@ -34,6 +34,8 @@ export default {
     noData: 'No data',
     viewData: 'View data',
     show: 'Show {0}',
+    tool: 'Tool | Tools',
+    content: 'Content',
 
     apiKey: 'Api key',
     channelId: 'Channel id',

@@ -6,8 +6,15 @@
             <q-inner-loading :showing="loading"> </q-inner-loading>
             <q-list class="text-blue-grey-5">
                 <template v-for="(item, index) in menuList" :key="index">
+                    <template v-if="item.header">
+                        <q-separator v-if="index > 1" spaced />
+                        <q-item-label header>
+                            {{ item.label }}
+                        </q-item-label>
+                    </template>
+
                     <q-item
-                        v-if="!item.children"
+                        v-else
                         v-ripple
                         exact
                         active-class="text-blue-grey-5 bg-blue-grey-1"
@@ -20,34 +27,6 @@
                             {{ item.label }}
                         </q-item-section>
                     </q-item>
-
-                    <q-expansion-item
-                        v-else
-                        expand-separator
-                        :icon="item.icon"
-                        :label="item.label"
-                        :to="item.to"
-                        active-class="text-blue-grey-5 bg-blue-grey-1"
-                    >
-                        <q-list>
-                            <template
-                                v-for="(child, childIndex) in item.children"
-                                :key="childIndex"
-                            >
-                                <q-item
-                                    class="q-pl-md"
-                                    exact
-                                    active-class="text-blue-grey-5 text-bold"
-                                    :to="child.to"
-                                >
-                                    <q-item-section avatar />
-                                    <q-item-section>
-                                        {{ child.label }}
-                                    </q-item-section>
-                                </q-item>
-                            </template>
-                        </q-list>
-                    </q-expansion-item>
                 </template>
             </q-list>
         </q-drawer>
@@ -75,14 +54,6 @@ interface ServerMenu {
     icon?: string;
     typeId: number;
 }
-interface MenuItem {
-    label: string;
-    icon: string;
-    to: {
-        name: string;
-        params?: Record<string, string | number>;
-    };
-}
 
 export default defineComponent({
     name: 'MainLayout',
@@ -97,21 +68,37 @@ export default defineComponent({
 
         const drawer = ref(false);
         const loading = ref(false);
-        const menuList = ref<MenuItem[]>([]);
+        const menuList = ref<any[]>([]);
 
         async function setMenus() {
             loading.value = true;
 
-            menuList.value = [
+            const { data: menus } = await api.get<ServerMenu[]>(
+                'admin/dashboard/menus',
+            );
+
+            if (menus.length) {
+                menuList.value.push({
+                    label: tm.t('content', 2),
+                    header: true,
+                });
+            }
+
+            menus.forEach((menu) => {
+                menuList.value.push({
+                    label: menu.name,
+                    icon: menu.icon || 'list',
+                    to: {
+                        name: 'type-items',
+                        params: { typeId: menu.typeId },
+                    },
+                });
+            });
+
+            menuList.value.push(
                 {
-                    label: tm.t('theme', 2),
-                    icon: 'color_lens',
-                    to: { name: 'themes' },
-                },
-                {
-                    label: tm.t('plugin', 2),
-                    icon: 'casino',
-                    to: { name: 'plugins' },
+                    label: tm.t('general', 2),
+                    header: true,
                 },
                 {
                     label: tm.t('origin', 2),
@@ -125,25 +112,20 @@ export default defineComponent({
                 },
                 {
                     label: tm.t('type', 2),
-                    icon: 'list_alt',
+                    icon: 'title',
                     to: { name: 'types' },
                 },
-            ];
-
-            const { data: menus } = await api.get<ServerMenu[]>(
-                'admin/dashboard/menus',
+                {
+                    label: tm.t('theme', 2),
+                    icon: 'color_lens',
+                    to: { name: 'themes' },
+                },
+                {
+                    label: tm.t('plugin', 2),
+                    icon: 'casino',
+                    to: { name: 'plugins' },
+                },
             );
-
-            menus.forEach((menu) => {
-                menuList.value.push({
-                    label: menu.name,
-                    icon: menu.icon || 'list',
-                    to: {
-                        name: 'type-items',
-                        params: { typeId: menu.typeId },
-                    },
-                });
-            });
 
             setTimeout(() => (loading.value = false), 800);
         }
