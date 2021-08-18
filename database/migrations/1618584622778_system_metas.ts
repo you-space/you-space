@@ -1,7 +1,7 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
 
 export default class YsOptions extends BaseSchema {
-  protected tableName = 'ys_options'
+  protected tableName = 'system_metas'
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {

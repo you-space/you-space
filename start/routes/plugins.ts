@@ -1,9 +1,7 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
-  Route.resource('plugins', 'Admin/PluginsController').only(['index', 'store', 'destroy'])
-  Route.post('plugins/start', 'Admin/PluginsController.start')
-  Route.post('plugins/stop', 'Admin/PluginsController.stop')
+  Route.resource('plugins', 'PluginsController').only(['index', 'store', 'update', 'destroy'])
 })
   .prefix('admin')
   .prefix('v1')

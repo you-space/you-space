@@ -135,21 +135,13 @@ export default defineComponent({
         }
 
         async function toggleActivePlugin(plugin: Plugin, value: boolean) {
-            try {
-                const data = { name: plugin.name };
+            await api.patch(`admin/plugins/${plugin.name}`, {
+                active: value,
+            });
 
-                if (value) {
-                    await api.post('admin/plugins/start', data);
-                } else {
-                    await api.post('admin/plugins/stop', data);
-                }
+            await setPlugins();
 
-                await setPlugins();
-
-                events.notifyAll('menu:update');
-            } catch (error) {
-                await setPlugins();
-            }
+            events.notifyAll('menu:update');
         }
 
         function deletePlugin(plugin: Plugin) {

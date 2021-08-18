@@ -3,6 +3,7 @@ import Origin from 'App/Models/Origin'
 import OriginValidator from 'App/Validators/OriginValidator'
 import OriginUpdateValidator from 'App/Validators/OriginUpdateValidator'
 import PluginHelper from '@ioc:Providers/PluginHelper'
+import SystemMeta from 'App/Models/SystemMeta'
 
 export default class OriginsController {
   public async index({ request }: HttpContextContract) {
@@ -50,10 +51,17 @@ export default class OriginsController {
     }
   }
 
-  public async destroy({ params }: HttpContextContract) {
-    throw new Error('refactoring')
-    // const origin = await Origin.findOrFail(params.id)
-    // await origin.delete()
+  public async providers() {
+    const metas = await SystemMeta.fetchByName('plugins:*:providers:*')
+
+    return metas.map((m) => {
+      const name = m.name.split(':').pop()
+
+      return {
+        name,
+        ...JSON.parse(m.value),
+      }
+    })
   }
 
   public async import({ params }: HttpContextContract) {

@@ -2,6 +2,7 @@
     <q-page padding>
         <ys-table
             v-model:pagination="pagination"
+            :loading="loading"
             :rows="rows"
             :columns="computedColumns"
             :title="title"
@@ -38,11 +39,11 @@
     </q-page>
 </template>
 <script lang="ts">
-import { capitalize } from 'lodash';
+import lodash from 'lodash';
 
 import { useQuasar } from 'quasar';
 import { createServerPagination } from 'src/components/compositions';
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
@@ -67,14 +68,18 @@ export default defineComponent({
         const router = useRouter();
         const quasar = useQuasar();
 
+        const loading = ref(false);
+
         const type = ref<Type>();
-        const fields = ref<TypeField[]>();
+        const fields = ref<TypeField[]>([]);
 
         const rows = ref();
 
         const title = computed(() => {
             if (type.value) {
-                return capitalize(`${type.value.name} ${tm.t('item', 2)}`);
+                return lodash.capitalize(
+                    `${type.value.name} ${tm.t('item', 2)}`,
+                );
             }
             return tm.t('item', 2);
         });
@@ -89,14 +94,17 @@ export default defineComponent({
                 },
             ];
 
-            fields.value?.forEach((field) => {
-                columns.push({
-                    name: field.name,
-                    label: capitalize(field.name),
-                    field: field.name,
-                    align: 'left',
-                });
-            });
+            lodash(fields.value)
+                .filter((f) => lodash.get(f, 'options.table.show', true))
+                .orderBy((f) => lodash.get(f, 'options.table.order'))
+                .forEach((field) =>
+                    columns.push({
+                        name: field.name,
+                        label: lodash.capitalize(field.name),
+                        field: field.name,
+                        align: 'left',
+                    }),
+                );
 
             columns.push({
                 name: 'actions',
@@ -114,16 +122,12 @@ export default defineComponent({
             fields.value = data;
         }
 
-        void setType();
-
         const { pagination, reload } = createServerPagination(
             (filters) => fetchTypeItems(Number(props.typeId), filters),
             ({ data }) => {
                 rows.value = data;
             },
         );
-
-        void reload({ pagination: pagination.value });
 
         function addTypeItem() {
             return router.push({
@@ -154,7 +158,23 @@ export default defineComponent({
                 });
         }
 
+        async function load() {
+            rows.value = [];
+
+            loading.value = true;
+
+            await setType();
+            await reload({ pagination: pagination.value });
+
+            setTimeout(() => (loading.value = false), 800);
+        }
+
+        watch(() => props.typeId, load, {
+            immediate: true,
+        });
+
         return {
+            loading,
             rows,
             computedColumns,
             title,

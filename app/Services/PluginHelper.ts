@@ -2,7 +2,7 @@ import fs from 'fs'
 import { promisify } from 'util'
 
 import Application from '@ioc:Adonis/Core/Application'
-import YsOption from 'App/Models/YsOption'
+import SystemMeta from 'App/Models/SystemMeta'
 import Origin from 'App/Models/Origin'
 import ItemType from 'App/Models/Type'
 import PluginProviderService from './PluginProviderService'
@@ -23,18 +23,20 @@ export default class PluginHelper {
   }
 
   public async findProvider(name: string) {
-    const option = await YsOption.fetchByName(`plugins:*:providers:${name}`).first()
+    const meta = await SystemMeta.fetchByName(`plugins:*:providers:${name}`).first()
 
-    if (!option) {
+    if (!meta) {
       return null
     }
 
-    const fullPath = Application.makePath('content', 'plugins', option.value.path)
+    const options = JSON.parse(meta.value)
+
+    const fullPath = Application.makePath('content', 'plugins', options.path)
 
     const exist = await promisify(fs.exists)(fullPath)
 
     return {
-      ...option.value,
+      ...options,
       valid: exist,
     }
   }
@@ -46,34 +48,32 @@ export default class PluginHelper {
       throw new Error('error in instantiate provider')
     }
 
-    const type = await ItemType.findBy('name', provider.itemType)
-
-    if (!type) {
-      throw new Error(`type ${provider.itemType} not registered`)
-    }
-
     const ProviderClass = await this.getValidProvider(provider.path)
 
     const instance = new ProviderClass()
 
     instance.config = origin.config
-    instance.service = new PluginProviderService(origin, type)
+    instance.service = new PluginProviderService(origin)
 
     return instance
   }
 
   public async fetchProviders() {
-    const options = await YsOption.fetchByName('plugins:*:providers:*')
+    const metas = await SystemMeta.fetchByName('plugins:*:providers:*')
 
-    return await Promise.all(
-      options.map(async ({ value }) => {
-        const fullPath = Application.makePath('content', 'plugins', value.path)
+    return Promise.all(
+      metas.map(async (meta) => {
+        const name = meta.name.split(':').pop()
+        const options = JSON.parse(meta.value)
 
-        const exist = promisify(fs.exists)(fullPath)
+        const fullPath = Application.makePath('content', 'plugins', options.path)
+
+        const exist = await promisify(fs.exists)(fullPath)
 
         return {
-          ...value,
+          name,
           valid: exist,
+          ...options,
         }
       })
     )

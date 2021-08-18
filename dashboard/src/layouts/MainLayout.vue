@@ -72,6 +72,7 @@ export default defineComponent({
 
         async function setMenus() {
             loading.value = true;
+            menuList.value = [];
 
             const { data: menus } = await api.get<ServerMenu[]>(
                 'admin/dashboard/menus',

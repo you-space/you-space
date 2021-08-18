@@ -49,7 +49,6 @@ export default class Type extends BaseModel {
   public fields: HasMany<typeof TypeField>
 
   @beforeFetch()
-  @beforeFind()
   public static beforeFind(query: ModelQueryBuilderContract<typeof Type>) {
     query.whereNull('deletedAt')
   }

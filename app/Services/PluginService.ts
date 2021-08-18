@@ -1,9 +1,9 @@
 import path from 'path'
-import YsOption from 'App/Models/YsOption'
 import Logger from '@ioc:Adonis/Core/Logger'
-import ItemType, { ItemTypeOptions } from 'App/Models/ItemType'
 import { DateTime } from 'luxon'
 import ItemTypeField from 'App/Models/TypeField'
+import Type from 'App/Models/Type'
+import SystemMeta from 'App/Models/SystemMeta'
 
 interface ProviderOptions {
   name: string
@@ -21,28 +21,34 @@ export class PluginService {
     return path.join(this.pluginName, ...args)
   }
 
-  public async registerItemType(name: string, options: ItemTypeOptions) {
-    await ItemType.updateOrCreate({ name }, { name, options, deletedAt: null })
+  public async createType(name: string, options: Type['options']) {
+    await Type.updateOrCreate({ name }, { name, options, deletedAt: null })
   }
 
-  public async registerItemTypeFields(name: string, fields: FieldRegister[]) {
-    const type = await ItemType.findBy('name', name)
+  public async createTypeFields(name: string, fields: FieldRegister[]) {
+    const type = await Type.findBy('name', name)
 
     if (!type) {
       throw new Error(`type ${name} not registered`)
     }
 
-    await type.related('fields').updateOrCreateMany(
-      fields.map(({ name, ...options }) => ({
-        name,
-        options,
-      })),
-      'name'
-    )
+    await type.related('fields').updateOrCreateMany(fields, 'name')
   }
 
-  public async unregisterItemType(name: string) {
-    const type = await ItemType.findBy('name', name)
+  public async deleteTypeFields(name: string, fields: string[]) {
+    const type = await Type.findBy('name', name)
+
+    if (!type) {
+      throw new Error(`type ${name} not registered`)
+    }
+
+    console.log(name, fields)
+
+    await type.related('fields').query().delete().whereIn('name', fields)
+  }
+
+  public async deleteType(name: string) {
+    const type = await Type.findBy('name', name)
 
     if (!type) {
       throw new Error(`type ${name} not registered`)
@@ -53,32 +59,18 @@ export class PluginService {
     await type.save()
   }
 
-  public async registerProvider(options: ProviderOptions) {
-    const name = `plugins:${this.pluginName}:providers:${options.name}`
+  public async createProvider(name: string, options: ProviderOptions) {
+    const metaName = `plugins:${this.pluginName}:providers:${name}`
 
-    const type = await ItemType.findBy('name', options.itemType)
-
-    if (!type) {
-      throw new Error(`type ${options.itemType} not registered`)
-    }
-
-    await YsOption.updateOrCreate(
-      { name },
-      {
-        name: name,
-        value: options,
-      }
-    )
+    await SystemMeta.updateOrCreateMetaObject<ProviderOptions>(metaName, options)
   }
 
   public async unregisterProvider(providerName: string) {
-    const name = `plugins:${this.pluginName}:providers:${providerName}`
-    const option = await YsOption.findBy('name', name)
-
-    if (!option) {
-      throw new Error('provider not found')
-    }
-
-    await option.delete()
+    // const name = `plugins:${this.pluginName}:providers:${providerName}`
+    // const option = await YsOption.findBy('name', name)
+    // if (!option) {
+    //   throw new Error('provider not found')
+    // }
+    // await option.delete()
   }
 }
