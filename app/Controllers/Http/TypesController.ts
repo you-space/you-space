@@ -13,7 +13,11 @@ export default class TypesController {
       }),
     })
 
-    return Type.query().paginate(filters.page || 1, filters.limit)
+    const query = Type.query()
+
+    query.withScopes((s) => s.isNotDeleted())
+
+    return query.paginate(filters.page || 1, filters.limit)
   }
 
   public async show({ params }: HttpContextContract) {
