@@ -1,11 +1,12 @@
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { TypeFieldTypes } from 'App/Models/TypeField'
 
 export default class TypeFieldStoreValidator {
   constructor(protected ctx: HttpContextContract) {}
   public schema = schema.create({
     name: schema.string({}, [rules.regex(/^[a-zA-Z0-9_.-]*$/)]),
-    type: schema.enum(['mapped', 'editable']),
+    type: schema.enum(Object.values(TypeFieldTypes)),
     options: schema.object.optional().anyMembers(),
   })
 
