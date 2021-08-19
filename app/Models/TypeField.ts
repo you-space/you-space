@@ -3,7 +3,7 @@ import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
 export enum TypeFieldTypes {
   Mapped = 'mapped',
-  Editable = 'mapped',
+  Editable = 'editable',
   File = 'file',
 }
 
