@@ -1,12 +1,23 @@
 import lodash from 'lodash'
 import { DateTime } from 'luxon'
-import { BaseModel, column, belongsTo, BelongsTo, hasMany, HasMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  column,
+  belongsTo,
+  BelongsTo,
+  hasMany,
+  HasMany,
+  hasManyThrough,
+  HasManyThrough,
+} from '@ioc:Adonis/Lucid/Orm'
 
 import Visibility from './Visibility'
 import TypeField from './TypeField'
 import Origin from './Origin'
 import Type from './Type'
 import ItemMeta from './ItemMeta'
+import ItemFile from './ItemFile'
+import File from './File'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
@@ -58,6 +69,14 @@ export default class Item extends BaseModel {
   @hasMany(() => ItemMeta)
   public metas: HasMany<typeof ItemMeta>
 
+  @hasMany(() => ItemFile)
+  public itemFiles: HasMany<typeof ItemFile>
+
+  @hasManyThrough([() => File, () => ItemFile], {
+    throughForeignKey: 'id',
+  })
+  public files: HasManyThrough<typeof File>
+
   public serializeByType(type: Type) {
     const item: any = {
       id: this.id,
@@ -81,6 +100,15 @@ export default class Item extends BaseModel {
       .forEach(({ name }) => {
         const meta = this.metas.find((m) => m.name === name)
         item[name] = lodash.get(meta, 'value', null)
+      })
+
+    type.fields
+      .filter((f) => f.type === 'file')
+      .forEach(({ name }) => {
+        const itemFile = this.itemFiles.find((f) => f.name === name)
+        if (itemFile) {
+          item[name] = itemFile.url
+        }
       })
 
     return item

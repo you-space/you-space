@@ -6,7 +6,7 @@ export default class YsOptions extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.string('name').unique().notNullable()
+      table.string('name', 64).unique().notNullable()
       table.text('value')
       table.timestamps(true)
     })

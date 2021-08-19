@@ -9,7 +9,7 @@ export default class EntityItemMetas extends BaseSchema {
 
       table.integer('item_id').references('items.id').notNullable().onDelete('CASCADE')
 
-      table.string('name').notNullable()
+      table.string('name', 64).notNullable()
       table.text('value')
 
       table.unique(['item_id', 'name'])

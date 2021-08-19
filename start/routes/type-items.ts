@@ -8,6 +8,14 @@ Route.group(() => {
       update: ['auth:api', 'acl:admin'],
       destroy: ['auth:api', 'acl:admin'],
     })
+
+  Route.resource('types.items.files', 'TypeItemFilesController')
+    .only(['store'])
+    .middleware({
+      store: ['auth:api', 'acl:admin'],
+      // update: ['auth:api', 'acl:admin'],
+      // destroy: ['auth:api', 'acl:admin'],
+    })
 })
   .prefix('v1')
   .prefix('api')

@@ -2,8 +2,7 @@ import { DateTime } from 'luxon'
 import { types } from '@ioc:Adonis/Core/Helpers'
 import {
   BaseModel,
-  beforeFetch,
-  beforeFind,
+  scope,
   column,
   HasMany,
   hasMany,
@@ -48,10 +47,9 @@ export default class Type extends BaseModel {
   })
   public fields: HasMany<typeof TypeField>
 
-  @beforeFetch()
-  public static beforeFind(query: ModelQueryBuilderContract<typeof Type>) {
+  public static isNotDeleted = scope((query) => {
     query.whereNull('deletedAt')
-  }
+  })
 
   public static fetchByIdOrName(idOrName: string | number) {
     if (types.isNumber(idOrName)) {

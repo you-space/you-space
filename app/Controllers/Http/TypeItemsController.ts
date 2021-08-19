@@ -19,6 +19,7 @@ export default class TypeItemsController {
       .related('items')
       .query()
       .preload('metas')
+      .preload('itemFiles')
       .paginate(filters.page || 1, filters.limit)
 
     const data = pagination.all().map((i) => i.serializeByType(type))

@@ -15,10 +15,10 @@
 import Env from '@ioc:Adonis/Core/Env'
 
 const rules: any = {
+  NODE_ENV: Env.schema.enum(['development', 'production', 'testing'] as const),
   APP_KEY: Env.schema.string(),
   APP_NAME: Env.schema.string(),
-  NODE_ENV: Env.schema.enum(['development', 'production', 'testing'] as const),
-  DOMAIN_URL: Env.schema.string(),
+  APP_URL: Env.schema.string(),
   POSTGRES_URL: Env.schema.string(),
 }
 
