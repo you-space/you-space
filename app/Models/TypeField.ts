@@ -1,15 +1,10 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
-interface OptionInput {
-  editable: boolean
-  type: string
-}
-interface Options {
-  type?: 'editable'
-  label: string
-  mapValue: string
-  input: OptionInput
+export enum TypeFieldTypes {
+  Mapped = 'mapped',
+  Editable = 'mapped',
+  File = 'file',
 }
 
 export default class TypeField extends BaseModel {
@@ -23,7 +18,7 @@ export default class TypeField extends BaseModel {
   public name: string
 
   @column()
-  public type: 'mapped' | 'editable'
+  public type: TypeFieldTypes
 
   @column()
   public options: any

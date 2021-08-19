@@ -14,7 +14,8 @@ export default class Origins extends BaseSchema {
       table.integer('type_id').references('types.id').notNullable().onDelete('CASCADE')
 
       table.integer('origin_id').references('origins.id').onDelete('CASCADE')
-      table.text('source_id')
+
+      table.string('source_id', 80)
 
       table.integer('parent_id').references('items.id').onDelete('CASCADE')
 

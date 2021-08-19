@@ -5,9 +5,9 @@ export default class RolePermissions extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
+
       table.integer('role_id').notNullable().references('roles.id')
       table.integer('permission_id').notNullable().references('permissions.id')
-      table.timestamps(true)
     })
   }
 
