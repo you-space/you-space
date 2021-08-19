@@ -51,6 +51,7 @@ import { useI18n } from 'vue-i18n';
 
 interface ServerMenu {
     name: string;
+    label: string;
     icon?: string;
     typeId: number;
 }
@@ -87,7 +88,7 @@ export default defineComponent({
 
             menus.forEach((menu) => {
                 menuList.value.push({
-                    label: menu.name,
+                    label: menu.label,
                     icon: menu.icon || 'list',
                     to: {
                         name: 'type-items',

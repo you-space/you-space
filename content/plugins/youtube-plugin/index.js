@@ -29,8 +29,10 @@ const fields = [
         name: 'title',
         type: 'mapped',
         options: {
-            label: 'Title',
             path: 'snippet.title',
+            componentProps: {
+                label: 'Title',
+            },
             table: {
                 order: 2
             },
@@ -193,6 +195,7 @@ class Plugin {
         
         await this.service.createType("youtube-videos", {
             showInMenu: true,
+            label: 'Youtube',
             icon: 'play_circle_filled'
         });
 
