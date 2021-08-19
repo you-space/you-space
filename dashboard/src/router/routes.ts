@@ -50,7 +50,6 @@ const routes: RouteRecordRaw[] = [
             {
                 path: '/types/:typeId/items/new',
                 name: 'type-item-new',
-                props: true,
                 component: () => import('pages/TypeItem/Single.vue'),
             },
             {

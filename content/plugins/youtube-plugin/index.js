@@ -7,9 +7,13 @@ const fields = [
         type: 'mapped',
         options: {
             path: 'src',
+            component: 'YsVideo',
+            componentProps: {
+                style: 'height:530px'
+            },
             table: {
-                show: false
-            }
+                show: false,
+            },
         },
         // input: {
         //     type: 'video',
@@ -25,9 +29,13 @@ const fields = [
         name: 'title',
         type: 'mapped',
         options: {
+            label: 'Title',
             path: 'snippet.title',
             table: {
                 order: 2
+            },
+            single: {
+                order: 1
             }
         },
         // input: {
@@ -41,7 +49,9 @@ const fields = [
         options: {
             path: 'snippet.description',
             componentProps: {
-                type: 'textarea'
+                type: 'textarea',
+                label: 'Description',
+                autogrow: true
             },
             table: {
                 show: false
@@ -61,8 +71,27 @@ const fields = [
         type: 'mapped',
         options: {
             path: 'snippet.thumbnails.default.url',
+            component: 'YsImg',
+            componentProps: {
+                label: 'Thumbnail'
+            },
             table: {
                 order: 1,
+                componentProps: {
+                    style: {
+                        height: '80px',
+                        width: '140px'
+                    }
+                },
+            },
+            single: {
+                position: 'sidebar',
+                componentProps: {
+                    showLabel: true,
+                    style: {
+                        height: '200px'
+                    }
+                }
             }
         },
         // label: 'Thumbnail',
@@ -82,6 +111,18 @@ const fields = [
         type: 'mapped',
         options: {
             path: 'snippet.publishedAt',
+            component: 'ys-i18n',
+            componentProps: {
+                label: 'Published at',
+                type: 'date',
+                args: 'long',
+            },
+            single: {
+                position: 'sidebar',
+                componentProps: {
+                    showLabel: true
+                },
+            }
         },
         // mapValue: 'snippet.publishedAt',
         // table: {
@@ -97,6 +138,17 @@ const fields = [
         type: 'mapped',
         options: {
             path: 'statistics.viewCount',
+            component: 'ys-i18n',
+            componentProps: {
+                type: 'number',
+                label: 'Views',
+            },
+            single: {
+                position: 'sidebar',
+                componentProps: {
+                    showLabel: true
+                },
+            }
         },
         // label: 'Views',
         // mapValue: 'statistics.viewCount',
@@ -113,6 +165,17 @@ const fields = [
         type: 'mapped',
         options: {
             path: 'statistics.likeCount',
+            component: 'ys-i18n',
+            componentProps: {
+                type: 'number',
+                label: 'Likes',
+            },
+            single: {
+                position: 'sidebar',
+                componentProps: {
+                    showLabel: true
+                },
+            }
         },
         // label: 'Likes',
         // mapValue: 'statistics.likeCount',

@@ -6,6 +6,7 @@
             :rows="rows"
             :columns="computedColumns"
             :title="title"
+            @request="reload"
         >
             <template #top-right>
                 <q-btn
@@ -13,6 +14,23 @@
                     color="primary"
                     @click="addTypeItem"
                 />
+            </template>
+
+            <template
+                v-for="(column, index) in computedColumns.filter(
+                    (c) => !!c.component,
+                )"
+                :key="index"
+                #[`body-cell-${column.name}`]="props"
+            >
+                <q-td :props="props">
+                    <component
+                        :is="column.component"
+                        v-if="column.component"
+                        :model-value="props.value"
+                        v-bind="column.componentProps"
+                    />
+                </q-td>
             </template>
 
             <template #body-cell-actions="props">
@@ -54,7 +72,13 @@ import {
     fetchTypeFields,
 } from '../Type/compositions';
 
-import { TypeItem, fetchTypeItems, deleteTypeItem } from './compositions';
+import {
+    TypeItem,
+    fetchTypeItems,
+    deleteTypeItem,
+    getFieldComponentName,
+    getFieldComponentProps,
+} from './compositions';
 
 export default defineComponent({
     props: {
@@ -85,26 +109,27 @@ export default defineComponent({
         });
 
         const computedColumns = computed(() => {
-            const columns: any[] = [
-                {
-                    name: 'id',
-                    label: '#',
-                    field: 'id',
-                    align: 'left',
-                },
-            ];
+            const columns: any[] = [];
 
             lodash(fields.value)
                 .filter((f) => lodash.get(f, 'options.table.show', true))
                 .orderBy((f) => lodash.get(f, 'options.table.order'))
-                .forEach((field) =>
+                .forEach((field) => {
+                    const component = getFieldComponentName(field, ['table']);
+
+                    const componentProps = getFieldComponentProps(field, [
+                        'table',
+                    ]);
+
                     columns.push({
                         name: field.name,
-                        label: lodash.capitalize(field.name),
                         field: field.name,
+                        label: componentProps.label || field.name,
                         align: 'left',
-                    }),
-                );
+                        component,
+                        componentProps,
+                    });
+                });
 
             columns.push({
                 name: 'actions',
@@ -123,7 +148,12 @@ export default defineComponent({
         }
 
         const { pagination, reload } = createServerPagination(
-            (filters) => fetchTypeItems(Number(props.typeId), filters),
+            (filters) => {
+                return fetchTypeItems(Number(props.typeId), {
+                    limit: filters.rowsPerPage,
+                    page: filters.page,
+                });
+            },
             ({ data }) => {
                 rows.value = data;
             },
@@ -154,7 +184,7 @@ export default defineComponent({
                 })
                 .onOk(async () => {
                     await deleteTypeItem(Number(props.typeId), id);
-                    await reload({ pagination: pagination.value });
+                    await load();
                 });
         }
 
@@ -180,6 +210,7 @@ export default defineComponent({
             title,
 
             pagination,
+            reload,
 
             addTypeItem,
             editTypeItem,

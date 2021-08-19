@@ -1,12 +1,13 @@
 <template>
-    <component v-bind="componentProps" :is="component" />
+    <component v-bind="componentProps" :is="component" v-model="model" />
 </template>
 
 <script lang="ts">
 import lodash from 'lodash';
 
-import { defineComponent, PropType, resolveComponent } from 'vue';
+import { defineComponent, PropType, resolveComponent, computed } from 'vue';
 import { TypeField } from 'src/pages/Type/compositions';
+import { getFieldComponentProps, getFieldComponentName } from './compositions';
 
 export default defineComponent({
     inheritAttrs: false,
@@ -15,27 +16,39 @@ export default defineComponent({
             type: Object as PropType<TypeField>,
             required: true,
         },
+        modelValue: {
+            type: [String, Number],
+            default: null,
+        },
     },
-    setup(props, { attrs }) {
-        const component = resolveComponent(
-            props.field.options.component || 'q-input',
-        );
+    emits: ['update:modelValue'],
+    setup(props, { attrs: baseAttrs, emit }) {
+        const model = computed({
+            get() {
+                return props.modelValue;
+            },
+            set(value) {
+                emit('update:modelValue', value);
+            },
+        });
 
-        const componentProps = lodash.get(
-            props.field,
-            'options.componentProps',
-            {},
-        );
+        const defaultProps = {
+            label: lodash.get(props.field, 'options.label', props.field.name),
+            readonly: true,
+        };
 
-        if (props.field.type === 'mapped') {
-            componentProps.readonly = true;
-        }
+        const component = getFieldComponentName(props.field, ['single']);
+
+        const componentProps = getFieldComponentProps(props.field, ['single']);
+
+        const attrs = lodash.clone(baseAttrs);
 
         Object.assign(componentProps, attrs);
 
         return {
-            component,
-            componentProps,
+            model,
+            component: resolveComponent(component || 'q-input'),
+            componentProps: componentProps || defaultProps,
         };
     },
 });

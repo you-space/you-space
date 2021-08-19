@@ -36,7 +36,7 @@
         </q-toolbar>
 
         <div class="row" style="height: calc(100% - 57px)">
-            <div class="col-9 q-pa-md bg-white">
+            <div class="col-9 q-pa-md bg-white overflow-auto full-height">
                 <single-field
                     v-for="(field, index) in bodyFields"
                     :key="index"
@@ -46,13 +46,22 @@
                 />
             </div>
 
-            <div class="col full-height q-pa-md border-l border-grey-4">
+            <div
+                :class="[
+                    'col',
+                    'full-height',
+                    'q-pa-md',
+                    'border-l border-grey-4',
+                    'overflow-auto',
+                    'full-height',
+                    'q-gutter-y-md',
+                ]"
+            >
                 <single-field
                     v-for="(field, index) in rightFields"
                     :key="index"
                     v-model="item[field.name]"
                     :field="field"
-                    class="q-mb-md"
                 />
             </div>
         </div>
@@ -60,6 +69,8 @@
 </template>
 
 <script lang="ts">
+import lodash from 'lodash';
+
 import { defineComponent, defineAsyncComponent, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -93,7 +104,7 @@ export default defineComponent({
 
         const loading = ref(false);
         const type = ref<Type>();
-        const fields = ref<TypeField[]>();
+        const fields = ref<TypeField[]>([]);
         const item = ref({});
 
         const title = computed(() => {
@@ -104,12 +115,14 @@ export default defineComponent({
         });
 
         const rightFields = computed(() =>
-            fields.value?.filter((f) => f.options.position === 'right-sidebar'),
+            fields.value.filter(
+                (f) => lodash.get(f, 'options.single.position') === 'sidebar',
+            ),
         );
 
         const bodyFields = computed(() =>
-            fields.value?.filter(
-                (f) => !f.options.position || f.options.position === 'body',
+            fields.value.filter(
+                (f) => lodash.get(f, 'options.single.position') !== 'sidebar',
             ),
         );
 

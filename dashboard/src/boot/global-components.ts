@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import { upperFirst, camelCase, uniq } from 'lodash';
 import { boot } from 'quasar/wrappers';
 
@@ -32,7 +33,11 @@ export default boot(({ app }) => {
     fileNames.forEach((filename) => {
         const component = componentDirectoryContext(filename);
 
-        const componentName = getComponentName(filename);
+        const componentName = lodash.get(
+            component,
+            'default.name',
+            getComponentName(filename),
+        );
 
         const exclude = ['YsJsonViewerDialog'];
 

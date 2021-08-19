@@ -1,5 +1,8 @@
+import lodash from 'lodash';
+
 import { api } from 'src/boot/axios';
 import { ServerPagination } from 'src/components/compositions';
+import { TypeField } from '../Type/compositions';
 
 interface Filters {
     page: number;
@@ -54,4 +57,33 @@ export async function updateTypeItem(
 
 export async function deleteTypeItem(typeId: number, id: number) {
     await api.delete(`types/${typeId}/items/${id}`);
+}
+
+export function getFieldComponentName(
+    field: TypeField,
+    subsets: string[] = [],
+): string | null {
+    let component = lodash.get(field, 'options.component', null);
+
+    subsets.forEach((set) => {
+        component = lodash.get(field, ['options', set, 'component'], component);
+    });
+
+    return component;
+}
+
+export function getFieldComponentProps(
+    field: TypeField,
+    subsets: string[] = [],
+) {
+    const props = lodash.get(field, 'options.componentProps', {});
+
+    subsets.forEach((set) => {
+        lodash.merge(
+            props,
+            lodash.get(field, ['options', set, 'componentProps'], {}),
+        );
+    });
+
+    return props;
 }

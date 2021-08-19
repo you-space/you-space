@@ -77,7 +77,7 @@ export default defineComponent({
         function viewValue(item: Item) {
             quasar.dialog({
                 component: defineAsyncComponent(
-                    () => import('src/components/YsJsonViwerDialog.vue'),
+                    () => import('src/components/YsJsonViewerDialog.vue'),
                 ),
                 componentProps: { value: item.value },
             });

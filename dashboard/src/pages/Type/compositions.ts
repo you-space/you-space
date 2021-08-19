@@ -13,7 +13,9 @@ export interface Type {
 }
 export interface TypeFieldOptions {
     component?: string;
+    componentProps?: any;
     position?: 'right-sidebar' | 'body';
+    label?: string;
 }
 export interface TypeField {
     id: number;
