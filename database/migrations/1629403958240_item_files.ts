@@ -9,8 +9,8 @@ export default class ItemFiles extends BaseSchema {
 
       table.integer('type_field_id').references('type_fields')
 
-      table.integer('item_id').references('items.id').notNullable()
-      table.integer('file_id').references('files.id').notNullable()
+      table.integer('item_id').references('items.id').notNullable().onDelete('CASCADE')
+      table.integer('file_id').references('files.id').notNullable().onDelete('CASCADE')
 
       table.unique(['item_id', 'file_id'])
     })
