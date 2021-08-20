@@ -17,6 +17,11 @@ const fields = [
         options: {
             required: true,
             label: 'Description',
+            componentProps: {
+                type: 'textarea',
+                label: 'Description',
+                autogrow: true
+            },
             order: 2,
             table: {
                 show: false
@@ -28,6 +33,15 @@ const fields = [
         type: 'file',
         options: {
             label: 'Thumbnail',
+            table: {
+                component: 'ys-img',
+                componentProps: {
+                    style: {
+                        height: '80px',
+                        width: '140px'
+                    }
+                },
+            },
             single: {
                 position: 'sidebar',
                 component: 'ys-file',
@@ -48,6 +62,9 @@ const fields = [
                     type: 'video'
                 },
             },
+            table: {
+                show: false
+            }
         }
     },
 ]

@@ -78,7 +78,13 @@
 <script lang="ts">
 import lodash from 'lodash';
 
-import { defineComponent, defineAsyncComponent, ref, computed } from 'vue';
+import {
+    defineComponent,
+    defineAsyncComponent,
+    ref,
+    computed,
+    watch,
+} from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
@@ -163,6 +169,8 @@ export default defineComponent({
         }
 
         async function setTypeItem() {
+            if (!props.itemId) return;
+
             loading.value = true;
 
             item.value = await findTypeItem(
@@ -177,9 +185,9 @@ export default defineComponent({
 
         void setType();
 
-        if (props.itemId) {
-            void setTypeItem();
-        }
+        watch(() => props.itemId, setTypeItem, {
+            immediate: true,
+        });
 
         function cancel() {
             return router.go(-1);

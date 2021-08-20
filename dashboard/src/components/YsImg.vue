@@ -6,7 +6,7 @@
     <q-img :src="modelValue || 'error'" v-bind="$attrs">
         <template #error>
             <div class="absolute-full flex flex-center bg-grey-7 text-white">
-                <q-icon name="image" size="7rem" />
+                <q-icon name="image" size="3rem" />
             </div>
         </template>
     </q-img>
