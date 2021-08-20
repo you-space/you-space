@@ -14,6 +14,16 @@
         :src="modelValue"
         v-bind="$attrs"
     />
+
+    <div
+        v-else
+        class="relative full-height full-width"
+        style="min-height: 180px"
+    >
+        <div class="absolute-full flex flex-center bg-grey-7 text-white">
+            <q-icon name="smart_display" size="7rem" />
+        </div>
+    </div>
 </template>
 
 <script lang="ts">

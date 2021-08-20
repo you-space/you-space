@@ -1,10 +1,20 @@
 <template>
     <q-card bordered flat>
-        <q-card-section v-if="type === 'image'">
+        <q-card-section v-if="label" class="text-bold">
+            {{ label }}
+        </q-card-section>
+        <q-card-section
+            v-if="type === 'image'"
+            class="cusor-pointer"
+            @click="showPicker"
+        >
             <ys-img :model-value="preview" style="max-height: 180px" />
         </q-card-section>
+        <q-card-section v-else-if="type === 'video' && modelValue">
+            <ys-video :model-value="modelValue" style="width: 100%" />
+        </q-card-section>
         <q-item>
-            <q-item-section v-if="type === 'normal'" avatar>
+            <q-item-section v-if="['normal', 'video'].includes(type)" avatar>
                 <q-avatar
                     rounded
                     color="primary"
@@ -21,6 +31,9 @@
                     <a :href="modelValue" target="_black">
                         {{ modelValue }}
                     </a>
+                </q-item-label>
+                <q-item-label v-else>
+                    {{ $t('upload') }}
                 </q-item-label>
             </q-item-section>
 
@@ -48,6 +61,10 @@ export default defineComponent({
         name: {
             type: String,
             required: true,
+        },
+        label: {
+            type: String,
+            default: null,
         },
         type: {
             type: String,
@@ -80,26 +97,30 @@ export default defineComponent({
             }
         }
 
-        if (props.type === 'image' && itemFiles) {
-            watch(
-                () => file.value,
-                async (value) => {
-                    if (!value) {
-                        delete itemFiles.value[props.name];
-                        return;
-                    }
-
+        watch(
+            () => file.value,
+            async (value) => {
+                if (itemFiles && value) {
                     itemFiles.value[props.name] = value;
+                }
 
-                    base64Preview.value = await helper.getFileBase64(value);
-                },
-            );
-        }
+                if (itemFiles && !value) {
+                    delete itemFiles.value[props.name];
+                }
+
+                if (!value) {
+                    return;
+                }
+
+                base64Preview.value = await helper.getFileBase64(value);
+            },
+        );
 
         return {
             picker,
             file,
             preview,
+            itemFiles,
 
             showPicker,
         };

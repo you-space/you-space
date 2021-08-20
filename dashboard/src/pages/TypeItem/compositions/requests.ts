@@ -90,6 +90,21 @@ export function getFieldComponentName(
     return component;
 }
 
+// utilities
+export function getFieldProperty(
+    field: TypeField,
+    property: string,
+    subsets: string[] = [],
+): string | null {
+    let result = lodash.get(field, ['options', property], null);
+
+    subsets.forEach((set) => {
+        result = lodash.get(field, ['options', set, property], result);
+    });
+
+    return result;
+}
+
 export function getFieldComponentProps(
     field: TypeField,
     subsets: string[] = [],

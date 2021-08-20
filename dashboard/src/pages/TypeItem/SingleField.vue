@@ -7,21 +7,17 @@ import lodash from 'lodash';
 
 import { defineComponent, PropType, resolveComponent, computed } from 'vue';
 import { TypeField } from 'src/pages/Type/compositions';
-import { getFieldComponentProps, getFieldComponentName } from './compositions';
+import {
+    getFieldComponentProps,
+    getFieldComponentName,
+    getFieldProperty,
+} from './compositions/index';
 
 export default defineComponent({
     inheritAttrs: false,
     props: {
         field: {
             type: Object as PropType<TypeField>,
-            required: true,
-        },
-        typeId: {
-            type: [String, Number],
-            required: true,
-        },
-        itemId: {
-            type: [String, Number],
             required: true,
         },
         modelValue: {
@@ -48,11 +44,10 @@ export default defineComponent({
 
         Object.assign(componentProps, attrs);
 
-        if (component === 'YsFile') {
-            Object.assign(componentProps, {
-                name: props.field.name,
-            });
-        }
+        Object.assign(componentProps, {
+            label: getFieldProperty(props.field, 'label', ['single']),
+            name: props.field.name,
+        });
 
         return {
             model,

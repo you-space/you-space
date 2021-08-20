@@ -59,11 +59,12 @@
 <script lang="ts">
 import lodash from 'lodash';
 
-import { useQuasar } from 'quasar';
-import { createServerPagination } from 'src/components/compositions';
 import { defineComponent, ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
+
+import { createServerPagination } from 'src/components/compositions';
 
 import {
     Type,
@@ -78,7 +79,8 @@ import {
     deleteTypeItem,
     getFieldComponentName,
     getFieldComponentProps,
-} from './compositions';
+    getFieldProperty,
+} from './compositions/index';
 
 export default defineComponent({
     props: {
@@ -124,17 +126,25 @@ export default defineComponent({
                     columns.push({
                         name: field.name,
                         field: field.name,
-                        label: componentProps.label || field.name,
+                        label: getFieldProperty(field, 'label', ['table']),
                         align: 'left',
                         component,
                         componentProps,
                     });
                 });
 
-            columns.push({
-                name: 'actions',
-                align: 'right',
-            });
+            columns.push(
+                {
+                    name: 'visibility',
+                    label: tm.t('visibility'),
+                    align: 'left',
+                    field: (row: TypeItem) => lodash.get(row, 'visibilityName'),
+                },
+                {
+                    name: 'actions',
+                    align: 'right',
+                },
+            );
 
             return columns;
         });

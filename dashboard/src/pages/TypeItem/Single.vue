@@ -67,8 +67,6 @@
                             :key="index"
                             v-model="item[field.name]"
                             :field="field"
-                            :type-id="typeId"
-                            :item-id="itemId"
                         />
                     </div>
                 </div>
@@ -134,7 +132,10 @@ export default defineComponent({
 
         const rightFields = computed(() =>
             fields.value
-                .filter((f) => props.itemId || f.type === 'editable')
+                .filter(
+                    (f) =>
+                        props.itemId || ['editable', 'file'].includes(f.type),
+                )
                 .filter(
                     (f) =>
                         lodash.get(f, 'options.single.position') === 'sidebar',
@@ -143,7 +144,10 @@ export default defineComponent({
 
         const bodyFields = computed(() =>
             fields.value
-                .filter((f) => props.itemId || f.type === 'editable')
+                .filter(
+                    (f) =>
+                        props.itemId || ['editable', 'file'].includes(f.type),
+                )
                 .filter(
                     (f) =>
                         lodash.get(f, 'options.single.position') !== 'sidebar',
@@ -181,12 +185,30 @@ export default defineComponent({
             return router.go(-1);
         }
 
-        async function save() {
-            if (!props.itemId) {
-                await createTypeItem(Number(props.typeId), item.value);
-                return;
+        async function create() {
+            const createItem = await createTypeItem(
+                Number(props.typeId),
+                item.value,
+            );
+
+            if (Object.keys(itemFiles.value).length) {
+                await uploadTypeItemFile(
+                    Number(props.typeId),
+                    Number(createItem.id),
+                    itemFiles.value,
+                );
             }
 
+            return router.push({
+                name: 'type-item-single',
+                params: {
+                    typeId: props.typeId,
+                    itemId: createItem.id,
+                },
+            });
+        }
+
+        async function update() {
             await updateTypeItem(
                 Number(props.typeId),
                 Number(props.itemId),
@@ -204,6 +226,14 @@ export default defineComponent({
             await setTypeItem();
         }
 
+        async function save() {
+            if (!props.itemId) {
+                return create();
+            }
+
+            return update();
+        }
+
         function pageStyle(offset: number) {
             return {
                 height: offset ? `calc(100vh - ${offset}px)` : '100vh',
@@ -217,6 +247,7 @@ export default defineComponent({
             rightFields,
             bodyFields,
             item,
+            itemFiles,
 
             save,
             cancel,

@@ -1,5 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema } from '@ioc:Adonis/Core/Validator'
+import Database from '@ioc:Adonis/Lucid/Database'
 import File from 'App/Models/File'
 
 import Type from 'App/Models/Type'
@@ -23,7 +24,7 @@ export default class TypeItemFilesController {
     const itemSchema = type.fields.reduce(
       (all, field) => ({
         ...all,
-        [field.name]: schema.file(),
+        [field.name]: schema.file.optional(),
       }),
       {}
     )
@@ -32,32 +33,38 @@ export default class TypeItemFilesController {
       schema: schema.create(itemSchema),
     })
 
-    const data = {}
+    const trx = await Database.transaction()
+
+    item.useTransaction(trx)
 
     await Promise.all(
       type.fields
         .filter((f) => !!payload[f.name])
         .map(async (field) => {
-          const old = await item.related('itemFiles').query().where('typeFieldId', field.id).first()
+          const old = await item
+            .related('itemFiles')
+            .query()
+            .preload('file')
+            .where('typeFieldId', field.id)
+            .first()
 
-          if (old) {
-            await old.delete()
+          if (old && old.file) {
+            await old.file.delete()
           }
 
           const file = await File.upload(payload[field.name])
 
-          const itemFile = await item.related('itemFiles').create({
+          await item.related('itemFiles').create({
             fileId: file.id,
             typeFieldId: field.id,
           })
-
-          data[field.name] = itemFile.url
         })
     )
 
+    await trx.commit()
+
     return {
       message: 'files updated',
-      data,
     }
   }
 

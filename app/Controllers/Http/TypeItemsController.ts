@@ -20,6 +20,7 @@ export default class TypeItemsController {
       .query()
       .preload('metas')
       .preload('itemFiles')
+      .preload('visibility', (s) => s.select('name'))
       .paginate(filters.page || 1, filters.limit)
 
     const data = pagination.all().map((i) => i.serializeByType(type))
@@ -53,7 +54,12 @@ export default class TypeItemsController {
     type.fields
       .filter((f) => f.type === 'editable')
       .forEach((field) => {
-        fieldsSchema[field.name] = schema.string()
+        if (field.options.required) {
+          fieldsSchema[field.name] = schema.string()
+          return
+        }
+
+        fieldsSchema[field.name] = schema.string.optional()
       })
 
     const payload = await request.validate({
@@ -92,7 +98,7 @@ export default class TypeItemsController {
     const fieldsSchema = {}
 
     editableFields.forEach((field) => {
-      fieldsSchema[field.name] = schema.string()
+      fieldsSchema[field.name] = schema.string.optional()
     })
 
     const payload = await request.validate({
@@ -103,7 +109,8 @@ export default class TypeItemsController {
       Object.entries(payload).map(([key, value]) => ({
         name: key,
         value: value as any,
-      }))
+      })),
+      ['name']
     )
 
     return {
