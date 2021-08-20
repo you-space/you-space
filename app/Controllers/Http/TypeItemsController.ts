@@ -121,8 +121,11 @@ export default class TypeItemsController {
   public async destroy({ params }: HttpContextContract) {
     const item = await Item.query()
       .where('id', params.id)
+      .preload('itemFiles', (q) => q.preload('file'))
       .where('typeId', params.type_id)
       .firstOrFail()
+
+    await Promise.all(item.itemFiles.map(({ file }) => (file ? file.delete() : Promise.resolve())))
 
     await item.delete()
 
