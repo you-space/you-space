@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/quasar@2.0.3/dist/quasar.prod.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+
+    <title>You space setup</title>
+  </head>
+
+  <body>
+    <div id="q-app"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@2.0.3/dist/quasar.umd.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+
+    <script>
+      const app = Vue.createApp({
+        template: `
+            <div class='row fullscreen items-center justify-center overflow-auto q-py-md'>
+                <q-card class='full-width' style='max-width:500px'>
+                    <q-form @submit.prevent='submit'>
+                        
+                        <q-card-section class='text-bold text-h6'>
+                            Database information
+                        </q-card-section>
+                    
+                        <q-card-section>
+    
+                            <q-input v-model='database.database' :rules='[rule]' filled label='Name' />
+                            <q-input v-model='database.host' :rules='[rule]' filled label='Host' />
+                            <q-input v-model='database.port' type='number' :rules='[rule]' filled label='Port' />
+                            <q-input v-model='database.user' :rules='[rule]' filled label='User' />
+                            <q-input v-model='database.password' type='password' :rules='[rule]' filled label='Password' />
+    
+                        </q-card-section>
+
+                        <q-card-section class='text-bold text-h6'>
+                            Admin Login
+                        </q-card-section>
+
+                        <q-card-section>
+    
+                            <q-input v-model='user.username' :rules='[rule]' filled label='Username' />
+                            <q-input v-model='user.password' type='password' :rules='[rule]' filled label='Password' />
+                            <q-input v-model='user.password_confirmation' type='password' :rules='[rule]' filled label='Confirm Password' />
+
+                        </q-card-section>
+
+                        <q-card-actions>
+                            <q-btn type='submit' class='full-width' color='primary' label='Submit' />
+                        </q-card-actions>
+
+                    </q-form>
+
+                </q-card>
+            </div>
+        `,
+        setup() {
+          const rule = (value) => !!value || 'Required'
+
+          const database = Vue.ref({})
+          const user = Vue.ref({})
+
+          async function submit() {
+            try {
+              await axios.post('/setup', {
+                database: database.value,
+                user: user.value,
+              })
+
+              window.location.replace('/ys-admin/login')
+            } catch (axiosError) {
+              const errors = _.get(axiosError, 'response.data.errors', [])
+              errors.forEach((error) => {
+                Quasar.Notify.create({
+                  type: 'negative',
+                  message: _.get(error, 'message'),
+                  position: 'bottom-left',
+                })
+              })
+            }
+          }
+
+          return {
+            database,
+            user,
+            rule,
+            submit,
+          }
+        },
+      })
+
+      app.use(Quasar)
+      app.mount('#q-app')
+    </script>
+  </body>
+</html>
