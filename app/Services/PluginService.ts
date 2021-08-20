@@ -63,12 +63,11 @@ export class PluginService {
     await SystemMeta.updateOrCreateMetaObject<ProviderOptions>(metaName, options)
   }
 
-  public async unregisterProvider(providerName: string) {
-    // const name = `plugins:${this.pluginName}:providers:${providerName}`
-    // const option = await YsOption.findBy('name', name)
-    // if (!option) {
-    //   throw new Error('provider not found')
-    // }
-    // await option.delete()
+  public async deleteProvider(name: string) {
+    const metaName = `plugins:${this.pluginName}:providers:${name}`
+
+    const meta = await SystemMeta.findByOrFail('name', metaName)
+
+    await meta.delete()
   }
 }
