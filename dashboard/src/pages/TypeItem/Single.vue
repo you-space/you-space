@@ -35,35 +35,44 @@
             </div>
         </q-toolbar>
 
-        <div class="row" style="height: calc(100% - 57px)">
-            <div class="col-9 q-pa-md bg-white overflow-auto full-height">
-                <single-field
-                    v-for="(field, index) in bodyFields"
-                    :key="index"
-                    v-model="item[field.name]"
-                    :field="field"
-                    class="q-mb-md"
-                />
-            </div>
+        <div class="row relative" style="height: calc(100% - 57px)">
+            <q-inner-loading v-if="loading" :showing="true">
+                <q-spinner-gears size="50px" color="primary" />
+            </q-inner-loading>
 
-            <div
-                :class="[
-                    'col',
-                    'full-height',
-                    'q-pa-md',
-                    'border-l border-grey-4',
-                    'overflow-auto',
-                    'full-height',
-                    'q-gutter-y-md',
-                ]"
-            >
-                <single-field
-                    v-for="(field, index) in rightFields"
-                    :key="index"
-                    v-model="item[field.name]"
-                    :field="field"
-                />
-            </div>
+            <template v-if="!loading">
+                <div class="col-9 q-pa-md bg-white overflow-auto full-height">
+                    <single-field
+                        v-for="(field, index) in bodyFields"
+                        :key="index"
+                        v-model="item[field.name]"
+                        :field="field"
+                        class="q-mb-md"
+                    />
+                </div>
+
+                <div
+                    :class="[
+                        'col',
+                        'full-height',
+                        'q-pa-md',
+                        'border-l border-grey-4',
+                        'overflow-auto',
+                        'full-height',
+                    ]"
+                >
+                    <div class="q-gutter-y-md">
+                        <single-field
+                            v-for="(field, index) in rightFields"
+                            :key="index"
+                            v-model="item[field.name]"
+                            :field="field"
+                            :type-id="typeId"
+                            :item-id="itemId"
+                        />
+                    </div>
+                </div>
+            </template>
         </div>
     </q-page>
 </template>
@@ -82,7 +91,13 @@ import {
     fetchTypeFields,
 } from '../Type/compositions';
 
-import { findTypeItem, createTypeItem, updateTypeItem } from './compositions';
+import {
+    findTypeItem,
+    createTypeItem,
+    updateTypeItem,
+    uploadTypeItemFile,
+} from './compositions';
+import { provideFilesToUpload } from './compositions/use-item-files';
 
 export default defineComponent({
     components: {
@@ -106,6 +121,9 @@ export default defineComponent({
         const type = ref<Type>();
         const fields = ref<TypeField[]>([]);
         const item = ref({});
+        const itemFiles = ref({});
+
+        provideFilesToUpload(itemFiles);
 
         const title = computed(() => {
             if (props.itemId) {
@@ -115,15 +133,21 @@ export default defineComponent({
         });
 
         const rightFields = computed(() =>
-            fields.value.filter(
-                (f) => lodash.get(f, 'options.single.position') === 'sidebar',
-            ),
+            fields.value
+                .filter((f) => props.itemId || f.type === 'editable')
+                .filter(
+                    (f) =>
+                        lodash.get(f, 'options.single.position') === 'sidebar',
+                ),
         );
 
         const bodyFields = computed(() =>
-            fields.value.filter(
-                (f) => lodash.get(f, 'options.single.position') !== 'sidebar',
-            ),
+            fields.value
+                .filter((f) => props.itemId || f.type === 'editable')
+                .filter(
+                    (f) =>
+                        lodash.get(f, 'options.single.position') !== 'sidebar',
+                ),
         );
 
         async function setType() {
@@ -135,10 +159,16 @@ export default defineComponent({
         }
 
         async function setTypeItem() {
+            loading.value = true;
+
             item.value = await findTypeItem(
                 Number(props.typeId),
                 Number(props.itemId),
             );
+
+            itemFiles.value = {};
+
+            setTimeout(() => (loading.value = false), 800);
         }
 
         void setType();
@@ -152,15 +182,26 @@ export default defineComponent({
         }
 
         async function save() {
-            if (props.itemId) {
-                await updateTypeItem(
+            if (!props.itemId) {
+                await createTypeItem(Number(props.typeId), item.value);
+                return;
+            }
+
+            await updateTypeItem(
+                Number(props.typeId),
+                Number(props.itemId),
+                item.value,
+            );
+
+            if (Object.keys(itemFiles.value).length) {
+                await uploadTypeItemFile(
                     Number(props.typeId),
                     Number(props.itemId),
-                    item.value,
+                    itemFiles.value,
                 );
-            } else {
-                await createTypeItem(Number(props.typeId), item.value);
             }
+
+            await setTypeItem();
         }
 
         function pageStyle(offset: number) {

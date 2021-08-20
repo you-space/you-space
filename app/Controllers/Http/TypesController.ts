@@ -2,6 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import Type from 'App/Models/Type'
 import TypeStoreValidator from 'App/Validators/TypeStoreValidator'
+import TypeUpdateValidator from 'App/Validators/TypeUpdateValidator'
 import { DateTime } from 'luxon'
 
 export default class TypesController {
@@ -33,7 +34,7 @@ export default class TypesController {
   public async update({ request, params }: HttpContextContract) {
     const type = await Type.findOrFail(params.id)
 
-    const payload = await request.validate(TypeStoreValidator)
+    const payload = await request.validate(TypeUpdateValidator)
 
     Object.assign(type, payload)
 

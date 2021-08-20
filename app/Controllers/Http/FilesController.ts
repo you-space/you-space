@@ -1,7 +1,4 @@
 import fs from 'fs'
-import { promisify } from 'util'
-
-import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import File from 'App/Models/File'
 

@@ -32,23 +32,59 @@ export default class TypeItemFilesController {
       schema: schema.create(itemSchema),
     })
 
-    Object.keys(payload).map(async (p) => {
-      const old = await item.related('itemFiles').query().where('name', p).first()
+    const data = {}
 
-      if (old) {
-        await old.delete()
-      }
+    await Promise.all(
+      type.fields
+        .filter((f) => !!payload[f.name])
+        .map(async (field) => {
+          const old = await item.related('itemFiles').query().where('typeFieldId', field.id).first()
 
-      const file = await File.upload(payload[p])
+          if (old) {
+            await old.delete()
+          }
 
-      await item.related('itemFiles').create({
-        fileId: file.id,
-        name: p,
-      })
-    })
+          const file = await File.upload(payload[field.name])
+
+          const itemFile = await item.related('itemFiles').create({
+            fileId: file.id,
+            typeFieldId: field.id,
+          })
+
+          data[field.name] = itemFile.url
+        })
+    )
 
     return {
       message: 'files updated',
+      data,
+    }
+  }
+
+  public async destroy({ params }: HttpContextContract) {
+    const type = await Type.query()
+      .preload('fields', (q) => q.where('type', TypeFieldTypes.File))
+      .where('id', params.type_id)
+      .withScopes((s) => s.isNotDeleted())
+      .firstOrFail()
+
+    const item = await type
+      .related('items')
+      .query()
+      .preload('itemFiles')
+      .where('id', params.item_id)
+      .firstOrFail()
+
+    const itemFile = await item
+      .related('itemFiles')
+      .query()
+      .where('typeFieldId', params.id)
+      .firstOrFail()
+
+    await itemFile.delete()
+
+    return {
+      message: 'files deleted',
     }
   }
 }

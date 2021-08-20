@@ -14,7 +14,7 @@ export default class ItemFile extends BaseModel {
   public id: number
 
   @column()
-  public name: string
+  public typeFieldId: number | null
 
   @column()
   public itemId: number

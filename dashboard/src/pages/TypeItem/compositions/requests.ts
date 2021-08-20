@@ -2,7 +2,7 @@ import lodash from 'lodash';
 
 import { api } from 'src/boot/axios';
 import { ServerPagination } from 'src/components/compositions';
-import { TypeField } from '../Type/compositions';
+import { TypeField } from 'src/pages/Type/compositions';
 
 interface Filters {
     page: number;
@@ -55,10 +55,28 @@ export async function updateTypeItem(
     return data;
 }
 
+export async function uploadTypeItemFile(
+    typeId: number,
+    itemId: number,
+    payload: Record<string, File>,
+) {
+    const form = new FormData();
+
+    Object.entries(payload).forEach(([key, value]) => form.append(key, value));
+
+    const { data } = await api.post(
+        `types/${typeId}/items/${itemId}/files`,
+        form,
+    );
+
+    return data;
+}
+
 export async function deleteTypeItem(typeId: number, id: number) {
     await api.delete(`types/${typeId}/items/${id}`);
 }
 
+// utilities
 export function getFieldComponentName(
     field: TypeField,
     subsets: string[] = [],

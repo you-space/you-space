@@ -10,11 +10,11 @@ Route.group(() => {
     })
 
   Route.resource('types.items.files', 'TypeItemFilesController')
-    .only(['store'])
+    .only(['store', 'destroy'])
     .middleware({
       store: ['auth:api', 'acl:admin'],
+      destroy: ['auth:api', 'acl:admin'],
       // update: ['auth:api', 'acl:admin'],
-      // destroy: ['auth:api', 'acl:admin'],
     })
 })
   .prefix('v1')

@@ -104,8 +104,9 @@ export default class Item extends BaseModel {
 
     type.fields
       .filter((f) => f.type === 'file')
-      .forEach(({ name }) => {
-        const itemFile = this.itemFiles.find((f) => f.name === name)
+      .forEach(({ id, name }) => {
+        const itemFile = this.itemFiles.find((f) => f.typeFieldId === id)
+
         if (itemFile) {
           item[name] = itemFile.url
         }

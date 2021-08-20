@@ -35,6 +35,7 @@ export default class TypeItemsController {
 
     const item = await Item.query()
       .preload('metas')
+      .preload('itemFiles')
       .where('id', params.id)
       .where('typeId', params.type_id)
       .firstOrFail()

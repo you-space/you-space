@@ -3,7 +3,13 @@
         {{ label }}
     </q-item-label>
 
-    <q-img :src="modelValue" v-bind="$attrs" />
+    <q-img :src="modelValue || 'error'" v-bind="$attrs">
+        <template #error>
+            <div class="absolute-full flex flex-center bg-grey-7 text-white">
+                <q-icon name="image" size="7rem" />
+            </div>
+        </template>
+    </q-img>
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';

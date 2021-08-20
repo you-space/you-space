@@ -16,8 +16,16 @@ export default defineComponent({
             type: Object as PropType<TypeField>,
             required: true,
         },
-        modelValue: {
+        typeId: {
             type: [String, Number],
+            required: true,
+        },
+        itemId: {
+            type: [String, Number],
+            required: true,
+        },
+        modelValue: {
+            type: [String, Number, File],
             default: null,
         },
     },
@@ -32,11 +40,6 @@ export default defineComponent({
             },
         });
 
-        const defaultProps = {
-            label: lodash.get(props.field, 'options.label', props.field.name),
-            readonly: true,
-        };
-
         const component = getFieldComponentName(props.field, ['single']);
 
         const componentProps = getFieldComponentProps(props.field, ['single']);
@@ -45,10 +48,16 @@ export default defineComponent({
 
         Object.assign(componentProps, attrs);
 
+        if (component === 'YsFile') {
+            Object.assign(componentProps, {
+                name: props.field.name,
+            });
+        }
+
         return {
             model,
             component: resolveComponent(component || 'q-input'),
-            componentProps: componentProps || defaultProps,
+            componentProps: componentProps,
         };
     },
 });
