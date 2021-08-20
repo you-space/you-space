@@ -1,11 +1,4 @@
-import {
-  BaseModel,
-  beforeDelete,
-  BelongsTo,
-  belongsTo,
-  column,
-  computed,
-} from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column, computed } from '@ioc:Adonis/Lucid/Orm'
 import Env from '@ioc:Adonis/Core/Env'
 import File from './File'
 
@@ -29,13 +22,4 @@ export default class ItemFile extends BaseModel {
 
   @belongsTo(() => File)
   public file: BelongsTo<typeof File>
-
-  @beforeDelete()
-  public static async beforeDelete(itemFile: ItemFile) {
-    const file = await itemFile.related('file').query().first()
-
-    if (file) {
-      file.delete()
-    }
-  }
 }

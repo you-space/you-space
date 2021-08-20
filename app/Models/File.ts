@@ -31,8 +31,12 @@ export default class File extends BaseModel {
   }
 
   @beforeDelete()
-  public static async deleteFile(file: File) {
-    const filePath = Application.makePath('content', 'uploads', file.filename)
+  public static async beforeDelete(file: File) {
+    await file.deleteFile()
+  }
+
+  public async deleteFile() {
+    const filePath = Application.makePath('content', 'uploads', this.filename)
     const exist = await promisify(fs.exists)(filePath)
     if (exist) {
       await promisify(fs.unlink)(filePath)
@@ -43,11 +47,11 @@ export default class File extends BaseModel {
     const uploadFolders = Application.makePath('content', 'uploads')
     const filename = `${cuid()}.${file.extname}`
 
-    await file.move(uploadFolders, {
+    file.move(uploadFolders, {
       name: filename,
     })
 
-    return this.create({
+    return File.create({
       extname: file.extname,
       filename: filename,
       type: file.type,
