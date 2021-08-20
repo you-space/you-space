@@ -21,9 +21,7 @@ const fields = [
         type: 'mapped',
         options: {
             path: 'snippet.title',
-            componentProps: {
-                label: 'Title',
-            },
+            label: 'Title',
             table: {
                 order: 2
             },
@@ -37,9 +35,9 @@ const fields = [
         type: 'mapped',
         options: {
             path: 'snippet.description',
+            label: 'Description',
             componentProps: {
                 type: 'textarea',
-                label: 'Description',
                 autogrow: true
             },
             table: {
@@ -53,9 +51,7 @@ const fields = [
         options: {
             path: 'snippet.thumbnails.default.url',
             component: 'YsImg',
-            componentProps: {
-                label: 'Thumbnail'
-            },
+            label: 'Thumbnail',
             table: {
                 order: 1,
                 componentProps: {
@@ -82,8 +78,8 @@ const fields = [
         options: {
             path: 'snippet.publishedAt',
             component: 'ys-i18n',
+            label: 'Published at',
             componentProps: {
-                label: 'Published at',
                 type: 'date',
                 args: 'long',
             },
@@ -100,10 +96,10 @@ const fields = [
         type: 'mapped',
         options: {
             path: 'statistics.viewCount',
+            label: 'Views',
             component: 'ys-i18n',
             componentProps: {
                 type: 'number',
-                label: 'Views',
             },
             single: {
                 position: 'sidebar',
@@ -118,10 +114,10 @@ const fields = [
         type: 'mapped',
         options: {
             path: 'statistics.likeCount',
+            label: 'Likes',
             component: 'ys-i18n',
             componentProps: {
                 type: 'number',
-                label: 'Likes',
             },
             single: {
                 position: 'sidebar',
