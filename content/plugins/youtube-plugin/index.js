@@ -15,15 +15,6 @@ const fields = [
                 show: false,
             },
         },
-        // input: {
-        //     type: 'video',
-        //     order: 1,
-        //     props: {
-        //         style: {
-        //             height: '500px'
-        //         }
-        //     }
-        // },
     },
     {
         name: 'title',
@@ -40,10 +31,6 @@ const fields = [
                 order: 1
             }
         },
-        // input: {
-        //     position: 'sidebar',
-        //     order: 1,
-        // },
     },
     {
         name: 'description',
@@ -59,14 +46,6 @@ const fields = [
                 show: false
             }
         },
-        // input: {
-        //     type: 'textarea',
-        //     order: 4,
-        //     props: {
-        //         dense: false,
-        //         color: "purple-12"
-        //     },
-        // },
     },
     {
         name: 'thumbnailSrc',
@@ -96,17 +75,6 @@ const fields = [
                 }
             }
         },
-        // label: 'Thumbnail',
-        // mapValue: 'snippet.thumbnails.default.url',
-        // table: {
-        //     type: 'image',
-        //     order: 1,
-        // },
-        // input: {
-        //     type: 'image',
-        //     position: 'sidebar',
-        //     order: 2,
-        // },
     },
     {
         name: 'publishedAt',
@@ -126,14 +94,6 @@ const fields = [
                 },
             }
         },
-        // mapValue: 'snippet.publishedAt',
-        // table: {
-        //     type: 'datetime',
-        // },
-        // input: {
-        //     position: 'sidebar',
-        //     order: 3,
-        // },
     },
     {
         name: 'viewCount',
@@ -152,15 +112,6 @@ const fields = [
                 },
             }
         },
-        // label: 'Views',
-        // mapValue: 'statistics.viewCount',
-        // table: {
-        //     type: 'number',
-        // },
-        // input: {
-        //     position: 'sidebar',
-        //     order: 4,
-        // },
     },
     {
         name: 'likeCount',
@@ -179,15 +130,6 @@ const fields = [
                 },
             }
         },
-        // label: 'Likes',
-        // mapValue: 'statistics.likeCount',
-        // table: {
-        //     type: 'number',
-        // },
-        // input: {
-        //     position: 'sidebar',
-        //     order: 4,
-        // },
     },
 ]
 class Plugin {
@@ -221,7 +163,7 @@ class Plugin {
     async stop() {
         await this.service.deleteTypeFields("youtube-videos", fields.map(f => f.name));
         await this.service.deleteType("youtube-videos");
-        // this.service.unregisterProvider("youtube-provider");
+        await this.service.deleteProvider("youtube-provider");
     }
 }
 
