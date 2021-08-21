@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "test": "node -r @adonisjs/assembler/build/register japaFile.ts",
-    "start": "node server.js",
+    "start": "node ace serve",
     "dev": "node ace serve --watch",
     "dev:dashboard": "npm run dev --prefix public",
     "build": "node ace build --production",
