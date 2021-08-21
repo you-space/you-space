@@ -72,7 +72,7 @@ export default defineComponent({
         },
     },
     emits: ['update:modelValue'],
-    setup(props, { emit }) {
+    setup(props) {
         const helper = useHelper();
         const itemFiles = useFilesToUpload();
 
