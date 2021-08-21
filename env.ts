@@ -1,18 +1,9 @@
 import Env from '@ioc:Adonis/Core/Env'
-import { string } from '@ioc:Adonis/Core/Helpers'
-
-if (!process.env.APP_KEY) {
-  process.env.APP_KEY = string.generateRandom(32)
-}
-
-if (!process.env.NODE_ENV) {
-  process.env.NODE_ENV = 'production'
-}
 
 const rules = {
-  NODE_ENV: Env.schema.enum(['development', 'production', 'testing'] as const),
+  NODE_ENV: Env.schema.enum.optional(['development', 'production', 'testing'] as const),
 
-  APP_KEY: Env.schema.string(),
+  APP_KEY: Env.schema.string.optional(),
   APP_NAME: Env.schema.string(),
   APP_URL: Env.schema.string.optional(),
 

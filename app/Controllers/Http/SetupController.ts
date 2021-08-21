@@ -49,7 +49,7 @@ export default class SetupsController {
     }
 
     const variables: [string, string | number][] = [
-      ['NODE_ENV', Env.get('NODE_ENV')],
+      ['NODE_ENV', Env.get('NODE_ENV', 'production')],
       ['APP_KEY', Env.get('APP_KEY', string.generateRandom(32))],
       ['APP_URL', Env.get('APP_URL', 'http://localhost:3333')],
       ['PG_HOST', database.host],
