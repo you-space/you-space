@@ -9,7 +9,6 @@ export default class OriginServiceProvider {
     await this.registerOriginService()
     await this.registerAuthenticateByToken()
     await this.registerSocket()
-    await this.registerPluginHelper()
   }
 
   public async registerOriginService() {
@@ -38,13 +37,5 @@ export default class OriginServiceProvider {
     const socketService = new SocketService()
 
     this.application.container.singleton('Providers/SocketService', () => socketService)
-  }
-
-  public async registerPluginHelper() {
-    const PluginHelper = (await import('App/Services/PluginHelper')).default
-
-    const service = new PluginHelper()
-
-    this.application.container.singleton('Providers/PluginHelper', () => service)
   }
 }

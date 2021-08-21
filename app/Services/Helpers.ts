@@ -6,3 +6,11 @@ export function isJson(str: string) {
   }
   return true
 }
+
+export async function requireIfExist(path: string) {
+  try {
+    return require(path)
+  } catch (error) {
+    return null
+  }
+}

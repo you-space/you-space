@@ -4,6 +4,9 @@ Route.group(() => {
   Route.resource('origins', 'OriginsController').apiOnly().only(['index', 'store', 'update'])
 
   Route.post('origins/:id/import', 'OriginsController.import').as('origins.import')
+  Route.post('origins/:id/schedule-import', 'OriginsController.scheduleImport').as(
+    'origins.schedule-import'
+  )
 
   Route.get('providers', 'OriginsController.providers').as('origins.providers')
 })

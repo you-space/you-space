@@ -1,20 +1,22 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { schema } from '@ioc:Adonis/Core/Validator'
+
 import Origin from 'App/Models/Origin'
 import OriginValidator from 'App/Validators/OriginValidator'
 import OriginUpdateValidator from 'App/Validators/OriginUpdateValidator'
-import PluginHelper from '@ioc:Providers/PluginHelper'
 import SystemMeta from 'App/Models/SystemMeta'
+import Queue from '@ioc:Queue'
 
 export default class OriginsController {
   public async index({ request }: HttpContextContract) {
     const page = request.input('page', 1)
     const limit = request.input('page', 20)
 
-    const providers = await PluginHelper.fetchProviders()
+    const providers = await Origin.fetchProviders(true)
 
     const pagination = await Origin.query().paginate(page, limit)
 
-    const origins = await Promise.all(
+    const data = await Promise.all(
       pagination.all().map((o) => {
         let provider = providers.find((p) => p.name === o.providerName)
         return {
@@ -25,8 +27,8 @@ export default class OriginsController {
     )
 
     return {
-      data: origins,
       meta: pagination.getMeta(),
+      data,
     }
   }
 
@@ -67,26 +69,55 @@ export default class OriginsController {
   public async import({ params }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.id)
 
-    const provider = await PluginHelper.findProvider(origin.providerName)
+    const provider = await origin.findProvider()
 
-    if (!provider) {
-      throw new Error('provider not found')
+    if (!provider.import) {
+      throw new Error('provider import method not found')
     }
 
-    if (!provider.options.includes('import')) {
-      throw new Error('provider not have option import')
-    }
-
-    const instance = await PluginHelper.createProviderInstance(origin)
-
-    if (!instance.import) {
-      throw new Error('provider is missing import method')
-    }
-
-    await instance.import()
+    await provider.import()
 
     return {
       message: 'Data imported',
     }
+  }
+
+  public async scheduleImport({ params, request }: HttpContextContract) {
+    const origin = await Origin.findOrFail(params.id)
+
+    const { repeatEach } = await request.validate({
+      schema: schema.create({
+        repeatEach: schema.enum(['minute', 'hour', 'day']),
+      }),
+    })
+
+    const queue = Queue.findQueue('origin-schedule-import')
+
+    const options = {
+      minute: '* * * * *',
+      hour: '0 * * * *',
+      day: '0 0 * * *',
+    }
+
+    const cron = options[repeatEach]
+
+    const old = await queue.getJob(params.id)
+
+    if (old) {
+      await old.remove()
+    }
+
+    queue.add(
+      {
+        originId: params.id,
+      },
+      {
+        jobId: params.id,
+        removeOnFail: true,
+        repeat: {
+          cron,
+        },
+      }
+    )
   }
 }

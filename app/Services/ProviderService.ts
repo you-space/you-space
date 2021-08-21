@@ -3,7 +3,7 @@ import Item from 'App/Models/Item'
 import Origin from 'App/Models/Origin'
 import Type from 'App/Models/Type'
 
-export default class PluginProviderService {
+export default class ProviderService {
   public logger = Logger
   constructor(public origin: Origin) {}
 

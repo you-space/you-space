@@ -36,6 +36,16 @@ export default class SystemMeta extends BaseModel {
     return this.query().where('name', 'like', name.replace(/\*/g, '%'))
   }
 
+  public static async findMetaObject<T = Record<string, any>>(name: string): Promise<T | null> {
+    const meta = await this.query().where('name', 'like', name.replace(/\*/g, '%')).first()
+
+    if (!meta) {
+      return null
+    }
+
+    return isJson(meta.value) ? JSON.parse(meta.value) : meta.value
+  }
+
   public static async findOrFailMetaObject<T = any>(name: string): Promise<T> {
     const meta = await this.findByOrFail('name', name)
 
