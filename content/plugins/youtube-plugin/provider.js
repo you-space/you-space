@@ -1,5 +1,6 @@
 const axios = require("axios");
 const lodash = require( "lodash");
+const path = require( "path");
 
 class YoutubeProvider {
     config;
@@ -38,11 +39,14 @@ class YoutubeProvider {
     }
 
     async import() {
-        await this.fetchVideos();
+        console.log('execute', Date.now())
+        // await this.fetchVideos();
 
-        await this.createManyItems('youtube-videos', this.videos);
+        // console.log('provider')
 
-        return this.videos;
+        // await this.createManyItems('youtube-videos', this.videos);
+
+        // return this.videos;
     }
 
     async fetchVideos(pageToken) {
@@ -90,6 +94,14 @@ class YoutubeProvider {
         this.videos = this.videos.concat(data);
 
         if (nextPageToken) {
+            await this.addJob({
+                path: path.resolve(__dirname, 'jobs', 'import.js'),
+                method: 'execute',
+                jobId: nextPageToken,
+                args: {
+                    pageToken: nextPageToken
+                }
+            })
             // await this.fetchVideos(nextPageToken)
         }
     }

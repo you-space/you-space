@@ -14,19 +14,21 @@ export default class Queue {
     Logger.info('queue service started')
   }
 
-  public findQueue(name: string) {
+  public findQueue<T = Record<string, any>>(name: string) {
     const queue = this.queues.find((q) => q.name === name)
 
-    return queue ? queue.bull : null
+    return queue ? (queue.bull as Bull.Queue<T>) : null
   }
 
   public addQueue<T = Record<string, any>>(
     name: string,
     callback: Bull.ProcessCallbackFunction<T>
   ) {
-    const queue = new Bull(name)
+    const queue = new Bull<T>(name)
 
     queue.process(callback)
+
+    queue.on('completed', () => Logger.info('%s complete', name))
 
     this.queues.push({
       name,

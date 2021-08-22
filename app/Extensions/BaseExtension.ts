@@ -1,13 +1,9 @@
 import { pick } from 'lodash'
-import { importIfExist } from 'App/Services/Helpers'
-import Type from 'App/Models/Type'
-import TypeField from 'App/Models/TypeField'
-import SystemMeta from 'App/Models/SystemMeta'
-import { PropertyOptions } from './Decorators'
 
-type This<T extends new (...args: any) => any> = {
-  new (...args: ConstructorParameters<T>): any
-} & Pick<T, keyof T>
+import { importIfExist } from 'App/Services/Helpers'
+import { PropertyOptions } from './Decorators'
+import BaseExtensionQueue from './BaseExtensionQueue'
+import { This } from './typings'
 
 interface Observers {
   event: string
@@ -18,15 +14,16 @@ interface Data {
   name: string
 }
 
-export default class BaseExtension {
+export default class BaseExtension extends BaseExtensionQueue {
   public static $properties: PropertyOptions[] = []
   public static $observers: Observers[] = []
+  public static queueName = 'unknown'
 
+  public $instance: any
   public propertyNames: string[]
-
   public name: string
+  public path: string
   public valid = false
-  public $instante: any
 
   public static data() {
     return Promise.resolve([] as Data[])
@@ -44,14 +41,31 @@ export default class BaseExtension {
     return Promise.all(this.$observers.filter((o) => o.event === event).map((o) => o.handler(data)))
   }
 
-  public static async $mount<T extends This<typeof BaseExtension>>(this: T, data: Data) {
+  public static async $mountInstance(path: string) {
+    const Class = await importIfExist(path)
+
+    if (!Class) {
+      return null
+    }
+
+    const instance = new Class()
+
+    return instance
+  }
+
+  public static async $mount<T extends This<typeof BaseExtension>>(
+    this: T,
+    data: Data,
+    extraProperties?: string[]
+  ) {
     const extension = new this() as InstanceType<T>
 
     extension.name = data.name
+    extension.path = data.path
 
-    const Class = await importIfExist(data.path)
+    const instance = this.$mountInstance(data.path)
 
-    if (!Class) {
+    if (!instance) {
       return extension
     }
 
@@ -62,9 +76,7 @@ export default class BaseExtension {
       .map((p) => p.name)
       .concat(['name', 'valid'])
 
-    const instance = new Class()
-
-    extension.$instante = instance
+    extension.$instance = instance
 
     this.$properties
       .filter((p) => p.type === 'ext-variable')
@@ -86,18 +98,7 @@ export default class BaseExtension {
         }
       })
 
-    Object.assign(
-      instance,
-      pick(extension, [
-        'createType',
-        'deleteType',
-        'createTypeFields',
-        'deleteTypeFields',
-        'createProvider',
-        'deleteProvider',
-        'createManyItems',
-      ])
-    )
+    extraProperties?.forEach((p) => (extension[p] = instance[p]))
 
     return extension
   }
@@ -136,70 +137,6 @@ export default class BaseExtension {
   }
 
   public updateInstance(data: any) {
-    Object.assign(this.$instante, data)
-  }
-
-  public async createType(name: string, options: Type['options']) {
-    await Type.updateOrCreate({ name }, { name, options, deletedAt: null })
-  }
-
-  public async deleteType(name: string) {
-    const type = await Type.findBy('name', name)
-
-    if (type) {
-      await type.delete()
-    }
-  }
-
-  public async createTypeFields(name: string, fields: TypeField['options'] & { name: string }[]) {
-    const type = await Type.findBy('name', name)
-
-    if (!type) {
-      throw new Error(`type ${name} not registered`)
-    }
-
-    await type.related('fields').updateOrCreateMany(fields, 'name')
-  }
-
-  public async deleteTypeFields(name: string, fields: string[]) {
-    const type = await Type.findBy('name', name)
-
-    if (!type) {
-      throw new Error(`type ${name} not registered`)
-    }
-
-    await type.related('fields').query().delete().whereIn('name', fields)
-  }
-
-  public async createProvider(name: string, options: any) {
-    const metaName = `providers:${name}`
-
-    await SystemMeta.updateOrCreateMetaObject(metaName, options)
-  }
-
-  public async deleteProvider(name: string) {
-    const metaName = `providers:${name}`
-
-    const meta = await SystemMeta.findBy('name', metaName)
-
-    if (meta) {
-      await meta.delete()
-    }
-  }
-
-  public async createManyItems(typeName: string, items: any[]) {
-    const type = await Type.query().where('name', typeName).whereNull('deletedAt').first()
-
-    if (!type) {
-      throw new Error('type not found')
-    }
-
-    return type.related('items').updateOrCreateMany(
-      items.map((item) => ({
-        sourceId: item.id,
-        value: item.data,
-      })),
-      ['sourceId', 'typeId']
-    )
+    Object.assign(this.$instance, data)
   }
 }

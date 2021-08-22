@@ -1,8 +1,8 @@
 
 
 class Job {
-    execute(){
-        console.log(this.plugin)
+    execute(args){
+        console.log('execute', Date.now())
     }
 }
 

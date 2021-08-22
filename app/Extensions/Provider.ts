@@ -1,7 +1,9 @@
 import Origin from 'App/Models/Origin'
 import SystemMeta from 'App/Models/SystemMeta'
-import Type from 'App/Models/Type'
+import { DoneCallback, Job } from 'bull'
 import BaseExtension from './BaseExtension'
+import BaseExtensionQueue, { ExtensionJobOptions } from './BaseExtensionQueue'
+import { BaseExtensionType } from './BaseExtensionType'
 import { extProperty } from './Decorators'
 
 export interface ProviderOptions {
@@ -14,7 +16,14 @@ export interface ProviderOptions {
   fields: any[]
 }
 
+export interface ProviderJobOptions extends ExtensionJobOptions {
+  originId?: number
+}
+
 export default class Provider extends BaseExtension {
+  public static extName = 'plugin'
+  public static queueName = 'plugin'
+
   public static data = async () => {
     const metas = await SystemMeta.fetchByName(`providers:*`)
     return metas.map((meta) => {
@@ -29,41 +38,47 @@ export default class Provider extends BaseExtension {
     })
   }
 
+  public static async create(name: string, options: any) {
+    const metaName = `providers:${name}`
+
+    await SystemMeta.updateOrCreateMetaObject(metaName, options)
+  }
+
+  public static async delete(name: string) {
+    const metaName = `providers:${name}`
+
+    const meta = await SystemMeta.findBy('name', metaName)
+
+    if (meta) {
+      await meta.delete()
+    }
+  }
+
   @extProperty('ext-method')
   public import: () => Promise<void>
 
-  //   public name: string
+  @extProperty('ext-variable')
+  public fields: any[]
 
-  //   public path: string
+  public static async process(job: Job<ProviderJobOptions>, done: DoneCallback) {
+    const { path, method, originId } = job.data
 
-  //   public pluginName: string
+    const instance = await Provider.$mountInstance(path)
 
-  //   public fields: ProviderFields[]
-
-  public static async importOrigin(origin: Origin) {
-    const provider = await this.findOrFail(origin.providerName)
-
-    provider.createManyItems = async (typeName: string, items: any[]) => {
-      const type = await Type.query().where('name', typeName).whereNull('deletedAt').first()
-
-      if (!type) {
-        throw new Error('type not found')
-      }
-
-      return type.related('items').updateOrCreateMany(
-        items.map((item) => ({
-          sourceId: item.id,
-          originId: origin.id,
-          value: item.data,
-        })),
-        ['sourceId', 'originId', 'typeId']
-      )
+    if (!instance || !instance[method]) {
+      return done(new Error('file or method not found'))
     }
 
-    provider.updateInstance({
-      config: origin.config,
-    })
+    if (originId) {
+      const origin = await Origin.find(originId)
+      instance.config = origin?.config
+    }
 
-    provider.import()
+    Object.assign(instance, BaseExtensionType.$mount())
+    Object.assign(instance, BaseExtensionQueue.$mountQueue())
+
+    instance[method]()
+
+    done()
   }
 }

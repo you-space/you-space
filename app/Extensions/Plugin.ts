@@ -7,6 +7,9 @@ import Application from '@ioc:Adonis/Core/Application'
 import SystemMeta from 'App/Models/SystemMeta'
 
 export default class Plugin extends BaseExtension {
+  public static extName = 'plugin'
+  public static queueName = 'plugin'
+
   public static data = async () => {
     const activePlugins = await SystemMeta.firstOrCreateMetaArray('plugins:activated')
 

@@ -17,6 +17,11 @@ export default class QueueProvider {
 
   public async ready() {
     // App is ready
+    const Plugin = (await import('App/Extensions/Plugin')).default
+    const Provider = (await import('App/Extensions/Provider')).default
+
+    await Plugin.refresh()
+    await Provider.refresh()
   }
 
   public async shutdown() {

@@ -5,7 +5,7 @@ import Origin from 'App/Models/Origin'
 import OriginValidator from 'App/Validators/OriginValidator'
 import OriginUpdateValidator from 'App/Validators/OriginUpdateValidator'
 import SystemMeta from 'App/Models/SystemMeta'
-import Queue from '@ioc:Queue'
+
 import Provider from 'App/Extensions/Provider'
 
 export default class OriginsController {
@@ -13,7 +13,7 @@ export default class OriginsController {
     const page = request.input('page', 1)
     const limit = request.input('page', 20)
 
-    const providers = await Origin.fetchProviders(true)
+    const providers = await Provider.all()
 
     const pagination = await Origin.query().paginate(page, limit)
 
@@ -70,7 +70,16 @@ export default class OriginsController {
   public async import({ params }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.id)
 
-    await Provider.importOrigin(origin)
+    const provider = await Provider.findOrFail(origin.providerName)
+
+    Provider.addJob({
+      path: provider.path,
+      method: 'import',
+      jobId: `imports:${origin.id}`,
+      jobOptions: {
+        removeOnComplete: true,
+      },
+    })
 
     return {
       message: 'Data imported',
@@ -78,26 +87,7 @@ export default class OriginsController {
   }
 
   public async showSchedulerImport({ params }: HttpContextContract) {
-    const origin = await Origin.findOrFail(params.id)
-
-    const provider = await origin.findProvider()
-
-    if (provider?.options?.includes('import')) {
-      throw new Error('Provider do not have import methods')
-    }
-
-    const queue = Queue.findQueue('origin-schedule-import')
-
-    const allJobs = await queue.getJobs(['delayed', 'waiting'])
-
-    const job = allJobs.find((j) => j.data.originId === origin.id)
-
-    const logs = job ? await queue.getJobLogs(job.id) : {}
-
-    return {
-      repeatEach: job?.data.repeatEach || 'none',
-      ...logs,
-    }
+    return {}
   }
 
   public async updateSchedulerImport({ params, request }: HttpContextContract) {
@@ -109,11 +99,24 @@ export default class OriginsController {
       }),
     })
 
-    const provider = await origin.findProvider()
+    const options = {
+      minute: '* * * * *',
+      hour: '0 * * * *',
+      day: '0 * * * *',
+    }
 
-    console.log(provider)
+    const provider = await Provider.findOrFail(origin.providerName)
 
-    Provider.importOrigin(origin)
+    Provider.addJob({
+      path: provider.path,
+      method: 'import',
+      jobId: `imports:${origin.id}`,
+      jobOptions: {
+        repeat: {
+          cron: options[repeatEach],
+        },
+      },
+    })
 
     return {
       message: 'Origin import updated',
