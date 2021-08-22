@@ -7,9 +7,19 @@ export function isJson(str: string) {
   return true
 }
 
-export async function requireIfExist(path: string) {
+export function requireIfExist(path: string) {
   try {
     return require(path)
+  } catch (error) {
+    return null
+  }
+}
+
+export async function importIfExist(path: string) {
+  try {
+    const file = await import(path)
+
+    return file.default || file
   } catch (error) {
     return null
   }

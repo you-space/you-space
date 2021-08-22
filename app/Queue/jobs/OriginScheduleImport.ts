@@ -1,26 +1,29 @@
-import { QueueHandler } from '../index'
+import { ProcessCallbackFunction } from 'bull'
 
 interface Data {
   originId: number
 }
 
-const job: QueueHandler<Data> = {
-  key: 'origin-schedule-import',
-  async handler(job, done) {
-    const Origin = (await import('App/Models/Origin')).default
+const handler: ProcessCallbackFunction<Data> = async (job, done) => {
+  const Logger = (await import('@ioc:Adonis/Core/Logger')).default
 
-    const origin = await Origin.findOrFail(job.data.originId)
+  const Origin = (await import('App/Models/Origin')).default
 
-    const provider = await origin.findProvider()
+  const origin = await Origin.findOrFail(job.data.originId)
 
-    if (!provider.import) {
-      return done(new Error('provider import method not found'))
-    }
+  const provider = await origin.findProvider()
 
-    await provider.import()
+  if (!provider.import) {
+    return done(new Error('provider import method not found'))
+  }
 
-    done()
-  },
+  Logger.info('import data from origin: %s', origin.name)
+
+  await job.log(`importing ${new Date()}`)
+
+  // await provider.import()
+
+  done()
 }
 
-export default job
+export default handler

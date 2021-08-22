@@ -6,6 +6,7 @@ import OriginValidator from 'App/Validators/OriginValidator'
 import OriginUpdateValidator from 'App/Validators/OriginUpdateValidator'
 import SystemMeta from 'App/Models/SystemMeta'
 import Queue from '@ioc:Queue'
+import Provider from 'App/Extensions/Provider'
 
 export default class OriginsController {
   public async index({ request }: HttpContextContract) {
@@ -69,55 +70,53 @@ export default class OriginsController {
   public async import({ params }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.id)
 
-    const provider = await origin.findProvider()
-
-    if (!provider.import) {
-      throw new Error('provider import method not found')
-    }
-
-    await provider.import()
+    await Provider.importOrigin(origin)
 
     return {
       message: 'Data imported',
     }
   }
 
-  public async scheduleImport({ params, request }: HttpContextContract) {
+  public async showSchedulerImport({ params }: HttpContextContract) {
+    const origin = await Origin.findOrFail(params.id)
+
+    const provider = await origin.findProvider()
+
+    if (provider?.options?.includes('import')) {
+      throw new Error('Provider do not have import methods')
+    }
+
+    const queue = Queue.findQueue('origin-schedule-import')
+
+    const allJobs = await queue.getJobs(['delayed', 'waiting'])
+
+    const job = allJobs.find((j) => j.data.originId === origin.id)
+
+    const logs = job ? await queue.getJobLogs(job.id) : {}
+
+    return {
+      repeatEach: job?.data.repeatEach || 'none',
+      ...logs,
+    }
+  }
+
+  public async updateSchedulerImport({ params, request }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.id)
 
     const { repeatEach } = await request.validate({
       schema: schema.create({
-        repeatEach: schema.enum(['minute', 'hour', 'day']),
+        repeatEach: schema.enum(['minute', 'hour', 'day', 'none']),
       }),
     })
 
-    const queue = Queue.findQueue('origin-schedule-import')
+    const provider = await origin.findProvider()
 
-    const options = {
-      minute: '* * * * *',
-      hour: '0 * * * *',
-      day: '0 0 * * *',
+    console.log(provider)
+
+    Provider.importOrigin(origin)
+
+    return {
+      message: 'Origin import updated',
     }
-
-    const cron = options[repeatEach]
-
-    const old = await queue.getJob(params.id)
-
-    if (old) {
-      await old.remove()
-    }
-
-    queue.add(
-      {
-        originId: params.id,
-      },
-      {
-        jobId: params.id,
-        removeOnFail: true,
-        repeat: {
-          cron,
-        },
-      }
-    )
   }
 }

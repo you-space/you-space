@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const path = require('path')
 
 const fields = [
     {
@@ -128,21 +129,23 @@ const fields = [
         },
     },
 ]
-class Plugin {
+class YoutubePlugin {
     async start() {
+
+        console.log(this)
         
-        await this.service.createType("youtube-videos", {
+        await this.createType("youtube-videos", {
             showInMenu: true,
             label: 'Youtube',
             icon: 'play_circle_filled'
         });
 
-        await this.service.deleteTypeFields("youtube-videos", fields.map(f => f.name));
+        await this.deleteTypeFields("youtube-videos", fields.map(f => f.name));
 
-        await this.service.createTypeFields("youtube-videos", fields);
+        await this.createTypeFields("youtube-videos", fields);
 
-        await this.service.createProvider("youtube-provider", {
-            path: this.service.makePluginPath("provider.js"),
+        await this.createProvider("youtube-provider", {
+            path: path.resolve(__dirname, "provider.js"),
             options: ['import'],
             fields: [
                 {
@@ -157,10 +160,10 @@ class Plugin {
         });
     }
     async stop() {
-        await this.service.deleteTypeFields("youtube-videos", fields.map(f => f.name));
-        await this.service.deleteType("youtube-videos");
-        await this.service.deleteProvider("youtube-provider");
+        console.log(this)
+        await this.deleteType("youtube-videos");
+        await this.deleteProvider("youtube-provider");
     }
 }
 
-exports.default = Plugin;
+exports.default = YoutubePlugin;

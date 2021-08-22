@@ -1,7 +1,7 @@
 const axios = require("axios");
 const lodash = require( "lodash");
 
-class Provider {
+class YoutubeProvider {
     config;
     service;
 
@@ -40,7 +40,7 @@ class Provider {
     async import() {
         await this.fetchVideos();
 
-        await this.service.createManyItems('youtube-videos', this.videos);
+        await this.createManyItems('youtube-videos', this.videos);
 
         return this.videos;
     }
@@ -96,4 +96,4 @@ class Provider {
 
 }
 
-module.exports = Provider;
+module.exports = YoutubeProvider;
