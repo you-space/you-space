@@ -72,19 +72,19 @@ const fields = [
 class Plugin {
     async start() {
         
-        await this.createType("local-videos", {
+        await this.type.create("local-videos", {
             showInMenu: true,
             label: 'Videos',
             icon: 'play_circle_filled'
         });
 
-        await this.deleteTypeFields("local-videos", fields.map(f => f.name));
+        await this.type.deleteFields("local-videos", fields.map(f => f.name));
 
-        await this.createTypeFields("local-videos", fields);
+        await this.type.createFields("local-videos", fields);
     }
     async stop() {
-        await this.deleteTypeFields("local-videos", fields.map(f => f.name));
-        await this.deleteType("local-videos");
+        await this.type.deleteFields("local-videos", fields.map(f => f.name));
+        await this.type.delete("local-videos");
     }
 }
 
