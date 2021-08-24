@@ -1,19 +1,11 @@
 import { DateTime } from 'luxon'
-import {
-  afterFetch,
-  afterFind,
-  BaseModel,
-  beforeCreate,
-  beforeSave,
-  beforeUpdate,
-  column,
-} from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
 import { isJson } from 'App/Services/Helpers'
 
-export enum BaseOptions {
-  CurrentTheme = 'current-theme',
-  ActivatedPlugins = 'activated-plugins',
+export enum SystemDefaults {
+  CurrentTheme = 'themes:current',
+  PluginsActive = 'plugins:activated',
 }
 
 export default class SystemMeta extends BaseModel {

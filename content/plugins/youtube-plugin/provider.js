@@ -13,7 +13,7 @@ class YoutubeProvider {
 
     videos = [];
 
-    async getUploadPlaylistId() {
+    async findPlaylistId() {
         const request = await this.api
             .get("channels", {
                 params: {
@@ -39,18 +39,15 @@ class YoutubeProvider {
     }
 
     async import() {
-        console.log('execute', Date.now())
-        // await this.fetchVideos();
+        await this.fetchVideos();
 
-        // console.log('provider')
+        await this.item.createMany('youtube-videos', this.videos);
 
-        // await this.createManyItems('youtube-videos', this.videos);
-
-        // return this.videos;
+        return this.videos;
     }
 
     async fetchVideos(pageToken) {
-        const playlistId = await this.getUploadPlaylistId();
+        const playlistId = await this.findPlaylistId();
 
         const requestPlaylistItems = await this.api.get("playlistItems", {
             params: {
@@ -83,9 +80,10 @@ class YoutubeProvider {
         });
 
         const videos = lodash.get(requestVideos, "data.items", []);
+        
         const data = videos.map((i) => ({
-            id: i.id,
-            data: {
+            sourceId: i.id,
+            value: {
                 ...i,
                 src: `https://www.youtube.com/embed/${i.id}`
             },
@@ -94,15 +92,7 @@ class YoutubeProvider {
         this.videos = this.videos.concat(data);
 
         if (nextPageToken) {
-            await this.addJob({
-                path: path.resolve(__dirname, 'jobs', 'import.js'),
-                method: 'execute',
-                jobId: nextPageToken,
-                args: {
-                    pageToken: nextPageToken
-                }
-            })
-            // await this.fetchVideos(nextPageToken)
+            await this.fetchVideos(nextPageToken)
         }
     }
 

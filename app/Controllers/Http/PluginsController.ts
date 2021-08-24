@@ -7,11 +7,20 @@ export default class PluginsController {
   public async index() {
     const plugins = await Plugin.all()
 
+    const data = await Promise.all(
+      plugins.map(async (p) => {
+        return {
+          name: p.name,
+          active: await p.isActive(),
+        }
+      })
+    )
+
     return {
       meta: {
-        total: plugins.length,
+        total: data.length,
       },
-      data: plugins.map((p) => p.serialize()),
+      data,
     }
   }
 
@@ -23,10 +32,6 @@ export default class PluginsController {
         active: schema.boolean(),
       }),
     })
-
-    if (!plugin.valid) {
-      throw new Error('invalid plugin')
-    }
 
     if (active) {
       await plugin.start()

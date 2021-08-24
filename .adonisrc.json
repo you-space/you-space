@@ -14,11 +14,7 @@
     "Contracts": "contracts",
     "Providers": "providers"
   },
-  "preloads": [
-    "./start/routes",
-    "./start/kernel",
-    "./start/events"
-  ],
+  "preloads": ["./start/routes", "./start/kernel", "./start/events"],
   "providers": [
     "@adonisjs/core",
     "@adonisjs/lucid",
@@ -28,9 +24,7 @@
     "./providers/AppProvider",
     "./providers/QueueProvider"
   ],
-  "aceProviders": [
-    "@adonisjs/repl"
-  ],
+  "aceProviders": ["@adonisjs/repl"],
   "metaFiles": [
     {
       "pattern": "public",

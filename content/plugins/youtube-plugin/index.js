@@ -130,39 +130,37 @@ const fields = [
     },
 ]
 class YoutubePlugin {
-    async start() {
-
-        console.log(this)
-        
-        await this.createType("youtube-videos", {
+    async start() {        
+        await this.type.create("youtube-videos", {
             showInMenu: true,
             label: 'Youtube',
             icon: 'play_circle_filled'
         });
 
-        await this.deleteTypeFields("youtube-videos", fields.map(f => f.name));
+        await this.type.deleteFields("youtube-videos", fields.map(f => f.name));
 
-        await this.createTypeFields("youtube-videos", fields);
+        await this.type.createFields("youtube-videos", fields);
 
-        await this.createProvider("youtube-provider", {
-            path: path.resolve(__dirname, "provider.js"),
-            options: ['import'],
-            fields: [
-                {
-                    name: "apiKey",
-                    label: "Api key",
-                },
-                {
-                    name: "channelId",
-                    label: "Channel id",
-                },
-            ]
-        });
+        await this.provider.create("youtube-videos", path.resolve(__dirname, "provider.js"))
+
+        // await this.createProvider("youtube-provider", {
+        //     path: path.resolve(__dirname, "provider.js"),
+        //     options: ['import'],
+        //     fields: [
+        //         {
+        //             name: "apiKey",
+        //             label: "Api key",
+        //         },
+        //         {
+        //             name: "channelId",
+        //             label: "Channel id",
+        //         },
+        //     ]
+        // });
     }
     async stop() {
-        console.log(this)
-        await this.deleteType("youtube-videos");
-        await this.deleteProvider("youtube-provider");
+        await this.type.delete("youtube-videos");
+        await this.provider.delete("youtube-videos")
     }
 }
 

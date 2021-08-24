@@ -29,6 +29,7 @@ export default class Queue {
     queue.process(callback)
 
     queue.on('completed', () => Logger.info('%s complete', name))
+    queue.on('error', (err) => Logger.error(err.message))
 
     this.queues.push({
       name,
