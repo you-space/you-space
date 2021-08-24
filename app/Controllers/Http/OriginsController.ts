@@ -1,5 +1,4 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { schema } from '@ioc:Adonis/Core/Validator'
 
 import Origin from 'App/Models/Origin'
 import OriginValidator from 'App/Validators/OriginValidator'
@@ -13,15 +12,16 @@ export default class OriginsController {
     const page = request.input('page', 1)
     const limit = request.input('page', 20)
 
-    const providers = await Provider.all()
-
     const pagination = await Origin.query().paginate(page, limit)
 
     const data = await Promise.all(
-      pagination.all().map((o) => {
-        let provider = providers.find((p) => p.name === o.providerName)
+      pagination.all().map(async (o) => {
+        const provider = await Provider.findOrFail(o.providerName)
+
         return {
-          ...provider,
+          valid: !!provider,
+          fields: provider.fields,
+          options: provider.options,
           ...o.serialize(),
         }
       })
@@ -65,61 +65,5 @@ export default class OriginsController {
         ...JSON.parse(m.value),
       }
     })
-  }
-
-  public async import({ params }: HttpContextContract) {
-    const origin = await Origin.findOrFail(params.id)
-
-    const provider = await Provider.findOrFail(origin.providerName)
-
-    Provider.addJob({
-      path: provider.path,
-      method: 'import',
-      jobId: `imports:${origin.id}`,
-      jobOptions: {
-        removeOnComplete: true,
-      },
-    })
-
-    return {
-      message: 'Data imported',
-    }
-  }
-
-  public async showSchedulerImport({ params }: HttpContextContract) {
-    return {}
-  }
-
-  public async updateSchedulerImport({ params, request }: HttpContextContract) {
-    const origin = await Origin.findOrFail(params.id)
-
-    const { repeatEach } = await request.validate({
-      schema: schema.create({
-        repeatEach: schema.enum(['minute', 'hour', 'day', 'none']),
-      }),
-    })
-
-    const options = {
-      minute: '* * * * *',
-      hour: '0 * * * *',
-      day: '0 * * * *',
-    }
-
-    const provider = await Provider.findOrFail(origin.providerName)
-
-    Provider.addJob({
-      path: provider.path,
-      method: 'import',
-      jobId: `imports:${origin.id}`,
-      jobOptions: {
-        repeat: {
-          cron: options[repeatEach],
-        },
-      },
-    })
-
-    return {
-      message: 'Origin import updated',
-    }
   }
 }

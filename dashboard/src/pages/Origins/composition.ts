@@ -1,4 +1,5 @@
 import { api } from 'src/boot/axios';
+import { ServerPagination } from 'src/components/compositions';
 
 export async function saveOrigin(originId: number, origin: Partial<Origin>) {
     return api.patch(`admin/origins/${originId}`, origin);
@@ -17,12 +18,8 @@ export interface Origin {
     createdAt: string;
 }
 
-interface OriginResponse {
-    meta: Record<string, string>;
-    data: Origin[];
-}
 export async function fetchOrigins() {
-    const { data } = await api.get<OriginResponse>('admin/origins');
+    const { data } = await api.get<ServerPagination<Origin>>('admin/origins');
     return data;
 }
 
@@ -44,4 +41,17 @@ export async function fetchProviders() {
 
 export async function importOriginData(originId: number) {
     await api.post(`admin/origins/${originId}/import`);
+}
+
+export async function findOriginScheduler(originId: number) {
+    const { data } = await api.get(`admin/origins/${originId}/schedule`);
+    return data;
+}
+
+export async function updateOriginScheduler(originId: number, payload: any) {
+    const { data } = await api.post(
+        `admin/origins/${originId}/schedule`,
+        payload,
+    );
+    return data;
 }

@@ -8,13 +8,19 @@ import ItemsManager from './Utils/ItemsManager'
 
 export default class Provider extends BaseExtension {
   @method()
-  public import: () => Promise<void>
+  public import: (setProgress: any) => Promise<void>
 
   @manager.item()
   public item: ItemsManager
 
   @property()
   public config?: Origin['config']
+
+  @property()
+  public fields?: any[]
+
+  @property()
+  public options?: string[]
 
   public useOrigin(origin: Origin) {
     this.config = origin.config
@@ -35,6 +41,12 @@ export default class Provider extends BaseExtension {
         ['sourceId', 'originId', 'typeId']
       )
     }
+  }
+
+  public static async all() {
+    const metas = await SystemMeta.fetchByName('providers:*')
+
+    return await Promise.all(metas.map(async (m) => this.findOrFail(m.name)))
   }
 
   public static async findOrFail(name: string) {

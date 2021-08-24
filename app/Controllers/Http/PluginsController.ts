@@ -16,12 +16,7 @@ export default class PluginsController {
       })
     )
 
-    return {
-      meta: {
-        total: data.length,
-      },
-      data,
-    }
+    return data
   }
 
   public async update({ request, params }: HttpContextContract) {

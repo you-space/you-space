@@ -1,17 +1,29 @@
 const axios = require("axios");
 const lodash = require( "lodash");
-const path = require( "path");
 
 class YoutubeProvider {
+    options = ['import']
+    fields = [
+        {
+            name: "apiKey",
+            label: "Api key",
+        },
+        {
+            name: "channelId",
+            label: "Channel id",
+        },
+    ]
     config;
-    service;
 
     maxResults = 50;
+    totalVideos = 0
+    totalImported = 0
+
     api = axios.create({
         baseURL: "https://www.googleapis.com/youtube/v3",
     });
-
-    videos = [];
+    
+    nextPageToken = undefined
 
     async findPlaylistId() {
         const request = await this.api
@@ -19,7 +31,7 @@ class YoutubeProvider {
                 params: {
                     key: this.config.apiKey,
                     id: this.config.channelId,
-                    part: "contentDetails",
+                    part: "contentDetails, statistics",
                 },
             })
             .catch((err) => this.service.logger.error(err.message));
@@ -35,18 +47,12 @@ class YoutubeProvider {
             "contentDetails.relatedPlaylists.uploads"
         );
 
+        this.totalVideos = Number(lodash.get(channel, 'statistics.videoCount', 0))
+
         return uploadPlaylistId;
     }
 
-    async import() {
-        await this.fetchVideos();
-
-        await this.item.createMany('youtube-videos', this.videos);
-
-        return this.videos;
-    }
-
-    async fetchVideos(pageToken) {
+    async import(setProgress) {
         const playlistId = await this.findPlaylistId();
 
         const requestPlaylistItems = await this.api.get("playlistItems", {
@@ -54,14 +60,14 @@ class YoutubeProvider {
                 part: "contentDetails",
                 key: this.config.apiKey,
                 playlistId,
-                pageToken,
+                pageToken: this.nextPageToken,
                 maxResults: this.maxResults,
             },
         });
 
         const items = lodash.get(requestPlaylistItems, "data.items", []);
 
-        const nextPageToken = lodash.get(
+        this.nextPageToken = lodash.get(
             requestPlaylistItems,
             "data.nextPageToken",
             null
@@ -89,11 +95,16 @@ class YoutubeProvider {
             },
         }));
 
-        this.videos = this.videos.concat(data);
+        this.totalImported += data.length
+            
+        await this.item.createMany('youtube-videos', data);
+        
+        setProgress(Math.ceil((this.totalImported * 100) / this.totalVideos))
 
-        if (nextPageToken) {
-            await this.fetchVideos(nextPageToken)
+        if (this.nextPageToken) {
+            await this.import(setProgress)
         }
+
     }
 
 }

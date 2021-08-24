@@ -1,29 +1,28 @@
 import { ProcessCallbackFunction } from 'bull'
-
+import Logger from '@ioc:Adonis/Core/Logger'
+import Origin from 'App/Models/Origin'
+import Provider from 'App/Extensions/Provider'
 interface Data {
   originId: number
 }
 
 const handler: ProcessCallbackFunction<Data> = async (job, done) => {
-  const Logger = (await import('@ioc:Adonis/Core/Logger')).default
-
-  const Origin = (await import('App/Models/Origin')).default
-
   const origin = await Origin.findOrFail(job.data.originId)
 
-  const provider = await origin.findProvider()
+  const provider = await Provider.findOrFail(origin.providerName)
 
-  if (!provider.import) {
-    return done(new Error('provider import method not found'))
-  }
+  provider.useOrigin(origin)
 
-  Logger.info('import data from origin: %s', origin.name)
+  const setProgress = (percentage: number) => job.progress(percentage)
 
-  await job.log(`importing ${new Date()}`)
+  await provider.import(setProgress)
 
-  // await provider.import()
+  job.progress(100)
 
   done()
 }
 
-export default handler
+export default {
+  key: 'origins:import',
+  handler,
+}

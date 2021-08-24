@@ -22,7 +22,7 @@
                                 <q-item
                                     clickable
                                     :class="!origin.valid ? 'bg-red-3' : ''"
-                                    @click="selected = origin"
+                                    @click="showOrigin(origin)"
                                 >
                                     <q-item-section>
                                         <q-item-label>
@@ -106,10 +106,18 @@
     </q-page>
 </template>
 <script lang="ts">
-import { api } from 'src/boot/axios';
-import { defineComponent, ref, defineAsyncComponent, watch } from 'vue';
+import {
+    defineComponent,
+    ref,
+    defineAsyncComponent,
+    watch,
+    computed,
+} from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
+
+import { api } from 'src/boot/axios';
 import { fetchOrigins, Origin } from 'src/pages/Origins/composition';
 
 export default defineComponent({
@@ -119,17 +127,38 @@ export default defineComponent({
         Config: defineAsyncComponent(() => import('./Config.vue')),
         Import: defineAsyncComponent(() => import('./Import.vue')),
     },
-    setup() {
+    props: {
+        id: {
+            type: [Number, String],
+            default: null,
+        },
+    },
+    setup(props) {
         const tm = useI18n();
         const quasar = useQuasar();
+        const router = useRouter();
+        const route = useRoute();
 
-        const tab = ref('general');
+        const tab = computed<string>({
+            get() {
+                return route.query.tab as string;
+            },
+            set(value) {
+                void router.push({
+                    query: { tab: value },
+                });
+            },
+        });
 
         const tabOptions = ref<Record<string, string>[]>([]);
 
         const origins = ref<Origin[]>([]);
 
-        const selected = ref<Origin | null>(null);
+        const selected = computed<Origin | null>(() => {
+            const origin = origins.value.find((o) => o.id === Number(props.id));
+
+            return origin || null;
+        });
 
         function setTabOptions() {
             tabOptions.value = [
@@ -192,11 +221,23 @@ export default defineComponent({
         }
 
         void setOrigins();
-        // void setAvailableProviders();
+
+        function showOrigin(origin: Origin) {
+            return router.push({
+                name: 'origins-single',
+                query: {
+                    tab: 'general',
+                },
+                params: {
+                    id: origin.id,
+                },
+            });
+        }
 
         return {
             origins,
             selected,
+            showOrigin,
 
             tab,
             tabOptions,

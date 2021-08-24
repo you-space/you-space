@@ -42,10 +42,10 @@ export default class BaseExtension {
     })
 
     this.$methods.forEach((_, key) => {
-      ext[key] = async () => {
+      ext[key] = async (...args) => {
         await this.$emit(`before:${key}`, ext)
 
-        await instance[key]()
+        await instance[key](...args)
 
         await this.$emit(`after:${key}`, ext)
       }

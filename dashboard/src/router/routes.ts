@@ -16,6 +16,12 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/Origins/Index.vue'),
             },
             {
+                path: 'origins/:id',
+                name: 'origins-single',
+                props: true,
+                component: () => import('pages/Origins/Index.vue'),
+            },
+            {
                 path: 'themes',
                 name: 'themes',
                 component: () => import('pages/ThemeList.vue'),

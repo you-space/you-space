@@ -61,4 +61,13 @@ export default {
     type: 'Type | Types',
     field: 'Field | Fields',
     option: 'Option | Options',
+
+    each: 'Each @.lower:{0}',
+
+    hour: 'Hour',
+    minute: 'Minute',
+    day: 'Day',
+    none: 'None',
+    week: 'Week',
+    month: 'Month',
 };

@@ -3,7 +3,7 @@ import fs from 'fs'
 import { promisify } from 'util'
 import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import SystemMeta, { BaseOptions } from 'App/Models/SystemMeta'
+import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'
 
 export default class ClientController {
   public async show({ request, response }: HttpContextContract) {
@@ -17,7 +17,7 @@ export default class ClientController {
 
     const filename = request.url()
     const extname = path.extname(request.url()).replace('.', '')
-    const currentTheme = await SystemMeta.findBy('name', BaseOptions.CurrentTheme)
+    const currentTheme = await SystemMeta.findBy('name', SystemDefaults.CurrentTheme)
 
     if (!currentTheme || !currentTheme.value) {
       throw new Error('theme not defined')
