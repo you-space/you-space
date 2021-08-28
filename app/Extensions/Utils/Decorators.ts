@@ -25,6 +25,15 @@ export function method() {
   }
 }
 
+// inject type manager
+export function injectMethod() {
+  return function (target: any, key: string, descriptor: PropertyDescriptor) {
+    target.constructor.$addInject(key, descriptor.value)
+  }
+}
+
+method.inject = injectMethod
+
 // Hook Decorator
 export function hook(event: string) {
   return function (target: any, _key: string, descriptor: PropertyDescriptor) {

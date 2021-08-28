@@ -1,7 +1,7 @@
 import lodash from 'lodash'
 import Redis from '@ioc:Adonis/Addons/Redis'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { schema, rules } from '@ioc:Adonis/Core/Validator'
+import { schema } from '@ioc:Adonis/Core/Validator'
 
 import Queue from '@ioc:Queue'
 import Origin from 'App/Models/Origin'
@@ -11,9 +11,9 @@ export default class ImportsController {
   public async import({ params }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.id)
 
-    const queue = Queue.findQueue(OriginScheduleImport.key)
+    const queue = Queue.findOrFail(OriginScheduleImport.key)
 
-    queue?.add(
+    queue.add(
       {
         originId: origin.id,
       },
@@ -58,7 +58,7 @@ export default class ImportsController {
 
     const lastJobKey = await Redis.get(key)
 
-    const queue = Queue.findQueue(OriginScheduleImport.key)
+    const queue = Queue.findOrFail(OriginScheduleImport.key)
 
     if (lastJobKey) {
       await queue?.removeRepeatableByKey(lastJobKey)
@@ -67,7 +67,7 @@ export default class ImportsController {
     }
 
     if (options[repeatEach]) {
-      const job = await queue?.add(
+      const job = await queue.add(
         {
           originId: origin.id,
         },

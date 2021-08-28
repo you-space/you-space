@@ -8,8 +8,6 @@ export default class BaseExtension {
 
   public $instance: any = {}
 
-  public name?: string
-
   public static $addInject(name: string, value: any) {
     this.$injects.set(name, value)
   }
@@ -38,11 +36,16 @@ export default class BaseExtension {
     const instance = new file()
 
     this.$injects.forEach((value, key) => {
-      instance[key] = value
+      if (typeof value !== 'function') {
+        instance[key] = value
+        return
+      }
+
+      instance[key] = (...args: any[]) => value.bind(ext)(...args)
     })
 
     this.$methods.forEach((_, key) => {
-      ext[key] = async (...args) => {
+      ext[key] = async (...args: any) => {
         await this.$emit(`before:${key}`, ext)
 
         await instance[key](...args)
@@ -52,10 +55,6 @@ export default class BaseExtension {
     })
 
     ext.$instance = instance
-
-    if (!ext.$instance.name) {
-      ext.$instance.name = filename.split('/').pop()
-    }
 
     return ext as InstanceType<T>
   }

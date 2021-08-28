@@ -9,7 +9,7 @@ import ProviderManager from './Utils/ProviderManager'
 
 export default class Plugin extends BaseExtension {
   @property()
-  public name?: string
+  public name: string
 
   @method()
   public start: () => Promise<void>

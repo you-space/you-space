@@ -1,6 +1,7 @@
-import Bull from 'bull'
+import Bull, { JobOptions } from 'bull'
 import Logger from '@ioc:Adonis/Core/Logger'
 import OriginScheduleImport from './jobs/OriginScheduleImport'
+import ProviderJobs from './jobs/ProviderJobs'
 
 export interface QueueHandler {
   name: string
@@ -13,13 +14,25 @@ export default class Queue {
 
   constructor() {
     Logger.info('queue service started')
+
     this.addQueue(OriginScheduleImport.key, OriginScheduleImport.handler)
+    this.addQueue(ProviderJobs.key, ProviderJobs.handler)
   }
 
-  public findQueue<T = Record<string, any>>(name: string) {
+  public find<T = Record<string, any>>(name: string) {
     const queue = this.queues.find((q) => q.name === name)
 
     return queue ? (queue.bull as Bull.Queue<T>) : null
+  }
+
+  public findOrFail<T = Record<string, any>>(name: string) {
+    const queue = this.find<T>(name)
+
+    if (!queue) {
+      throw new Error('queue not found')
+    }
+
+    return queue
   }
 
   public addQueue<T = Record<string, any>>(
@@ -30,9 +43,14 @@ export default class Queue {
 
     queue.process(callback)
 
-    queue.on('completed', () => Logger.info('%s complete', name))
-    queue.on('progress', (_, progress) => Logger.info('%s current progress: %s', name, progress))
+    queue.on('completed', () => Logger.debug('%s complete', name))
     queue.on('error', (err) => Logger.error(err.message))
+    queue.on('failed', (err) =>
+      Logger.child({
+        queueName: name,
+        data: err.data,
+      }).error(err.failedReason || `job failed`)
+    )
 
     this.queues.push({
       name,
@@ -41,5 +59,11 @@ export default class Queue {
     })
 
     return queue
+  }
+
+  public add(queueName: string, data: any, options?: JobOptions) {
+    const queue = this.findOrFail(queueName)
+
+    return queue.add(data, options)
   }
 }
