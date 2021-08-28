@@ -5,6 +5,7 @@ coverage
 .DS_STORE
 .env
 .env.old
+*.log
 tmp
 
 public/*
