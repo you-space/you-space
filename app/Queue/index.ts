@@ -1,4 +1,4 @@
-import Bull, { JobOptions } from 'bull'
+import Bull, { Job, JobOptions } from 'bull'
 import Logger from '@ioc:Adonis/Core/Logger'
 import OriginScheduleImport from './jobs/OriginScheduleImport'
 import ProviderJobs from './jobs/ProviderJobs'
@@ -65,5 +65,31 @@ export default class Queue {
     const queue = this.findOrFail(queueName)
 
     return queue.add(data, options)
+  }
+
+  public async status() {
+    const allJobs: Job[] = []
+
+    await Promise.all(
+      this.queues.map(async ({ bull }) => {
+        const jobs = await bull.getJobs(['waiting', 'active', 'completed', 'failed', 'delayed'])
+        allJobs.push(...jobs)
+      })
+    )
+
+    console.log(allJobs.filter((j) => !j))
+
+    return await Promise.all(
+      allJobs
+        .filter((j) => !!j)
+        .map(async (job) => ({
+          id: job.id,
+          name: job.name,
+          queueName: job.queue.name,
+          date: new Date(job.timestamp).toISOString(),
+          status: await job.getState(),
+          failedReason: job.failedReason,
+        }))
+    )
   }
 }

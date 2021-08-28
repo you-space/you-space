@@ -1,6 +1,7 @@
 import AdonisServer from '@ioc:Adonis/Core/Server'
 import AuthenticateByTokenService from '@ioc:Providers/AuthenticateByTokenService'
 import Permission from 'App/Models/Permission'
+import Logger from '@ioc:Adonis/Core/Logger'
 
 import { Server, Socket } from 'socket.io'
 
@@ -32,6 +33,10 @@ export default class SocketService {
     this.io.of('/admin').on('connection', async (socket: Socket) => {
       const token = socket.handshake.auth.token
       const allowed = await this.userHavePermission(token, ['admin'])
+
+      Logger.child({
+        id: socket.id,
+      }).info('socket connected')
 
       if (!allowed) {
         return socket.disconnect()

@@ -65,6 +65,11 @@ const routes: RouteRecordRaw[] = [
                 props: true,
                 component: () => import('pages/TypeItem/Single.vue'),
             },
+            {
+                path: '/jobs',
+                name: 'jobs',
+                component: () => import('pages/Jobs/Index.vue'),
+            },
         ],
     },
     {

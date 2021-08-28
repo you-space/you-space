@@ -74,15 +74,11 @@ export default class Provider extends BaseExtension {
 
   @method.inject()
   public addJob(methodName: string, data: any) {
-    Queue.add(
-      key,
-      {
-        providerName: this.name,
-        methodName,
-        data,
-        originId: this.originId,
-      },
-      { removeOnComplete: true }
-    )
+    Queue.add(key, {
+      providerName: this.name,
+      methodName,
+      data,
+      originId: this.originId,
+    })
   }
 }

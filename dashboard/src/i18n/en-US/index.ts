@@ -46,7 +46,7 @@ export default {
     addNew: 'Add new',
     add: 'Add {0}',
     edit: 'Edit {0}',
-    delete: 'Delete',
+    delete: 'Delete {0}',
     startImport: 'Start import',
 
     description: 'Description',
@@ -70,4 +70,9 @@ export default {
     none: 'None',
     week: 'Week',
     month: 'Month',
+    date: 'Date',
+    job: 'Job | Jobs',
+    status: 'Status',
+    advanced: 'Advanced',
+    deleteOrCancelSelected: "@:delete{'/'}@:cancel selected",
 };

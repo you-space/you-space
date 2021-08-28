@@ -127,6 +127,15 @@ export default defineComponent({
                     icon: 'casino',
                     to: { name: 'plugins' },
                 },
+                {
+                    label: tm.t('advanced'),
+                    header: true,
+                },
+                {
+                    label: tm.t('job', 2),
+                    icon: 'casino',
+                    to: { name: 'jobs' },
+                },
             );
 
             setTimeout(() => (loading.value = false), 800);

@@ -45,8 +45,6 @@ class YoutubeProvider {
 
     async create(data){
         await this.item.createMany('youtube-videos', [data]);
-
-        await new Promise(resolve => setTimeout(resolve, 5000))
     }
 
     async import() {
