@@ -34,7 +34,7 @@ export default defineComponent({
             default: false,
         },
         modelValue: {
-            type: [String, Number],
+            type: undefined as any,
             default: undefined,
         },
     },
