@@ -5,12 +5,12 @@ import path from 'path'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { promisify } from 'util'
-import SystemMeta, { BaseOptions } from 'App/Models/SystemMeta'
+import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'
 import execa from 'execa'
 
 export default class ThemeController {
   public async index() {
-    const currentTheme = await SystemMeta.findBy('name', BaseOptions.CurrentTheme)
+    const currentTheme = await SystemMeta.findBy('name', SystemDefaults.CurrentTheme)
     const themesPath = Application.makePath('content', 'themes')
     const context = await promisify(fs.readdir)(themesPath, { withFileTypes: true })
 
@@ -102,9 +102,9 @@ export default class ThemeController {
     }
 
     await SystemMeta.updateOrCreate(
-      { name: BaseOptions.CurrentTheme },
+      { name: SystemDefaults.CurrentTheme },
       {
-        name: BaseOptions.CurrentTheme,
+        name: SystemDefaults.CurrentTheme,
         value: name,
       }
     )

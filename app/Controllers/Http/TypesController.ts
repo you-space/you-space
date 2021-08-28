@@ -45,7 +45,7 @@ export default class TypesController {
     }
   }
 
-  public async destroy({ request, params }: HttpContextContract) {
+  public async destroy({ params }: HttpContextContract) {
     const type = await Type.findOrFail(params.id)
 
     type.deletedAt = DateTime.now()

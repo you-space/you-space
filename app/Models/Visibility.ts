@@ -8,7 +8,6 @@ import {
   hasManyThrough,
   HasManyThrough,
   beforeDelete,
-  beforeUpdate,
 } from '@ioc:Adonis/Lucid/Orm'
 import VisibilityPermission from './VisibilityPermission'
 import Permission from './Permission'

@@ -12,7 +12,6 @@ import {
 } from '@ioc:Adonis/Lucid/Orm'
 
 import Visibility from './Visibility'
-import TypeField from './TypeField'
 import Origin from './Origin'
 import Type from './Type'
 import ItemMeta from './ItemMeta'

@@ -1,13 +1,6 @@
 import { DateTime } from 'luxon'
 import { types } from '@ioc:Adonis/Core/Helpers'
-import {
-  BaseModel,
-  scope,
-  column,
-  HasMany,
-  hasMany,
-  ModelQueryBuilderContract,
-} from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, scope, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 
 import Item from './Item'
 import TypeField from './TypeField'
