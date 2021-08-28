@@ -1,198 +1,131 @@
 <template>
-    <q-page padding class="row items-stretch">
-        <div class="col full-width">
-            <q-card class="full-height flex column items-start">
-                <div class="row full-width full-height">
-                    <div class="col-3 border-r border-grey-4 relative">
-                        <div
-                            v-if="!origins.length"
-                            class="absolute-center row column"
-                        >
-                            <span class="text-center q-mb-sm">
-                                {{ $tc('noItem', 2) }}
-                            </span>
-                            <q-btn :label="$t('addNew')" @click="addNew" />
-                        </div>
+    <q-page padding>
+        <ys-table
+            v-model:pagination="pagination"
+            :rows="origins"
+            :columns="columns"
+            :title="$tc('origin', 2)"
+            @request="reload"
+        >
+            <template #top-right>
+                <q-btn
+                    :label="$t('add', [$t('origin')])"
+                    color="primary"
+                    @click="addNew"
+                />
+            </template>
 
-                        <q-list v-else separator>
-                            <template
-                                v-for="origin in origins"
-                                :key="origin.id"
-                            >
-                                <q-item
-                                    clickable
-                                    :class="!origin.valid ? 'bg-red-3' : ''"
-                                    @click="showOrigin(origin)"
-                                >
-                                    <q-item-section>
-                                        <q-item-label>
-                                            {{ origin.name }}
-                                            {{
-                                                !origin.valid
-                                                    ? `(${$t('notFound')})`
-                                                    : ''
-                                            }}
-                                        </q-item-label>
-                                        <q-item-label caption>
-                                            {{ origin.providerName }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                    <q-item-section avatar>
-                                        <q-toggle
-                                            v-model="origin.active"
-                                            @update:model-value="
-                                                toggleStatus(origin)
-                                            "
-                                        />
-                                    </q-item-section>
-                                </q-item>
-                            </template>
-                            <q-item clickable @click="addNew">
-                                <q-item-section>
-                                    <q-item-label>
-                                        {{
-                                            $t('add', [
-                                                $t('origin').toLowerCase(),
-                                            ])
-                                        }}
-                                    </q-item-label>
-                                </q-item-section>
-                                <q-item-section avatar>
-                                    <q-icon name="add"></q-icon>
-                                </q-item-section>
-                            </q-item>
-                        </q-list>
-                    </div>
+            <template #body-cell-active="props">
+                <q-td :props="props">
+                    <q-toggle
+                        :model-value="props.value"
+                        @update:model-value="toggleStatus(props.row)"
+                    />
+                </q-td>
+            </template>
 
-                    <div class="col-9 relative">
-                        <template v-if="selected">
-                            <q-tabs
-                                v-model="tab"
-                                inline-label
-                                align="left"
-                                style="height: 56px"
-                            >
-                                <q-tab
-                                    v-for="option in tabOptions"
-                                    :key="option.name"
-                                    :name="option.name"
-                                    :label="option.label"
-                                />
-                            </q-tabs>
-                            <q-separator class="full-width" />
+            <template #body-cell-valid="props">
+                <q-td :props="props">
+                    <q-icon
+                        :name="props.value ? 'check' : 'close'"
+                        :color="props.value ? 'positive' : 'negative'"
+                    />
+                </q-td>
+            </template>
 
-                            <q-tab-panels v-model="tab">
-                                <q-tab-panel
-                                    v-for="option in tabOptions"
-                                    :key="option.name"
-                                    :name="option.name"
-                                >
-                                    <component
-                                        :is="option.component"
-                                        :origin="selected"
-                                        @reload="setOrigins"
-                                    />
-                                </q-tab-panel>
-                            </q-tab-panels>
-                        </template>
-
-                        <div v-else class="absolute-center">
-                            {{ $t('selectAItem') }}
-                        </div>
-                    </div>
-                </div>
-            </q-card>
-        </div>
+            <template #body-cell-actions="props">
+                <q-td :props="props">
+                    <q-btn
+                        icon="edit"
+                        round
+                        color="grey-7"
+                        flat
+                        size="sm"
+                        @click="showOrigin(props.row)"
+                    />
+                    <q-btn
+                        icon="delete"
+                        round
+                        color="grey-7"
+                        flat
+                        size="sm"
+                        @click="deleteOrigin(props.row)"
+                    />
+                </q-td>
+            </template>
+        </ys-table>
     </q-page>
 </template>
 <script lang="ts">
-import {
-    defineComponent,
-    ref,
-    defineAsyncComponent,
-    watch,
-    computed,
-} from 'vue';
+import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 import { api } from 'src/boot/axios';
-import { fetchOrigins, Origin } from 'src/pages/Origins/composition';
+import {
+    deleteOriginById,
+    fetchOrigins,
+    Origin,
+} from 'src/pages/Origins/composition';
+import { createServerPagination } from 'src/components/compositions';
 
 export default defineComponent({
     name: 'Origins',
-    components: {
-        General: defineAsyncComponent(() => import('./General.vue')),
-        Config: defineAsyncComponent(() => import('./Config.vue')),
-        Import: defineAsyncComponent(() => import('./Import.vue')),
-    },
-    props: {
-        id: {
-            type: [Number, String],
-            default: null,
-        },
-    },
-    setup(props) {
+    setup() {
         const tm = useI18n();
         const quasar = useQuasar();
         const router = useRouter();
-        const route = useRoute();
-
-        const tab = computed<string>({
-            get() {
-                return route.query.tab as string;
-            },
-            set(value) {
-                void router.push({
-                    query: { tab: value },
-                });
-            },
-        });
-
-        const tabOptions = ref<Record<string, string>[]>([]);
 
         const origins = ref<Origin[]>([]);
-
-        const selected = computed<Origin | null>(() => {
-            const origin = origins.value.find((o) => o.id === Number(props.id));
-
-            return origin || null;
-        });
-
-        function setTabOptions() {
-            tabOptions.value = [
-                {
-                    label: tm.t('general'),
-                    name: 'general',
-                    component: 'general',
+        const columns = [
+            {
+                name: 'active',
+                field: 'active',
+                align: 'left',
+                label: tm.t('active'),
+                style: {
+                    width: '30px',
                 },
-                {
-                    label: tm.t('config'),
-                    name: 'config',
-                    component: 'config',
-                },
-            ];
+            },
+            {
+                name: 'name',
+                field: 'name',
+                align: 'left',
+                label: tm.t('name'),
+            },
 
-            if (!selected.value) {
-                return;
-            }
+            {
+                name: 'valid',
+                field: 'valid',
+                align: 'left',
+                label: tm.t('valid'),
+            },
 
-            if (selected.value.options.includes('import')) {
-                tabOptions.value.push({
-                    label: tm.t('import'),
-                    name: 'import',
-                    component: 'import',
-                });
-            }
+            {
+                name: 'providerName',
+                field: 'providerName',
+                align: 'left',
+                label: tm.t('provider'),
+            },
+
+            {
+                name: 'actions',
+            },
+        ];
+
+        const { pagination, reload } = createServerPagination(
+            fetchOrigins,
+            ({ data }) => {
+                origins.value = data;
+            },
+        );
+
+        async function load() {
+            await reload({ pagination: pagination.value });
         }
 
-        watch(() => selected.value, setTabOptions, { immediate: true });
-
-        async function setOrigins() {
-            const { data } = await fetchOrigins();
-            origins.value = data;
-        }
+        void load();
 
         function addNew() {
             quasar
@@ -208,43 +141,50 @@ export default defineComponent({
                         providerName: data.providerName,
                     });
 
-                    await setOrigins();
+                    await load();
                 });
         }
 
         async function toggleStatus(origin: Origin) {
             await api
-                .patch(`admin/origins/${origin.id}`, { active: origin.active })
+                .patch(`admin/origins/${origin.id}`, { active: !origin.active })
                 .catch(console.error);
 
-            await setOrigins();
+            await load();
         }
-
-        void setOrigins();
 
         function showOrigin(origin: Origin) {
             return router.push({
                 name: 'origins-single',
-                query: {
-                    tab: 'general',
-                },
                 params: {
                     id: origin.id,
                 },
             });
         }
 
+        function deleteOrigin(origin: Origin) {
+            quasar
+                .dialog({
+                    title: tm.t('areYouSure'),
+                    message: tm.t('thisActionCanNotBeUndone'),
+                    cancel: true,
+                })
+                .onOk(async () => {
+                    await deleteOriginById(origin.id);
+                    await load();
+                });
+        }
+
         return {
             origins,
-            selected,
+            columns,
+            pagination,
+
             showOrigin,
-
-            tab,
-            tabOptions,
-
-            setOrigins,
+            reload,
             addNew,
             toggleStatus,
+            deleteOrigin,
         };
     },
 });

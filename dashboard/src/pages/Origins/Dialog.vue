@@ -17,7 +17,7 @@
                         v-model="origin.providerName"
                         filled
                         option-label="name"
-                        option-value="name"
+                        option-value="id"
                         :label="$t('provider')"
                         :rules="[$helper.rules.required]"
                         :options="providers"
@@ -55,12 +55,8 @@ export default {
     emits: [...useDialogPluginComponent.emits],
 
     setup() {
-        const {
-            dialogRef,
-            onDialogHide,
-            onDialogOK,
-            onDialogCancel,
-        } = useDialogPluginComponent();
+        const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+            useDialogPluginComponent();
 
         const origin = ref({
             name: '',

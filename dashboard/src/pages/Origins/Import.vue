@@ -1,46 +1,45 @@
 <template>
-    <q-form @submit="save">
-        <div class="flex q-mb-md items-end">
-            <h2 class="text-h6 q-my-none text-bold col-grow">
-                {{ $t('scheduleImports') }}
-            </h2>
-            <div class="q-gutter-sm">
-                <q-btn
-                    :label="$t('importNow')"
-                    color="warning"
-                    @click="importNow"
-                />
-                <q-btn
-                    type="submit"
-                    :loading="loading"
-                    :label="$t('save')"
-                    color="primary"
-                />
-            </div>
-        </div>
-        <div>
-            <q-select
-                v-model="repeatEach"
-                :options="options"
-                map-options
-                emit-value
-                outlined
-                dense
-                :label="$t('frequency')"
+    <div class="row items-center">
+        <q-item-label class="text-bold text-subtitle1 col-12 q-mb-md">
+            {{ $t('scheduleImportFor') }}
+        </q-item-label>
+
+        <div
+            v-for="option in options"
+            :key="option.value"
+            class="col-6 col-xl-2 q-pr-sm q-pb-sm"
+        >
+            <q-btn
+                :color="
+                    model.schedule.repeatEach === option.value
+                        ? 'primary'
+                        : 'primary '
+                "
+                :label="option.label"
+                class="full-width"
+                @click="model.schedule.repeatEach = option.value"
             />
         </div>
-    </q-form>
+
+        <div class="col-6 col-xl-2 q-pr-sm q-pb-sm q-mt-lg">
+            <q-btn
+                :label="$t('import', ['now'])"
+                icon="send"
+                color="primary"
+                class="full-width"
+                outline
+                @click="importNow"
+            />
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue';
+import { useVModel } from '@vueuse/core';
+import { useQuasar } from 'quasar';
+import { defineComponent, PropType } from 'vue';
 import { useI18n } from 'vue-i18n';
-import {
-    Origin,
-    importOriginData,
-    findOriginScheduler,
-    updateOriginScheduler,
-} from './composition';
+import { Origin, importOriginData } from './composition';
 
 export default defineComponent({
     props: {
@@ -49,11 +48,12 @@ export default defineComponent({
             required: true,
         },
     },
-    setup(props) {
-        const loading = ref(false);
+    setup(props, { emit }) {
         const tm = useI18n();
 
-        const repeatEach = ref();
+        const quasar = useQuasar();
+
+        const model = useVModel(props, 'origin', emit);
 
         const options = [
             {
@@ -82,35 +82,23 @@ export default defineComponent({
             },
         ];
 
-        async function importNow() {
-            await importOriginData(props.origin.id);
-        }
-
-        async function setScheduleImporter() {
-            const data = await findOriginScheduler(props.origin.id);
-
-            repeatEach.value = data.repeatEach;
-
-            console.log(data);
-        }
-
-        void setScheduleImporter();
-
-        async function save() {
-            await updateOriginScheduler(props.origin.id, {
-                repeatEach: repeatEach.value,
-            });
-
-            await setScheduleImporter();
+        function importNow() {
+            quasar
+                .dialog({
+                    title: tm.t('confirm'),
+                    message: tm.t('thisWillStartTheImportIme'),
+                    cancel: true,
+                })
+                .onOk(async () => {
+                    await importOriginData(props.origin.id);
+                });
         }
 
         return {
-            loading,
-            repeatEach,
+            model,
             options,
 
             importNow,
-            save,
         };
     },
 });

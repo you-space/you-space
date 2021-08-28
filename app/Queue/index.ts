@@ -77,8 +77,6 @@ export default class Queue {
       })
     )
 
-    console.log(allJobs.filter((j) => !j))
-
     return await Promise.all(
       allJobs
         .filter((j) => !!j)
@@ -89,6 +87,8 @@ export default class Queue {
           date: new Date(job.timestamp).toISOString(),
           status: await job.getState(),
           failedReason: job.failedReason,
+          data: job.data,
+          options: job.opts,
         }))
     )
   }

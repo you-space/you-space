@@ -1,59 +1,56 @@
 <template>
-    <q-form @submit="save">
-        <div class="flex q-mb-md">
-            <h2 class="text-h6 q-my-none text-bold col-grow">
-                {{ $t('config') }}
-            </h2>
-            <div class="q-gutter-sm">
-                <q-btn
-                    :loading="loading"
-                    :label="$t('save')"
-                    color="primary"
-                    type="submit"
-                />
-            </div>
-        </div>
-
-        <div class="row full-width">
+    <q-scroll-area style="height: 200px">
+        <div class="row full-width q-pr-md">
             <div
-                v-for="(field, index) in configFields"
+                v-for="(field, index) in fields"
                 :key="index"
                 class="q-mb-sm col-12 row items-center"
             >
                 <q-input
-                    v-model="field.name"
+                    :model-value="field.name"
                     class="col-4 q-pr-sm"
                     :label="$t('name')"
-                    :readonly="field.isRequired"
+                    :readonly="field.required"
                     outlined
-                    dense
+                    @update:model-value="
+                        (value) => setValue(field, 'name', value)
+                    "
                 />
+
                 <q-input
-                    v-model="field.value"
+                    :model-value="field.value"
                     class="col q-px-sm"
                     :label="$t('value')"
                     outlined
-                    dense
+                    @update:model-value="
+                        (value) => setValue(field, 'value', value)
+                    "
                 />
                 <q-btn
                     v-if="!field.isRequired"
                     icon="close"
                     flat
                     class="full-height"
+                    round
                     @click="removeField(field)"
+                    @update:model-value="fields.slice()"
                 />
             </div>
-            <q-btn class="q-mt-md" :label="$t('addNew')" @click="addField" />
         </div>
-    </q-form>
+        <q-btn
+            class="q-mt-md"
+            color="primary"
+            flat
+            :label="$t('addNew')"
+            @click="addField"
+        />
+    </q-scroll-area>
 </template>
 <script lang="ts">
-import { api } from 'src/boot/axios';
-import { defineComponent, ref, PropType, watch } from 'vue';
-import { useQuasar } from 'quasar';
-import { useI18n } from 'vue-i18n';
+import { useVModel } from '@vueuse/core';
+import { defineComponent, ref, PropType, computed, watch } from 'vue';
 
-import { saveOrigin, Origin } from './composition';
+import { Origin } from './composition';
 
 interface Field {
     name: string;
@@ -70,104 +67,65 @@ export default defineComponent({
     },
     emits: ['reload'],
     setup(props, { emit }) {
-        const quasar = useQuasar();
-        const tm = useI18n();
-
-        const configFields = ref<Field[]>([]);
         const loading = ref(false);
 
-        function setFields() {
-            const fieldsValues = Object.entries(props.origin.config).map(
-                ([key, value]) => ({
-                    name: key,
-                    value,
-                }),
-            );
-            if (props.origin.fields) {
-                configFields.value = props.origin.fields.map((f) => {
-                    const configValue = fieldsValues.find(
-                        (fv) => fv.name === f.name,
+        const model = useVModel(props, 'origin', emit);
+
+        const fields = computed({
+            get() {
+                return Object.entries(model.value.config).map(
+                    ([key, value]) => ({
+                        name: key,
+                        required: model.value.fields.some(
+                            (f) => f.name === key,
+                        ),
+                        value,
+                    }),
+                );
+            },
+            set(value: Origin['fields']) {
+                model.value.config = value
+                    .filter((f) => f.name !== '')
+                    .reduce(
+                        (all, f) => ({
+                            ...all,
+                            [f.name]: f.value,
+                        }),
+                        {},
                     );
-                    return {
-                        isRequired: true,
-                        ...f,
-                        value: configValue ? configValue.value : '',
-                    };
-                });
-            }
-            fieldsValues
-                .filter(
-                    (f) => !configFields.value.some((cf) => cf.name === f.name),
-                )
-                .forEach((fv) => {
-                    configFields.value.push({
-                        name: fv.name,
-                        value: fv.value,
-                    });
-                });
-        }
+            },
+        });
 
-        watch(() => props.origin.id, setFields, { immediate: true });
-
-        function removeField(field: Field) {
-            const index = configFields.value.indexOf(field);
-            if (index != -1) {
-                configFields.value.splice(index, 1);
-            }
-        }
+        model.value.fields
+            .filter((f) => !model.value.config[f.name])
+            .forEach((f) => (model.value.config[f.name] = ''));
 
         function addField() {
-            configFields.value.push({
-                name: '',
-                value: '',
-            });
+            model.value.config['new'] = '';
         }
 
-        async function save() {
-            loading.value = true;
-
-            const config = configFields.value
-                .filter((f) => f.name !== '')
-                .reduce((result, field) => {
-                    return {
-                        ...result,
-                        [field.name]: field.value,
-                    };
-                }, {});
-
-            await saveOrigin(props.origin.id, { config }).catch(
-                () => (loading.value = false),
-            );
-
-            setTimeout(() => {
-                loading.value = false;
-                emit('reload');
-            }, 800);
+        function removeField(field: Field) {
+            delete model.value.config[field.name];
         }
 
-        async function deleteProvider() {
-            await api.delete(`admin/origins/${String(props.origin.id)}`);
+        function setValue(
+            field: Field,
+            property: 'name' | 'value',
+            value: string,
+        ) {
+            field[property] = value;
 
-            emit('reload');
-        }
-
-        function showDeleteDialog() {
-            quasar
-                .dialog({
-                    title: tm.t('areYouSure'),
-                    message: tm.t('thisActionCanNotBeUndone'),
-                    cancel: true,
-                })
-                .onOk(deleteProvider);
+            fields.value = fields.value.slice();
         }
 
         return {
             loading,
-            configFields,
+            model,
+            fields,
+
             addField,
             removeField,
-            save,
-            showDeleteDialog,
+            setValue,
         };
     },
 });

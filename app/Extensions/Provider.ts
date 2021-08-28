@@ -58,16 +58,26 @@ export default class Provider extends BaseExtension {
     return await Promise.all(metas.map(async (m) => this.findOrFail(m.name)))
   }
 
-  public static async findOrFail(name: string) {
+  public static async find(name: string) {
     const meta = await SystemMeta.findBy('name', name)
 
     if (!meta) {
-      throw new Error('provider not found')
+      return null
     }
 
     const provider = await this.$mount(meta.value)
 
     provider.name = name
+
+    return provider
+  }
+
+  public static async findOrFail(name: string) {
+    const provider = await this.find(name)
+
+    if (!provider) {
+      throw new Error('provider not found')
+    }
 
     return provider
   }

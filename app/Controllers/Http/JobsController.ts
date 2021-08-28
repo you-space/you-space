@@ -2,6 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema } from '@ioc:Adonis/Core/Validator'
 
 import Queue from '@ioc:Queue'
+import OriginScheduleImport from 'App/Queue/jobs/OriginScheduleImport'
 
 export default class JobsController {
   public index() {
@@ -26,8 +27,6 @@ export default class JobsController {
         const queue = Queue.findOrFail(queueName)
 
         const job = await queue.getJob(jobId)
-
-        console.log(jobId)
 
         if (!job) return
 

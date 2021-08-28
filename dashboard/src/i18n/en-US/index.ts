@@ -75,4 +75,13 @@ export default {
     status: 'Status',
     advanced: 'Advanced',
     deleteOrCancelSelected: "@:delete{'/'}@:cancel selected",
+    failedReason: 'Failed reason',
+    view: 'View',
+    queue: 'Queue',
+    options: 'Options',
+    data: 'Data',
+    scheduleImportFor: 'Schedule import for:',
+    import: 'Import {0}',
+    now: 'Now',
+    valid: 'Valid',
 };

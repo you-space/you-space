@@ -107,16 +107,7 @@ export default defineComponent({
                     icon: 'view_in_ar',
                     to: { name: 'origins' },
                 },
-                {
-                    label: tm.t('item', 2),
-                    icon: 'list_alt',
-                    to: { name: 'items-all', params: {} },
-                },
-                {
-                    label: tm.t('type', 2),
-                    icon: 'title',
-                    to: { name: 'types' },
-                },
+
                 {
                     label: tm.t('theme', 2),
                     icon: 'color_lens',
@@ -130,6 +121,16 @@ export default defineComponent({
                 {
                     label: tm.t('advanced'),
                     header: true,
+                },
+                {
+                    label: tm.t('item', 2),
+                    icon: 'list_alt',
+                    to: { name: 'items-all', params: {} },
+                },
+                {
+                    label: tm.t('type', 2),
+                    icon: 'title',
+                    to: { name: 'types' },
                 },
                 {
                     label: tm.t('job', 2),

@@ -1,4 +1,3 @@
-import Origin from 'App/Models/Origin'
 import { ProcessCallbackFunction } from 'bull'
 
 interface Data {
@@ -11,9 +10,10 @@ interface Data {
 export const key = 'providers:jobs'
 
 const handler: ProcessCallbackFunction<Data> = async (job, done) => {
-  const { providerName, methodName, data, originId } = job.data
-
+  const Origin = (await import('App/Models/Origin')).default
   const Provider = (await import('App/Extensions/Provider')).default
+
+  const { providerName, methodName, data, originId } = job.data
 
   const provider = await Provider.findOrFail(providerName)
 

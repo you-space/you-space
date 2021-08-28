@@ -64,12 +64,34 @@
                     </q-btn>
                 </q-td>
             </template>
+
+            <template #body-cell-options="props">
+                <q-td :props="props">
+                    <q-btn
+                        :label="$t('view')"
+                        size="sm"
+                        color="primary"
+                        @click="viewJson(props.value)"
+                    />
+                </q-td>
+            </template>
+
+            <template #body-cell-data="props">
+                <q-td :props="props">
+                    <q-btn
+                        :label="$t('view')"
+                        size="sm"
+                        color="primary"
+                        @click="viewJson(props.value)"
+                    />
+                </q-td>
+            </template>
         </ys-table>
     </q-page>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useIntervalFn } from '@vueuse/core';
 
@@ -107,17 +129,17 @@ export default defineComponent({
                 sortable: true,
             },
             {
-                name: 'failedReason',
-                align: 'left',
-                label: tm.t('failedReason'),
-                field: 'failedReason',
-                sortable: true,
-            },
-            {
                 name: 'queue',
                 align: 'left',
                 label: tm.t('queue'),
                 field: 'queueName',
+                sortable: true,
+            },
+            {
+                name: 'failedReason',
+                align: 'left',
+                label: tm.t('failedReason'),
+                field: 'failedReason',
                 sortable: true,
             },
             {
@@ -134,6 +156,18 @@ export default defineComponent({
                 field: 'date',
                 format: (value: string) => tm.d(value, 'long'),
                 sortable: true,
+            },
+            {
+                name: 'options',
+                field: 'options',
+                label: tm.t('options'),
+                align: 'left',
+            },
+            {
+                name: 'data',
+                field: 'data',
+                label: tm.t('data'),
+                align: 'left',
             },
             {
                 name: 'actions',
@@ -161,7 +195,7 @@ export default defineComponent({
             }
 
             if (value === 'completed') {
-                return 'success';
+                return 'positive';
             }
 
             if (value === 'failed') {
@@ -197,6 +231,15 @@ export default defineComponent({
             selected.value = rows.filter((s: Job) => s.status !== 'active');
         }
 
+        function viewJson(value: any) {
+            quasar.dialog({
+                component: defineAsyncComponent(
+                    () => import('src/components/YsJsonViewerDialog.vue'),
+                ),
+                componentProps: { value },
+            });
+        }
+
         return {
             rows,
             columns,
@@ -206,6 +249,7 @@ export default defineComponent({
 
             onSelection,
             getColor,
+            viewJson,
             deleteSelected,
             deleteSingle,
         };

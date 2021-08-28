@@ -1,11 +1,17 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
-  Route.resource('origins', 'OriginsController').apiOnly().only(['index', 'store', 'update'])
+  Route.resource('origins', 'OriginsController').only([
+    'index',
+    'show',
+    'store',
+    'update',
+    'destroy',
+  ])
 
-  Route.post('origins/:id/import', 'ImportsController.import').as('origins.import')
-  Route.get('origins/:id/schedule', 'ImportsController.showSchedule').as('origins.show-schedule')
-  Route.post('origins/:id/schedule', 'ImportsController.schedule').as('origins.schedule')
+  Route.get('providers', 'OriginsController.providers').as('origins.providers')
+
+  Route.post('origins/:id/import', 'OriginsController.import').as('origins.import')
 })
   .prefix('admin')
   .prefix('v1')

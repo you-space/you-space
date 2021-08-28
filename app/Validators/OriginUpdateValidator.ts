@@ -1,5 +1,6 @@
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { OriginScheduleOptions } from 'App/Models/Origin'
 export default class OriginValidator {
   constructor(protected ctx: HttpContextContract) {}
 
@@ -8,11 +9,16 @@ export default class OriginValidator {
       rules.unique({
         table: 'origins',
         column: 'name',
+        whereNot: {
+          id: this.ctx.params.id,
+        },
       }),
     ]),
-    providerName: schema.string.optional(),
     active: schema.boolean.optional(),
     config: schema.object.optional().anyMembers(),
+    schedule: schema.object.optional().members({
+      repeatEach: schema.enum(Object.values(OriginScheduleOptions)),
+    }),
   })
   public messages = {}
 }
