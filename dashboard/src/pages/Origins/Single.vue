@@ -41,7 +41,6 @@
 import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { api } from 'src/boot/axios';
 import { findOrigin, Origin, saveOrigin } from 'src/pages/Origins/composition';
 
 export default defineComponent({
@@ -96,14 +95,6 @@ export default defineComponent({
         }
 
         void setOrigin();
-
-        async function toggleStatus(origin: Origin) {
-            await api
-                .patch(`admin/origins/${origin.id}`, { active: origin.active })
-                .catch(console.error);
-
-            // await setOrigins();
-        }
 
         async function save() {
             await saveOrigin(props.id, origin.value);

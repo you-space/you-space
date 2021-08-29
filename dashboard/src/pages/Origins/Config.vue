@@ -48,7 +48,7 @@
 </template>
 <script lang="ts">
 import { useVModel } from '@vueuse/core';
-import { defineComponent, ref, PropType, computed, watch } from 'vue';
+import { defineComponent, ref, PropType, computed } from 'vue';
 
 import { Origin } from './composition';
 

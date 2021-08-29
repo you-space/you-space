@@ -84,4 +84,5 @@ export default {
     import: 'Import {0}',
     now: 'Now',
     valid: 'Valid',
+    componentProps: 'Component props',
 };

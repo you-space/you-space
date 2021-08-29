@@ -2,17 +2,17 @@
     <q-page v-if="type" padding>
         <q-card>
             <div class="row">
-                <q-card-section class="col-4 border-r border-grey-4">
+                <q-card-section class="col-5 border-r border-grey-4">
                     <q-input
                         v-model="type.name"
                         class="q-mb-md"
                         filled
                         :label="$t('name')"
                     />
-                    <ys-json-editor
+                    <ys-object
                         v-model="type.options"
-                        filled
                         :label="$tc('option', 2)"
+                        :initial-value="type.options"
                     />
                     <q-btn
                         :label="$t('save')"
@@ -21,7 +21,7 @@
                         @click="save"
                     />
                 </q-card-section>
-                <q-card-section class="col-8">
+                <q-card-section class="col-7">
                     <single-field :type-id="id" />
                 </q-card-section>
             </div>
