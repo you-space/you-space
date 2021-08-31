@@ -69,14 +69,24 @@ export default class Plugin extends BaseExtension {
   }
 
   public static async all() {
-    const folders = await fs.promises.readdir(Application.makePath('content', 'plugins'))
+    const folders = await fs.promises.readdir(Application.makePath('content', 'plugins'), {
+      withFileTypes: true,
+    })
 
     return await Promise.all(
-      folders.map((name) => this.$mount(Application.makePath('content', 'plugins', name)))
+      folders.filter((f) => f.isDirectory()).map((f) => this.findOrFail(f.name))
     )
   }
 
-  public static findOrFail(name: string) {
-    return this.$mount(Application.makePath('content', 'plugins', name))
+  public static async findOrFail(name: string) {
+    const plugin = await this.$mount(Application.makePath('content', 'plugins', name))
+
+    if (!plugin) {
+      throw new Error(`plugin ${name} not found or invalid`)
+    }
+
+    plugin.name = name
+
+    return plugin
   }
 }

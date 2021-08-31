@@ -1,3 +1,4 @@
+import Logger from '@ioc:Adonis/Core/Logger'
 export function isJson(str: string) {
   try {
     JSON.parse(str)
@@ -21,6 +22,7 @@ export async function importIfExist(path: string) {
 
     return file.default || file
   } catch (error) {
+    Logger.error(error)
     return null
   }
 }

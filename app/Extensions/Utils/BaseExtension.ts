@@ -1,5 +1,6 @@
 import { importIfExist } from 'App/Services/Helpers'
 import { This, HookListener } from './types'
+import Logger from '@ioc:Adonis/Core/Logger'
 
 export default class BaseExtension {
   public static $methods = new Map<string, any>()
@@ -30,7 +31,8 @@ export default class BaseExtension {
     const file = await importIfExist(filename)
 
     if (!file) {
-      throw new Error('error mount extension')
+      Logger.error('error mount extension')
+      return null
     }
 
     const instance = new file()
@@ -48,9 +50,11 @@ export default class BaseExtension {
       ext[key] = async (...args: any) => {
         await this.$emit(`before:${key}`, ext)
 
-        await instance[key](...args)
+        const result = await instance[key](...args)
 
         await this.$emit(`after:${key}`, ext)
+
+        return result
       }
     })
 

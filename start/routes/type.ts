@@ -8,8 +8,6 @@ Route.group(() => {
       update: ['auth:api', 'acl:admin'],
       destroy: ['auth:api', 'acl:admin'],
     })
-
-  // Route.resource('item-types.fields', 'ItemTypesFieldsController').apiOnly().only(['index'])
 })
   .prefix('v1')
   .prefix('api')
