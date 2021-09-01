@@ -4,19 +4,42 @@ import Logger from '@ioc:Adonis/Core/Logger'
 export interface Filters {
   page?: number
   limit?: number
-  typeId?: number
+  search?: string
 }
 
 export default class ItemsManager {
   constructor(private allowWrite = true) {}
 
-  public async fetchItems(filters?: Filters) {
+  public async fetchItems(filters?: Filters, serialize = false) {
     const query = Item.query()
       .preload('metas')
       .preload('itemFiles')
       .preload('visibility', (s) => s.select('name'))
 
-    return query.paginate(filters?.page || 1, filters?.limit)
+    if (serialize) {
+      query.preload('type', (q) => q.preload('fields'))
+    }
+
+    if (filters?.search) {
+      query
+        .whereRaw('to_tsvector(value) @@ plainto_tsquery(?)', [filters.search])
+        .orWhereHas('metas', (q) =>
+          q.whereRaw('to_tsvector(value) @@ plainto_tsquery(?)', [filters.search as string])
+        )
+    }
+
+    const paginate = await query.paginate(filters?.page || 1, filters?.limit)
+
+    let data = paginate.all()
+
+    if (serialize) {
+      data = paginate.all().map((i) => i.serializeByType(i.type))
+    }
+
+    return {
+      meta: paginate.getMeta(),
+      data,
+    }
   }
 
   public async createMany(typeName: string, items: Partial<Item>[]) {

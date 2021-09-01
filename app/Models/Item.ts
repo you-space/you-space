@@ -1,4 +1,5 @@
 import lodash from 'lodash'
+
 import { DateTime } from 'luxon'
 import {
   BaseModel,
@@ -9,6 +10,7 @@ import {
   HasMany,
   hasManyThrough,
   HasManyThrough,
+  scope,
 } from '@ioc:Adonis/Lucid/Orm'
 
 import Visibility from './Visibility'
@@ -17,6 +19,7 @@ import Type from './Type'
 import ItemMeta from './ItemMeta'
 import ItemFile from './ItemFile'
 import File from './File'
+import TypeField from './TypeField'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
@@ -86,6 +89,8 @@ export default class Item extends BaseModel {
 
       visibilityId: this.visibilityId,
       visibilityName: this.visibility?.name,
+
+      createdAt: this.createdAt,
     }
 
     type.fields
@@ -113,4 +118,20 @@ export default class Item extends BaseModel {
 
     return item
   }
+
+  public static filterByField = scope((query, field: TypeField, value: any) => {
+    if (field.options.path) {
+      const path = field.options.path.split('.')
+
+      const selector = path
+        .slice(0, path.length - 1)
+        .reduce((result, p) => `${result}->'${p}'`, 'value')
+
+      const comparator = {
+        [field.name]: value,
+      }
+
+      query.whereRaw(`${selector} @> ?`, [JSON.stringify(comparator)])
+    }
+  })
 }

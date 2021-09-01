@@ -12,7 +12,7 @@ import ItemsManager from './Utils/ItemsManager'
 
 export default class Provider extends BaseExtension {
   @method()
-  public import: (setProgress: any) => Promise<void>
+  public import: () => Promise<void>
 
   @manager.item()
   public item: ItemsManager
@@ -67,6 +67,10 @@ export default class Provider extends BaseExtension {
 
     const provider = await this.$mount(meta.value)
 
+    if (!provider) {
+      return null
+    }
+
     provider.name = name
 
     return provider
@@ -84,11 +88,17 @@ export default class Provider extends BaseExtension {
 
   @method.inject()
   public addJob(methodName: string, data: any) {
-    Queue.add(key, {
-      providerName: this.name,
-      methodName,
-      data,
-      originId: this.originId,
-    })
+    Queue.add(
+      key,
+      {
+        providerName: this.name,
+        methodName,
+        data,
+        originId: this.originId,
+      },
+      {
+        removeOnComplete: true,
+      }
+    )
   }
 }

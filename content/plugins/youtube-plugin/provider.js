@@ -47,7 +47,7 @@ class YoutubeProvider {
         await this.item.createMany('youtube-videos', [data]);
     }
 
-    async import() {
+    async import(pageToken = undefined) {
         const playlistId = await this.findPlaylistId();
 
         const requestPlaylistItems = await this.api.get("playlistItems", {
@@ -55,7 +55,7 @@ class YoutubeProvider {
                 part: "contentDetails",
                 key: this.config.apiKey,
                 playlistId,
-                pageToken: this.nextPageToken,
+                pageToken: pageToken,
                 maxResults: this.maxResults,
             },
         })
@@ -65,7 +65,7 @@ class YoutubeProvider {
         const nextPageToken = lodash.get(
             requestPlaylistItems,
             "data.nextPageToken",
-            null
+            undefined
         );
 
         const videoIds = items
@@ -93,7 +93,7 @@ class YoutubeProvider {
         })
 
         if (nextPageToken) {
-            // await this.import(setProgress)
+            await this.import(nextPageToken)
         }
 
     }

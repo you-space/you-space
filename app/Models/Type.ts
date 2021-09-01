@@ -45,7 +45,7 @@ export default class Type extends BaseModel {
   })
 
   public static fetchByIdOrName(idOrName: string | number) {
-    if (types.isNumber(idOrName)) {
+    if (!isNaN(Number(idOrName))) {
       return Type.query().where('id', idOrName).whereNull('deletedAt')
     }
 

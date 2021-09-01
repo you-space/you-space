@@ -4,8 +4,10 @@ import TypeField from 'App/Models/TypeField'
 import Logger from '@ioc:Adonis/Core/Logger'
 
 interface Filters {
+  [prop: string]: any
   page?: number
   limit?: number
+  search?: string
 }
 
 export default class TypeManager {
@@ -73,13 +75,27 @@ export default class TypeManager {
       .preload('itemFiles')
       .preload('visibility', (s) => s.select('name'))
 
+    if (filters) {
+      type.fields
+        .filter((f) => filters[f.name] !== undefined)
+        .filter((f) => f.type === 'mapped')
+        .filter((f) => !!f.options.path)
+        .forEach((field) => {
+          query.apply((s) => s.filterByField(field, filters[field.name]))
+        })
+    }
+
+    if (filters?.search) {
+      query.whereRaw('to_tsvector(value) @@ plainto_tsquery(?)', [filters.search])
+    }
+
     const paginate = await query.paginate(filters?.page || 1, filters?.limit)
 
     const data = paginate.all().map((i) => i.serializeByType(type))
 
     return {
-      data,
       meta: paginate.getMeta(),
+      data,
     }
   }
 }

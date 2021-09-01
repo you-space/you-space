@@ -7,10 +7,22 @@ import TypeField from 'App/Models/TypeField'
 
 export default class TypeItemsController {
   public async index({ request, params }: HttpContextContract) {
+    const type = await Type.fetchByIdOrName(params.type_id).preload('fields').firstOrFail()
+
+    const fieldsSchema = type.fields.reduce(
+      (all, field) => ({
+        ...all,
+        [field.name]: schema.string.optional(),
+      }),
+      {}
+    )
+
     const filters = await request.validate({
       schema: schema.create({
+        ...fieldsSchema,
         page: schema.number.optional(),
         limit: schema.number.optional([rules.range(1, 40)]),
+        search: schema.string.optional(),
       }),
     })
 

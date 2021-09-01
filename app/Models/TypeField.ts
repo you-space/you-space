@@ -7,6 +7,11 @@ export enum TypeFieldTypes {
   File = 'file',
 }
 
+interface Options {
+  [prop: string]: any
+  path?: string
+}
+
 export default class TypeField extends BaseModel {
   @column({ isPrimary: true })
   public id: number
@@ -21,7 +26,7 @@ export default class TypeField extends BaseModel {
   public type: TypeFieldTypes
 
   @column()
-  public options: any
+  public options: Options
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

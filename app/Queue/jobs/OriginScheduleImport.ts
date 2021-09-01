@@ -9,16 +9,12 @@ const handler: ProcessCallbackFunction<Data> = async (job, done) => {
 
   const origin = await Origin.findOrFail(job.data.originId)
 
-  console.log(origin.providerName)
-
   const provider = await Provider.findOrFail(origin.providerName)
 
   provider.useOrigin(origin)
 
-  const setProgress = (percentage: number) => job.progress(percentage)
-
   await provider
-    .import(setProgress)
+    .import()
     .catch((err) => done(err))
     .then(() => done())
 }

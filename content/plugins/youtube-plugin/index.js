@@ -142,21 +142,6 @@ class YoutubePlugin {
         await this.type.createFields("youtube-videos", fields);
 
         await this.provider.create("youtube-videos", path.resolve(__dirname, "provider.js"))
-
-        // await this.createProvider("youtube-provider", {
-        //     path: path.resolve(__dirname, "provider.js"),
-        //     options: ['import'],
-        //     fields: [
-        //         {
-        //             name: "apiKey",
-        //             label: "Api key",
-        //         },
-        //         {
-        //             name: "channelId",
-        //             label: "Channel id",
-        //         },
-        //     ]
-        // });
     }
     async stop() {
         await this.type.delete("youtube-videos");
