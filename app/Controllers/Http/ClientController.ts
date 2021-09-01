@@ -1,27 +1,48 @@
 import path from 'path'
-import fs from 'fs'
-import { promisify } from 'util'
-import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'
+import Drive from '@ioc:Adonis/Core/Drive'
 import Theme from 'App/Extensions/Theme'
-
 export default class ClientController {
-  public async show({ request }: HttpContextContract) {
-    const meta = await SystemMeta.firstOrCreate({
-      name: SystemDefaults.CurrentTheme,
-    })
+  public async assets({ params, response }: HttpContextContract) {
+    const theme = await Theme.findCurrentTheme()
 
-    const theme = await Theme.find(meta.value)
+    const asset = theme?.assets?.get(params.name)
 
-    if (!theme) {
-      return 'No theme was defined'
+    if (!asset || !(await Drive.exists(asset))) {
+      return response.redirect('/404')
     }
 
-    console.log(theme, theme.assets)
+    response.type(path.extname(asset))
 
-    // const content = await theme.render(request.url(true))
+    return Drive.get(asset)
+  }
 
-    // return content
+  public async show({ request, auth }: HttpContextContract) {
+    const theme = await Theme.findCurrentTheme()
+
+    if (!theme) {
+      return 'No theme'
+    }
+
+    let path = request.url()
+
+    if (path.length > 1 && path.charAt(path.length - 1) === '/') {
+      const newPath = path.split('/')
+
+      newPath.pop()
+
+      path = newPath.join('/')
+    }
+
+    return theme.render({
+      path,
+      fullPath: request.url(true),
+      params: request.params()['*'] || [],
+      query: request.qs(),
+      user: auth.user?.serialize(),
+      site: {
+        title: 'You space',
+      },
+    })
   }
 }
