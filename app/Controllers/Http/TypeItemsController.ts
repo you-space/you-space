@@ -1,13 +1,12 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
+import TypeManager from 'App/Extensions/Utils/TypeManager'
 import Item from 'App/Models/Item'
 import Type from 'App/Models/Type'
 import TypeField from 'App/Models/TypeField'
 
 export default class TypeItemsController {
   public async index({ request, params }: HttpContextContract) {
-    const type = await Type.query().preload('fields').where('id', params.type_id).firstOrFail()
-
     const filters = await request.validate({
       schema: schema.create({
         page: schema.number.optional(),
@@ -15,20 +14,9 @@ export default class TypeItemsController {
       }),
     })
 
-    const pagination = await type
-      .related('items')
-      .query()
-      .preload('metas')
-      .preload('itemFiles')
-      .preload('visibility', (s) => s.select('name'))
-      .paginate(filters.page || 1, filters.limit)
+    const manager = new TypeManager()
 
-    const data = pagination.all().map((i) => i.serializeByType(type))
-
-    return {
-      meta: pagination.getMeta(),
-      data,
-    }
+    return manager.fetchItems(params.type_id, filters)
   }
 
   public async show({ params }: HttpContextContract) {

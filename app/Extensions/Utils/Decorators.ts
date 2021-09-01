@@ -47,9 +47,9 @@ export function hook(event: string) {
 }
 
 // inject type manager
-export function type() {
+export function type(allowWrite?: boolean) {
   return function (target: any, key: string) {
-    target.constructor.$addInject(key, new TypeManager())
+    target.constructor.$addInject(key, new TypeManager(allowWrite))
   }
 }
 
@@ -61,9 +61,9 @@ export function provider() {
 }
 
 // inject item manager
-export function item() {
+export function item(allowWrite?: boolean) {
   return function (target: any, key: string) {
-    const value = new ItemsManager()
+    const value = new ItemsManager(allowWrite)
 
     target.constructor.$addInject(key, value)
 

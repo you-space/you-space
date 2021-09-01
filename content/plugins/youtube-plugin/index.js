@@ -50,7 +50,7 @@ const fields = [
         name: 'thumbnailSrc',
         type: 'mapped',
         options: {
-            path: 'snippet.thumbnails.default.url',
+            path: 'snippet.thumbnails.high.url',
             component: 'YsImg',
             label: 'Thumbnail',
             table: {

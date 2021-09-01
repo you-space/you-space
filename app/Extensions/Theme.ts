@@ -3,19 +3,39 @@ import Application from '@ioc:Adonis/Core/Application'
 
 import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'
 import BaseExtension from './Utils/BaseExtension'
-import { method, property } from './Utils/Decorators'
+import { manager, method, property } from './Utils/Decorators'
+import User from 'App/Models/User'
+import ItemsManager from './Utils/ItemsManager'
+import TypeManager from './Utils/TypeManager'
+
+interface RenderArgs {
+  path: string
+  fullPath: string
+  query: Record<string, string>
+  params: string[]
+  user?: ReturnType<User['serialize']>
+  site: {
+    title: string
+  }
+}
 
 export default class Theme extends BaseExtension {
   public name: string
 
   @method()
-  public render: (url: string) => Promise<string>
+  public render: (args: RenderArgs) => Promise<string>
 
   @property()
-  public assets: string[]
+  public assets?: Map<string, string>
+
+  @manager.item(false)
+  public item: ItemsManager
+
+  @manager.type(false)
+  public type: TypeManager
 
   public async isActive() {
-    const currentTheme = await Theme.findCurrentTheme()
+    const currentTheme = await Theme.findCurrentThemeName()
 
     return this.name === currentTheme
   }
@@ -56,7 +76,7 @@ export default class Theme extends BaseExtension {
     return theme
   }
 
-  public static async findCurrentTheme() {
+  public static async findCurrentThemeName() {
     const meta = await SystemMeta.firstOrCreate({
       name: SystemDefaults.CurrentTheme,
     })
@@ -64,10 +84,22 @@ export default class Theme extends BaseExtension {
     return (meta.value as string) || null
   }
 
+  public static async findCurrentTheme() {
+    const meta = await SystemMeta.firstOrCreate({
+      name: SystemDefaults.CurrentTheme,
+    })
+
+    if (!meta.value) {
+      return null
+    }
+
+    return this.find(meta.value)
+  }
+
   public static async setTheme(name: string) {
     const theme = await Theme.findOrFail(name)
 
-    const currentTheme = await this.findCurrentTheme()
+    const currentTheme = await this.findCurrentThemeName()
 
     if (name === currentTheme) {
       throw new Error('theme already in use')
