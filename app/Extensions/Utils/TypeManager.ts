@@ -7,7 +7,11 @@ interface Filters {
   [prop: string]: any
   page?: number
   limit?: number
+
+  id?: string
   search?: string
+
+  random?: boolean
 }
 
 export default class TypeManager {
@@ -89,6 +93,20 @@ export default class TypeManager {
       query.whereRaw('to_tsvector(value) @@ plainto_tsquery(?)', [filters.search])
     }
 
+    if (filters?.id) {
+      query.whereIn(
+        'id',
+        filters.id
+          .split(',')
+          .map((i) => Number(i))
+          .filter((i) => !isNaN(i))
+      )
+    }
+
+    if (filters?.random) {
+      query.orderByRaw('random()')
+    }
+
     const paginate = await query.paginate(filters?.page || 1, filters?.limit)
 
     const data = paginate.all().map((i) => i.serializeByType(type))
@@ -97,5 +115,18 @@ export default class TypeManager {
       meta: paginate.getMeta(),
       data,
     }
+  }
+
+  public async find(typeName: string, filters?: Filters) {
+    const { data } = await this.fetchItems(typeName, {
+      ...filters,
+      limit: 1,
+    })
+
+    if (!data[0]) {
+      return null
+    }
+
+    return data[0]
   }
 }
