@@ -86,6 +86,17 @@
                     />
                 </q-td>
             </template>
+
+            <template #body-cell-logs="props">
+                <q-td :props="props">
+                    <q-btn
+                        :label="$t('view')"
+                        size="sm"
+                        color="primary"
+                        @click="viewLogs(props.value)"
+                    />
+                </q-td>
+            </template>
         </ys-table>
     </q-page>
 </template>
@@ -95,6 +106,7 @@ import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useIntervalFn } from '@vueuse/core';
 
+import { usePrism } from 'src/boot/prism';
 import { fetchJobs, updateJobs, Job } from './compositions';
 import { useQuasar } from 'quasar';
 
@@ -102,6 +114,7 @@ export default defineComponent({
     setup() {
         const tm = useI18n();
         const quasar = useQuasar();
+        const prism = usePrism();
 
         const rows = ref<Job[]>([]);
         const selected = ref<Job[]>([]);
@@ -167,6 +180,12 @@ export default defineComponent({
                 name: 'data',
                 field: 'data',
                 label: tm.t('data'),
+                align: 'left',
+            },
+            {
+                name: 'logs',
+                field: 'logs',
+                label: tm.t('logs'),
                 align: 'left',
             },
             {
@@ -240,6 +259,20 @@ export default defineComponent({
             });
         }
 
+        function viewLogs(value: string[]) {
+            const code = prism.highlight(
+                value.join(''),
+                prism.languages.bash,
+                'bash',
+            );
+
+            quasar.dialog({
+                message: `<pre class='language-bash'><code>${code}</code></pre>`,
+                html: true,
+                ok: false,
+            });
+        }
+
         return {
             rows,
             columns,
@@ -250,6 +283,7 @@ export default defineComponent({
             onSelection,
             getColor,
             viewJson,
+            viewLogs,
             deleteSelected,
             deleteSingle,
         };

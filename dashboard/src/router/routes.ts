@@ -24,7 +24,7 @@ const routes: RouteRecordRaw[] = [
             {
                 path: 'themes',
                 name: 'themes',
-                component: () => import('pages/ThemeList.vue'),
+                component: () => import('pages/Theme/Index.vue'),
             },
             {
                 path: 'plugins',
