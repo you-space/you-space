@@ -28,6 +28,9 @@ export default class Theme extends BaseExtension {
   @property()
   public assets?: Map<string, string>
 
+  @property()
+  public scripts?: Map<string, string[]>
+
   @manager.item(false)
   public item: ItemsManager
 
@@ -38,6 +41,10 @@ export default class Theme extends BaseExtension {
     const currentTheme = await Theme.findCurrentThemeName()
 
     return this.name === currentTheme
+  }
+
+  public get filename() {
+    return Application.makePath('content', 'themes', this.name)
   }
 
   public static async all() {

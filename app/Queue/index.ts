@@ -2,6 +2,7 @@ import Bull, { Job, JobOptions } from 'bull'
 import Logger from '@ioc:Adonis/Core/Logger'
 import OriginScheduleImport from './jobs/OriginScheduleImport'
 import ProviderJobs from './jobs/ProviderJobs'
+import RunThemeScript from './jobs/RunThemeScript'
 
 export interface QueueHandler {
   name: string
@@ -17,6 +18,7 @@ export default class Queue {
 
     this.addQueue(OriginScheduleImport.key, OriginScheduleImport.handler)
     this.addQueue(ProviderJobs.key, ProviderJobs.handler)
+    this.addQueue(RunThemeScript.key, RunThemeScript.handler)
   }
 
   public find<T = Record<string, any>>(name: string) {
@@ -73,6 +75,7 @@ export default class Queue {
     await Promise.all(
       this.queues.map(async ({ bull }) => {
         const jobs = await bull.getJobs(['waiting', 'active', 'completed', 'failed', 'delayed'])
+
         allJobs.push(...jobs)
       })
     )
@@ -89,6 +92,7 @@ export default class Queue {
           failedReason: job.failedReason,
           data: job.data,
           options: job.opts,
+          logs: (await job.queue.getJobLogs(job.id)).logs,
         }))
     )
   }
