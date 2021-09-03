@@ -1,4 +1,5 @@
 import Logger from '@ioc:Adonis/Core/Logger'
+import execa from 'execa'
 export function isJson(str: string) {
   try {
     JSON.parse(str)
@@ -24,5 +25,14 @@ export async function importIfExist(path: string) {
   } catch (error) {
     Logger.error(error)
     return null
+  }
+}
+
+export async function isGithubUrl(url: string) {
+  try {
+    await execa('git', ['ls-remote', url])
+    return true
+  } catch (error) {
+    return false
   }
 }

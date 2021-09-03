@@ -1,5 +1,5 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { schema } from '@ioc:Adonis/Core/Validator'
+import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import Queue from '@ioc:Queue'
 
 import Theme from 'App/Extensions/Theme'
@@ -22,6 +22,40 @@ export default class ThemeController {
         scripts,
       }
     })
+  }
+
+  public async store({ request }: HttpContextContract) {
+    const { githubUrl } = await request.validate({
+      schema: schema.create({
+        githubUrl: schema.string({}, [
+          rules.url({
+            allowedHosts: ['github.com'],
+          }),
+        ]),
+      }),
+    })
+
+    await Theme.create(githubUrl)
+
+    return {
+      message: 'Theme downloaded',
+    }
+  }
+
+  public async destroy({ params }: HttpContextContract) {
+    const theme = await Theme.findOrFail(params.id)
+
+    const isActive = await theme.isActive()
+
+    if (isActive) {
+      throw new Error('can not delete active theme')
+    }
+
+    await theme.delete()
+
+    return {
+      message: 'Theme deleted',
+    }
   }
 
   public async setTheme({ request }: HttpContextContract) {

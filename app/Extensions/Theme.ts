@@ -1,5 +1,9 @@
 import fs from 'fs'
+import execa from 'execa'
+import path from 'path'
+
 import Application from '@ioc:Adonis/Core/Application'
+import Drive from '@ioc:Adonis/Core/Drive'
 
 import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'
 import BaseExtension from './Utils/BaseExtension'
@@ -7,6 +11,7 @@ import { manager, method, property } from './Utils/Decorators'
 import User from 'App/Models/User'
 import ItemsManager from './Utils/ItemsManager'
 import TypeManager from './Utils/TypeManager'
+import { isGithubUrl } from 'App/Services/Helpers'
 
 interface RenderArgs {
   path: string
@@ -103,6 +108,26 @@ export default class Theme extends BaseExtension {
     return this.find(meta.value)
   }
 
+  public static async create(url: string) {
+    const name = path.basename(url).replace('.git', '')
+
+    const filename = Application.makePath('content', 'themes', name)
+
+    const isValid = await isGithubUrl(url)
+
+    if (!isValid) {
+      throw new Error('Repository url invalid')
+    }
+
+    const exist = await Drive.exists(filename)
+
+    if (exist) {
+      throw new Error('theme already installed')
+    }
+
+    await execa('git', ['clone', url, filename])
+  }
+
   public static async setTheme(name: string) {
     const theme = await Theme.findOrFail(name)
 
@@ -121,5 +146,9 @@ export default class Theme extends BaseExtension {
         value: theme.name,
       }
     )
+  }
+
+  public async delete() {
+    await execa('rm', ['-rf', this.filename])
   }
 }

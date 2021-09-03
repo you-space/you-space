@@ -1,7 +1,8 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
-  Route.resource('themes', 'ThemeController').only(['index'])
+  Route.resource('themes', 'ThemeController').only(['index', 'store', 'destroy'])
+
   Route.post('themes/set-theme', 'ThemeController.setTheme')
   Route.post('themes/:name/execute-scripts', 'ThemeController.executeScripts')
 

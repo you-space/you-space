@@ -85,4 +85,5 @@ export default {
     now: 'Now',
     valid: 'Valid',
     componentProps: 'Component props',
+    selectAThemeOrTypeAGithubUrl: 'Select a theme or type a github url',
 };

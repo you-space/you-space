@@ -1,6 +1,18 @@
 <template>
     <q-page padding>
-        <ys-table :rows="themes" :columns="columns" selection="single">
+        <ys-table
+            :rows="themes"
+            :columns="columns"
+            selection="single"
+            :title="$tc('theme', 2)"
+        >
+            <template #top-right>
+                <q-btn
+                    :label="$t('add', [$t('theme')])"
+                    color="primary"
+                    @click="addNew"
+                />
+            </template>
             <template #body-selection="props">
                 <q-toggle
                     :model-value="props.row.active"
@@ -19,16 +31,29 @@
                     />
                 </q-td>
             </template>
+
+            <template #body-cell-actions="props">
+                <q-td :props="props">
+                    <q-btn
+                        icon="delete"
+                        flat
+                        round
+                        size="sm"
+                        color="grey-5"
+                        @click="deleteTheme(props.row)"
+                    />
+                </q-td>
+            </template>
         </ys-table>
     </q-page>
 </template>
 <script lang="ts">
 import { useQuasar } from 'quasar';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, defineAsyncComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { api } from 'src/boot/axios';
-import { executeScript } from './compositions';
+import { deleteThemeByName, executeScript } from './compositions';
 
 interface SiteTheme {
     name: string;
@@ -49,6 +74,7 @@ export default defineComponent({
                 align: 'left',
             },
             { name: 'scripts', field: 'scripts' },
+            { name: 'actions', style: 'width:50px' },
         ];
 
         async function setThemes() {
@@ -76,11 +102,36 @@ export default defineComponent({
                 });
         }
 
+        function addNew() {
+            quasar
+                .dialog({
+                    component: defineAsyncComponent(
+                        () => import('./Dialog.vue'),
+                    ),
+                })
+                .onOk(setThemes);
+        }
+
+        function deleteTheme(theme: SiteTheme) {
+            quasar
+                .dialog({
+                    title: tm.t('areYouSure'),
+                    cancel: true,
+                })
+                .onOk(async () => {
+                    await deleteThemeByName(theme.name);
+                    await setThemes();
+                });
+        }
+
         return {
             themes,
+            columns,
+
+            addNew,
             setActiveTheme,
             executeThemeScript,
-            columns,
+            deleteTheme,
         };
     },
 });
