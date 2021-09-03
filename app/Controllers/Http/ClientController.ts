@@ -6,7 +6,8 @@ export default class ClientController {
   public async assets({ params, response }: HttpContextContract) {
     const theme = await Theme.findCurrentTheme()
 
-    const asset = theme?.assets?.get(params.name)
+    const name = params['*'].join('/')
+    const asset = theme?.assets?.get(name)
 
     if (!asset || !(await Drive.exists(asset))) {
       return response.redirect('/404')
