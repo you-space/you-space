@@ -7,6 +7,7 @@ export default class ClientController {
     const theme = await Theme.findCurrentTheme()
 
     const name = params['*'].join('/')
+
     const asset = theme?.assets?.get(name)
 
     if (!asset || !(await Drive.exists(asset))) {

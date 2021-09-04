@@ -32,13 +32,14 @@ export default class TypeItemsController {
   }
 
   public async show({ params }: HttpContextContract) {
-    const type = await Type.query().preload('fields').where('id', params.type_id).firstOrFail()
+    const type = await Type.fetchByIdOrName(params.type_id).preload('fields').firstOrFail()
 
-    const item = await Item.query()
+    const item = await type
+      .related('items')
+      .query()
       .preload('metas')
       .preload('itemFiles')
       .where('id', params.id)
-      .where('typeId', params.type_id)
       .firstOrFail()
 
     return item.serializeByType(type)
