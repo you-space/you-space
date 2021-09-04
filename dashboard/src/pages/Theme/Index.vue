@@ -27,6 +27,7 @@
                         :key="script"
                         :label="script"
                         color="primary"
+                        class="q-mr-md"
                         @click="executeThemeScript(props.row, script)"
                     />
                 </q-td>
