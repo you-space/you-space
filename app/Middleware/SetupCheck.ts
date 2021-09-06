@@ -3,7 +3,7 @@ import Env from '@ioc:Adonis/Core/Env'
 
 export default class CheckDatabaseConnection {
   public async handle({ response, request }: HttpContextContract, next: () => Promise<void>) {
-    const haveDatabase = Env.get('PG_DB_NAME', false)
+    const haveDatabase = Env.get('PG_HOST', false)
 
     if (haveDatabase && request.url() === '/setup') {
       return response.redirect().toPath('/')

@@ -1,6 +1,5 @@
 import crypto from 'crypto'
 import User from 'App/Models/User'
-
 export default class AuthenticateByToken {
   public urlDecode(encoded: string) {
     return Buffer.from(encoded, 'base64').toString('utf-8')
