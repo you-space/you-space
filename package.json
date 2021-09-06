@@ -3,10 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "test": "node -r @adonisjs/assembler/build/register japaFile.ts",
     "start": "node ace serve",
     "dev": "node ace serve --watch",
-    "dev:dashboard": "npm run dev --prefix public",
+    "test": "node -r @adonisjs/assembler/build/register japaFile.ts",
     "build": "node ace build --production",
     "build:dashboard": "npm run build --prefix public",
     "lint": "eslint . --ext=.ts",

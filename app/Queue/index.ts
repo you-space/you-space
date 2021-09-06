@@ -3,7 +3,7 @@ import Logger from '@ioc:Adonis/Core/Logger'
 import OriginScheduleImport from './jobs/OriginScheduleImport'
 import ProviderJobs from './jobs/ProviderJobs'
 import RunThemeScript from './jobs/RunThemeScript'
-
+import Env from '@ioc:Adonis/Core/Env'
 export interface QueueHandler {
   name: string
   handler: Bull.ProcessCallbackFunction<any>
@@ -14,11 +14,20 @@ export default class Queue {
   public queues: QueueHandler[] = []
 
   constructor() {
-    Logger.info('queue service started')
+    if (!Env.get('REDIS_HOST')) {
+      Logger.error('could not start queues, redis connection not defined')
+      return
+    }
 
-    this.addQueue(OriginScheduleImport.key, OriginScheduleImport.handler)
-    this.addQueue(ProviderJobs.key, ProviderJobs.handler)
-    this.addQueue(RunThemeScript.key, RunThemeScript.handler)
+    this.start()
+  }
+
+  public start() {
+    this.findOrCreate(OriginScheduleImport.key, OriginScheduleImport.handler)
+    this.findOrCreate(ProviderJobs.key, ProviderJobs.handler)
+    this.findOrCreate(RunThemeScript.key, RunThemeScript.handler)
+
+    Logger.info('queue service started')
   }
 
   public find<T = Record<string, any>>(name: string) {
@@ -61,6 +70,19 @@ export default class Queue {
     })
 
     return queue
+  }
+
+  public findOrCreate<T = Record<string, any>>(
+    name: string,
+    callback: Bull.ProcessCallbackFunction<T>
+  ) {
+    const queue = this.queues.find((q) => q.name === name)
+
+    if (queue) {
+      return queue
+    }
+
+    return this.addQueue(name, callback)
   }
 
   public add(queueName: string, data: any, options?: JobOptions) {

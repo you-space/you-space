@@ -17,6 +17,11 @@ const rules = {
   TEST_POSTGRES_URL: Env.schema.string.optional(),
   TEST_YOUTUBE_API_KEY: Env.schema.string.optional(),
   TEST_YOUTUBE_CHANNEL_ID: Env.schema.string.optional(),
+
+  REDIS_CONNECTION: Env.schema.string.optional(),
+  REDIS_HOST: Env.schema.string.optional(),
+  REDIS_PORT: Env.schema.number.optional(),
+  REDIS_PASSWORD: Env.schema.string.optional(),
 }
 
 if (process.env.NODE_ENV === 'testing') {
