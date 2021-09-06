@@ -15,3 +15,5 @@ content/themes/**
 !content/**/.gitkeep
 
 content/uploads
+
+release-*
