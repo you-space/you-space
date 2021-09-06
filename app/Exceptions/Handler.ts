@@ -26,16 +26,22 @@ export default class ExceptionHandler extends HttpExceptionHandler {
     Logger.error(error)
   }
 
-  public async handle(error: any, { response }: HttpContextContract) {
+  public async handle(error: any, { response, request }: HttpContextContract) {
     if (error.code === 'E_VALIDATION_FAILURE') {
       return response.status(422).send(error.messages)
     }
-    const status = error.status || 500
-    response.status(status).json({
-      status: status,
-      code: error.code,
-      message: error.message || 'Internal server error',
-      stack: Env.get('NODE_ENV') === 'development' ? error.stack : undefined,
-    })
+
+    if (request.url().includes('/api/')) {
+      const status = error.status || 500
+
+      return response.status(status).json({
+        status: status,
+        code: error.code,
+        message: error.message || 'Internal server error',
+        stack: Env.get('NODE_ENV') === 'development' ? error.stack : undefined,
+      })
+    }
+
+    return response.redirect('/404')
   }
 }
