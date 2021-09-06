@@ -2,8 +2,6 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema } from '@ioc:Adonis/Core/Validator'
 
 import Queue from '@ioc:Queue'
-import OriginScheduleImport from 'App/Queue/jobs/OriginScheduleImport'
-
 export default class JobsController {
   public index() {
     return Queue.status()

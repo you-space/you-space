@@ -1,4 +1,3 @@
-import Item from 'App/Models/Item'
 import Type from 'App/Models/Type'
 import TypeField from 'App/Models/TypeField'
 import Logger from '@ioc:Adonis/Core/Logger'
