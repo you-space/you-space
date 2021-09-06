@@ -51,7 +51,7 @@ export default class SystemMeta extends BaseModel {
   }
 
   public static async updateOrCreateMetaObject<T = any>(name: string, value: any): Promise<T> {
-    const meta = await this.firstOrCreate({ name }, { name, value: JSON.stringify({}) })
+    const meta = await this.firstOrCreateMetaObject(name)
 
     meta.value = JSON.stringify(value)
 
