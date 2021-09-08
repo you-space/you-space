@@ -33,6 +33,14 @@
     {
       "pattern": "resources",
       "reloadServer": false
+    },
+    {
+      "pattern": "content/plugins/.gitkeep",
+      "reloadServer": false
+    },
+    {
+      "pattern": "content/themes/.gitkeep",
+      "reloadServer": false
     }
   ]
 }

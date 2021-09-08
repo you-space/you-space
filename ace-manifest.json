@@ -12,6 +12,18 @@
       "aliases": [],
       "flags": []
     },
+    "start": {
+      "settings": {
+        "loadApp": false,
+        "stayAlive": true
+      },
+      "commandPath": "./commands/Start",
+      "commandName": "start",
+      "description": "Start the you-space instance",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "dump:rcfile": {
       "settings": {},
       "commandPath": "@adonisjs/core/build/commands/DumpRc",

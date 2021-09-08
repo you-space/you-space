@@ -11,9 +11,6 @@ import SetupValidator from 'App/Validators/SetupValidator'
 import Env from '@ioc:Adonis/Core/Env'
 import Database from '@ioc:Adonis/Lucid/Database'
 import User from 'App/Models/User'
-import Queue from '@ioc:Queue'
-import Redis from '@ioc:Adonis/Addons/Redis'
-
 export default class SetupsController {
   public async show({ response }: HttpContextContract) {
     const setupHtml = Application.makePath('resources', 'setup.html')
@@ -29,7 +26,13 @@ export default class SetupsController {
     const { database, user, redis } = await request.validate(SetupValidator)
 
     if (fs.existsSync(envPath)) {
-      await execa('cp', [envPath, `${envPath}.old`])
+      return response.badRequest({
+        errors: [
+          {
+            message: 'Setup already done',
+          },
+        ],
+      })
     }
 
     Database.manager.patch('primary', {
@@ -45,18 +48,6 @@ export default class SetupsController {
         errors: [
           {
             message: 'error in database connection',
-          },
-        ],
-      })
-    }
-
-    const redisStatus = await Redis.report()
-
-    if (!redisStatus.health.healthy) {
-      return response.badRequest({
-        errors: [
-          {
-            message: 'error in redis connection',
           },
         ],
       })
@@ -97,10 +88,10 @@ export default class SetupsController {
 
     await admin.addRoleByName('admin')
 
-    Queue.start()
-
-    return {
+    response.json({
       message: 'setup ready',
-    }
+    })
+
+    process.exit(1)
   }
 }

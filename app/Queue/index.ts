@@ -50,7 +50,13 @@ export default class Queue {
     name: string,
     callback: Bull.ProcessCallbackFunction<T>
   ) {
-    const queue = new Bull<T>(name)
+    const queue = new Bull<T>(name, {
+      redis: {
+        host: Env.get('REDIS_HOST'),
+        port: Env.get('REDIS_PORT'),
+        password: Env.get('REDIS_PASSWORD'),
+      },
+    })
 
     queue.process(callback)
 
