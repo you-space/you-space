@@ -99,7 +99,7 @@ export default defineComponent({
         const type = ref<Type>();
         const fields = ref<TypeField[]>([]);
 
-        const rows = ref();
+        const rows = ref<any[]>([]);
 
         const title = computed(() => {
             if (type.value) {
