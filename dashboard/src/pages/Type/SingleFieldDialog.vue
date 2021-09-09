@@ -17,7 +17,7 @@
                     filled
                     class="q-mb-md"
                     :label="$t('type')"
-                    :options="['mapped', 'editable']"
+                    :options="['mapped', 'editable', 'file']"
                 />
                 <q-input
                     v-if="field.type === 'mapped'"
