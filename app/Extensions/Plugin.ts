@@ -17,7 +17,7 @@ export default class Plugin extends BaseExtension {
   @method()
   public stop: () => Promise<void>
 
-  @manager.type()
+  @manager.type(true)
   public type: TypeManager
 
   @manager.provider()
