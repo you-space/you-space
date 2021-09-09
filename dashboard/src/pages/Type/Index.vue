@@ -4,7 +4,7 @@
             v-model:pagination="pagination"
             :rows="rows"
             :columns="columns"
-            :title="$t('type', 2)"
+            :title="$tc('type', 2)"
         >
             <template #top-right>
                 <q-btn :label="$t('addNew')" color="primary" @click="addType" />
@@ -47,7 +47,7 @@ export default defineComponent({
         const router = useRouter();
         const quasar = useQuasar();
 
-        const rows = ref();
+        const rows = ref<Type[]>([]);
 
         const columns = [
             {
@@ -69,7 +69,11 @@ export default defineComponent({
             },
         );
 
-        void reload({ pagination: pagination.value });
+        async function load() {
+            await reload({ pagination: pagination.value });
+        }
+
+        void load();
 
         function editType(type: Type) {
             return router.push({
@@ -91,7 +95,7 @@ export default defineComponent({
                 })
                 .onOk(async (data: string) => {
                     await createType({ name: data });
-                    void reload({ pagination: pagination.value });
+                    await load();
                 });
         }
 
@@ -104,7 +108,7 @@ export default defineComponent({
                 })
                 .onOk(async () => {
                     await deleteType(id);
-                    await reload({ pagination: pagination.value });
+                    await load();
                 });
         }
 
