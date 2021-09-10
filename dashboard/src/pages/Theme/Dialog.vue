@@ -7,11 +7,27 @@
                         v-model="selected"
                         emit-value
                         map-options
+                        option-label="name"
+                        option-value="url"
                         use-input
                         new-value-mode="add"
-                        :label="$t('selectAThemeOrTypeAGithubUrl')"
+                        :label="$t('selectAnOrTypeAGithubUrl')"
                         :options="options"
-                    />
+                    >
+                        <template #option="scope">
+                            <q-item v-bind="scope.itemProps">
+                                <q-item-section>
+                                    <q-item-label
+                                        class="mb-2"
+                                        v-text="scope.opt.name"
+                                    />
+                                    <q-item-label caption>
+                                        {{ scope.opt.url }}
+                                    </q-item-label>
+                                </q-item-section>
+                            </q-item>
+                        </template>
+                    </q-select>
                 </q-card-section>
                 <q-card-actions>
                     <q-btn
@@ -36,7 +52,7 @@
 import { defineComponent, ref } from 'vue';
 
 import { useDialogPluginComponent } from 'quasar';
-import { downloadTheme } from './compositions';
+import { downloadTheme, fetchOfficialThemes } from './compositions';
 
 export default defineComponent({
     emits: [...useDialogPluginComponent.emits],
@@ -44,18 +60,17 @@ export default defineComponent({
         const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
             useDialogPluginComponent();
 
-        const options = [
-            {
-                label: 'Awake theme',
-                value: 'https://github.com/you-space/awake-theme.git',
-            },
-            {
-                label: 'Revolution theme',
-                value: 'https://github.com/you-space/revolution.git',
-            },
-        ];
+        const options = ref<any[]>([]);
 
         const selected = ref();
+
+        async function setOptions() {
+            const items = await fetchOfficialThemes();
+
+            options.value = items;
+        }
+
+        void setOptions();
 
         async function submit() {
             await downloadTheme(selected.value);

@@ -25,9 +25,9 @@ export default class ThemeController {
   }
 
   public async store({ request }: HttpContextContract) {
-    const { githubUrl } = await request.validate({
+    const { gitUrl } = await request.validate({
       schema: schema.create({
-        githubUrl: schema.string({}, [
+        gitUrl: schema.string({}, [
           rules.url({
             allowedHosts: ['github.com'],
           }),
@@ -35,7 +35,7 @@ export default class ThemeController {
       }),
     })
 
-    await Theme.create(githubUrl)
+    await Theme.create(gitUrl)
 
     return {
       message: 'Theme downloaded',
