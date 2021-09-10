@@ -94,7 +94,6 @@ import {
     findTypeField,
     updateTypeField,
     createTypeField,
-    TypeField,
 } from './compositions';
 
 export default defineComponent({

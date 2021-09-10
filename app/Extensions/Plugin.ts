@@ -1,11 +1,18 @@
 import fs from 'fs'
+import path from 'path'
+import execa from 'execa'
+
+import Logger from '@ioc:Adonis/Core/Logger'
+import Application from '@ioc:Adonis/Core/Application'
+import Drive from '@ioc:Adonis/Core/Drive'
+
+import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'
+
 import BaseExtension from './Utils/BaseExtension'
 import { method, property, hook, manager } from './Utils/Decorators'
-import Logger from '@ioc:Adonis/Core/Logger'
-import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'
-import Application from '@ioc:Adonis/Core/Application'
 import TypeManager from './Utils/TypeManager'
 import ProviderManager from './Utils/ProviderManager'
+import { isGitUrl } from 'App/Services/Helpers'
 
 export default class Plugin extends BaseExtension {
   @property()
@@ -23,10 +30,8 @@ export default class Plugin extends BaseExtension {
   @manager.provider()
   public provider: ProviderManager
 
-  public async isActive() {
-    const meta = await SystemMeta.firstOrCreateMetaArray(SystemDefaults.PluginsActive)
-
-    return meta.includes(this.name)
+  public get filename() {
+    return Application.makePath('content', 'plugins', this.name)
   }
 
   @hook('before:start')
@@ -68,6 +73,12 @@ export default class Plugin extends BaseExtension {
     Logger.info('plugin %s stopped', ext.name)
   }
 
+  public async isActive() {
+    const meta = await SystemMeta.firstOrCreateMetaArray(SystemDefaults.PluginsActive)
+
+    return meta.includes(this.name)
+  }
+
   public static async all() {
     const folders = await fs.promises.readdir(Application.makePath('content', 'plugins'), {
       withFileTypes: true,
@@ -88,5 +99,29 @@ export default class Plugin extends BaseExtension {
     plugin.name = name
 
     return plugin
+  }
+
+  public static async create(url: string) {
+    const name = path.basename(url).replace('.git', '')
+
+    const filename = Application.makePath('content', 'plugins', name)
+
+    const isValid = await isGitUrl(url)
+
+    if (!isValid) {
+      throw new Error('Repository url invalid')
+    }
+
+    const exist = await Drive.exists(filename)
+
+    if (exist) {
+      throw new Error('plugin already installed')
+    }
+
+    await execa('git', ['clone', url, filename])
+  }
+
+  public async delete() {
+    await execa('rm', ['-rf', this.filename])
   }
 }
