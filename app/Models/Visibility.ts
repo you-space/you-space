@@ -8,12 +8,9 @@ import {
   hasManyThrough,
   HasManyThrough,
   beforeDelete,
-  beforeUpdate,
 } from '@ioc:Adonis/Lucid/Orm'
-import Video from './Video'
 import VisibilityPermission from './VisibilityPermission'
 import Permission from './Permission'
-import NotModifyDefaultEntityException from 'App/Exceptions/NotModifyDefaultEntityException'
 
 export enum DefaultVisibilities {
   public = 'public',
@@ -31,9 +28,6 @@ export default class Visibility extends BaseModel {
   public get isDefault() {
     return Object.values<string>(DefaultVisibilities).includes(this.name)
   }
-
-  @hasMany(() => Video)
-  public videos: HasMany<typeof Video>
 
   @hasMany(() => VisibilityPermission)
   public visibilityPermissions: HasMany<typeof VisibilityPermission>
@@ -54,13 +48,5 @@ export default class Visibility extends BaseModel {
   @beforeDelete()
   public static async beforeDelete(visibility: Visibility) {
     await visibility.related('visibilityPermissions').query().delete()
-  }
-
-  @beforeUpdate()
-  @beforeDelete()
-  public static async notModifyDefault(visibility: Visibility) {
-    if (visibility.isDefault) {
-      throw new NotModifyDefaultEntityException('Can not modify default visibilities')
-    }
   }
 }

@@ -1,16 +1,18 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
-import { OriginTypes } from 'App/Models/Origin'
-
 export default class Origins extends BaseSchema {
   protected tableName = 'origins'
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
+
       table.string('name').notNullable().unique()
-      table.enum('type', Object.values(OriginTypes)).notNullable()
-      table.jsonb('config').notNullable().defaultTo('{}')
-      table.timestamps(true)
+      table.string('provider_name').notNullable()
+      table.boolean('active').notNullable().defaultTo(false)
+      table.jsonb('config').notNullable().defaultTo(JSON.stringify({}))
+
+      table.timestamps(true, true)
+      table.dateTime('deleted_at')
     })
   }
 

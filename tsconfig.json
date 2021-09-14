@@ -1,7 +1,7 @@
 {
   "extends": "./node_modules/adonis-preset-ts/tsconfig",
   "include": ["**/*"],
-  "exclude": ["node_modules", "build", "public", "content"],
+  "exclude": ["node_modules", "build", "dashboard", "public", "content"],
   "compilerOptions": {
     "outDir": "build",
     "rootDir": "./",
@@ -17,8 +17,7 @@
       "@adonisjs/repl",
       "@adonisjs/lucid",
       "@adonisjs/redis",
-      "@adonisjs/auth",
-      "@adonisjs/view"
+      "@adonisjs/auth"
     ]
   }
 }

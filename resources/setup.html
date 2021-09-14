@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons"
+      rel="stylesheet"
+      type="text/css"
+    />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/quasar@2.0.3/dist/quasar.prod.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+
+    <title>You space setup</title>
+  </head>
+
+  <body>
+    <div id="q-app"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quasar@2.0.3/dist/quasar.umd.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+
+    <script>
+      const app = Vue.createApp({
+        template: `
+            <div class='row fullscreen items-center justify-center overflow-auto q-py-md'>
+                <q-card class='full-width' style='max-width:800px'>
+                  <q-form @submit.prevent='submit'>
+                    <q-stepper
+                        v-model="step"
+                        header-nav
+                        ref="stepper"
+                        color="primary"
+                        animated
+                      >
+                      <q-step
+                        :name="1"
+                        title="Database connection"
+                        icon="settings"
+                        :error="!databaseDone && step > 1"
+                        :done='databaseDone'
+                        @keyup.enter='step++'
+                      >
+                        <q-input v-model='database.database' :rules='[rule]' filled label='Database name' />
+                        <q-input v-model='database.host' :rules='[rule]' filled label='Host' />
+                        <q-input v-model='database.port' type='number' :rules='[rule]' filled label='Port' />
+                        <q-input v-model='database.user' :rules='[rule]' filled label='User' />
+                        <q-input v-model='database.password' type='password' :rules='[rule]' filled label='Password' />
+
+                        <q-stepper-navigation>
+                          <q-btn color="primary" label="Continue" @click='step++' />
+                        </q-stepper-navigation>
+                      </q-step>
+
+                      <q-step
+                        :name="2"
+                        title="Redis connection"
+                        icon="settings"
+                        :error="!redisDone && step > 2"
+                        :done='redisDone && step > 2'
+                        @keyup.enter='step++'
+                      >
+                        <q-input v-model='redis.host' :rules='[rule]' filled label='Host' />
+                        <q-input v-model='redis.port' type='number' :rules='[rule]' filled label='Port' />
+                        <q-input v-model='redis.password' type='password' filled label='Password' />
+
+                        <q-stepper-navigation>
+                          <q-btn color="primary" label="Continue" @click='step++' />
+                          <q-btn flat color="primary" label="Back" class='q-ml-md' @click='step--' />
+                        </q-stepper-navigation>
+                      </q-step>
+
+                      <q-step
+                        :name="3"
+                        title="Admin user"
+                        icon="settings"
+                      >
+                        <q-input v-model='user.username' :rules='[rule]' filled label='Username' />
+                        <q-input v-model='user.password' type='password' :rules='[rule]' filled label='Password' />
+                        <q-input v-model='user.password_confirmation' type='password' :rules='[rule]' filled label='Confirm Password' />
+
+                        <q-stepper-navigation>
+                          <q-btn type='submit' color='primary' label='Submit' />
+                          <q-btn flat color="primary" label="Back" class='q-ml-md' @click='step--' />
+                        </q-stepper-navigation>
+                      </q-step>
+                    <q-stepper>
+                  <q-form>
+                </q-card>
+            </div>
+        `,
+        setup() {
+          const rule = (value) => !!value || 'Required'
+
+          const database = Vue.ref({
+            database: '',
+            host: 'localhost',
+            port: 5432,
+            user: '',
+            password: '',
+          })
+
+          const redis = Vue.ref({
+            host: 'localhost',
+            port: 6379,
+            password: '',
+          })
+
+          const user = Vue.ref({})
+
+          const step = Vue.ref(1)
+
+          const databaseDone = Vue.computed(() =>
+            Object.values(database.value).reduce((result, v) => result && !!v)
+          )
+          const redisDone = Vue.computed(() => !!redis.value.host && !!redis.value.port)
+
+          async function submit() {
+            try {
+              await axios.post('/setup', {
+                database: database.value,
+                user: user.value,
+                redis: redis.value,
+              })
+
+              window.location.replace('/ys-admin/login')
+            } catch (axiosError) {
+              const errors = _.get(axiosError, 'response.data.errors', [])
+              errors.forEach((error) => {
+                Quasar.Notify.create({
+                  type: 'negative',
+                  message: _.get(error, 'message'),
+                  position: 'bottom-left',
+                })
+              })
+            }
+          }
+
+          return {
+            database,
+            redis,
+            user,
+            rule,
+            step,
+            databaseDone,
+            redisDone,
+
+            submit,
+          }
+        },
+      })
+
+      app.use(Quasar)
+      app.mount('#q-app')
+    </script>
+  </body>
+</html>

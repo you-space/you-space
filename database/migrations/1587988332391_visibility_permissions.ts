@@ -8,7 +8,8 @@ export default class VisibilityPermissions extends BaseSchema {
       table.increments('id').primary()
       table.integer('visibility_id').notNullable().references('visibilities.id')
       table.integer('permission_id').notNullable().references('permissions.id')
-      table.timestamps(true)
+
+      table.timestamps(true, true)
     })
   }
 

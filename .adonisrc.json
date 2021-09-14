@@ -14,27 +14,33 @@
     "Contracts": "contracts",
     "Providers": "providers"
   },
-  "preloads": ["./start/routes", "./start/kernel", "./start/events"],
+  "preloads": ["./start/routes", "./start/kernel"],
   "providers": [
     "@adonisjs/core",
     "@adonisjs/lucid",
     "@adonisjs/redis",
     "@adonisjs/auth",
-    "@adonisjs/view",
+    "./providers/ServiceRegisterProvider",
     "./providers/AppProvider",
-    "./providers/VisibilityProvider",
-    "./providers/OriginMainProvider",
-    "./providers/ServiceRegisterProvider"
+    "./providers/QueueProvider"
   ],
   "aceProviders": ["@adonisjs/repl"],
   "metaFiles": [
     {
-      "pattern": "public/dist/spa/**",
+      "pattern": "public",
       "reloadServer": false
     },
     {
-      "pattern": "content/themes/**/**/*.edge",
-      "reloadServer": true
+      "pattern": "resources",
+      "reloadServer": false
+    },
+    {
+      "pattern": "content/plugins/.gitkeep",
+      "reloadServer": false
+    },
+    {
+      "pattern": "content/themes/.gitkeep",
+      "reloadServer": false
     }
   ]
 }

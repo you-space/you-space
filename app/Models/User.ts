@@ -6,6 +6,8 @@ import {
   BaseModel,
   hasManyThrough,
   HasManyThrough,
+  hasMany,
+  HasMany,
 } from '@ioc:Adonis/Lucid/Orm'
 import Role from './Role'
 import UserRole from './UserRole'
@@ -41,6 +43,9 @@ export default class User extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
+  @hasMany(() => UserRole)
+  public userRoles: HasMany<typeof UserRole>
+
   @hasManyThrough([() => Role, () => UserRole], {
     foreignKey: 'userId',
     throughForeignKey: 'id',
@@ -53,5 +58,22 @@ export default class User extends BaseModel {
     if (user.$dirty.password && user.password) {
       user.password = await Hash.make(user.password)
     }
+  }
+
+  public async addRoleByName(name: string) {
+    const role = await Role.firstOrCreate({
+      name,
+    })
+
+    await UserRole.updateOrCreate(
+      {
+        roleId: role.id,
+        userId: this.id,
+      },
+      {
+        roleId: role.id,
+        userId: this.id,
+      }
+    )
   }
 }

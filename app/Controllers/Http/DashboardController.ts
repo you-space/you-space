@@ -1,11 +1,12 @@
-import fs from 'fs'
+import { promises as fs } from 'fs'
 import path from 'path'
-import { promisify } from 'util'
+
 import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Type from 'App/Models/Type'
 export default class DashboardController {
   public async show({ request, response }: HttpContextContract) {
-    const appPath = Application.publicPath('dist/spa')
+    const appPath = Application.publicPath()
     const filename = request.url().replace('/ys-admin', '')
     const extname = path.extname(filename).replace('.', '')
 
@@ -18,11 +19,24 @@ export default class DashboardController {
 
     if (headers[extname]) {
       response.safeHeader('Content-type', headers[extname])
-      return await promisify(fs.readFile)(`${appPath}${filename}`)
+      return await fs.readFile(`${appPath}${filename}`)
     }
 
     response.safeHeader('Content-type', 'text/html')
 
-    return await promisify(fs.readFile)(`${appPath}/index.html`, 'utf-8')
+    return await fs.readFile(`${appPath}/index.html`, 'utf-8')
+  }
+
+  public async showMenu() {
+    const types = await Type.query()
+      .whereRaw(`"options"->'showInMenu' = 'true'`)
+      .whereNull('deletedAt')
+
+    return types.map((type) => ({
+      name: type.name,
+      label: type.options.label || type.name,
+      typeId: type.id,
+      icon: type.options.icon,
+    }))
   }
 }

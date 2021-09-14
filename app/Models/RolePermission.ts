@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon'
 import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
 export default class RolePermission extends BaseModel {
@@ -10,10 +9,4 @@ export default class RolePermission extends BaseModel {
 
   @column({ columnName: 'permission_id' })
   public permissionId: number
-
-  @column.dateTime({ autoCreate: true })
-  public createdAt: DateTime
-
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  public updatedAt: DateTime
 }

@@ -1,33 +1,19 @@
+import lodash from 'lodash'
 import { DateTime } from 'luxon'
-import {
-  BaseModel,
-  beforeDelete,
-  column,
-  computed,
-  HasMany,
-  hasMany,
-  HasOne,
-  hasOne,
-} from '@ioc:Adonis/Lucid/Orm'
-import Video from './Video'
-import OriginMetadata from './OriginMetadata'
-import View from './View'
-import Comment from './Comment'
-import User from './User'
-import OriginLog from './OriginLog'
+import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import Item from './Item'
+import Queue from '@ioc:Queue'
+import OriginScheduleImport from 'App/Queue/jobs/OriginScheduleImport'
+import Redis from '@ioc:Adonis/Addons/Redis'
 
-export enum OriginTypes {
-  YouTube = 'you-tube',
-  Main = 'main',
+export enum OriginScheduleOptions {
+  None = 'none',
+  Minute = 'minute',
+  Hour = 'hour',
+  Day = 'day',
+  Month = 'month',
+  Week = 'week',
 }
-
-export interface YoutubeConfig {
-  apiKey: string
-  channelId: string
-}
-
-export type OriginConfig = YoutubeConfig
-
 export default class Origin extends BaseModel {
   @column({ isPrimary: true })
   public id: number
@@ -35,11 +21,14 @@ export default class Origin extends BaseModel {
   @column()
   public name: string
 
-  @column()
-  public type: OriginTypes | string
+  @column({ serializeAs: 'providerName', serialize: (value) => value.split(':').pop() })
+  public providerName: string
 
   @column()
-  public config: OriginConfig
+  public active: boolean
+
+  @column()
+  public config: Record<string, string>
 
   @column.dateTime({ autoCreate: true, serializeAs: 'createdAt' })
   public createdAt: DateTime
@@ -47,50 +36,56 @@ export default class Origin extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true, serializeAs: 'updatedAt' })
   public updatedAt: DateTime
 
-  @computed()
-  public get isDefault() {
-    return this.type === OriginTypes.Main
+  @hasMany(() => Item, {
+    foreignKey: 'originId',
+  })
+  public Item: HasMany<typeof Item>
+
+  public async findSchedule() {
+    const key = `origins:import:schedule:${this.id}`
+
+    const schedule = {
+      repeatEach: (await Redis.get(`${key}:repeatEach`)) || 'none',
+    }
+
+    return schedule
   }
 
-  @hasOne(() => OriginMetadata)
-  public metadata: HasOne<typeof OriginMetadata>
+  public async updateSchedule(repeatEach: OriginScheduleOptions) {
+    const key = `origins:import:schedule:${this.id}`
 
-  @hasMany(() => User, {
-    foreignKey: 'originId',
-  })
-  public users: HasMany<typeof User>
+    const options = {
+      minute: '* * * * *',
+      hour: '0 * * * *',
+      day: '0 0 * * *',
+      month: '0 0 1 * *',
+      week: '0 0 * * 0',
+    }
 
-  @hasMany(() => Video, {
-    foreignKey: 'originId',
-  })
-  public videos: HasMany<typeof Video>
+    const queue = Queue.findOrFail(OriginScheduleImport.key)
+    const lastJobKey = await Redis.get(key)
 
-  @hasMany(() => View, {
-    foreignKey: 'originId',
-  })
-  public views: HasMany<typeof View>
+    if (lastJobKey) {
+      await queue?.removeRepeatableByKey(lastJobKey)
+      await Redis.del(key)
+      await Redis.del(`${key}:repeatEach`)
+    }
 
-  @hasMany(() => Comment, {
-    foreignKey: 'originId',
-  })
-  public comments: HasMany<typeof Comment>
+    if (options[repeatEach]) {
+      const job = await queue.add(
+        {
+          originId: this.id,
+        },
+        {
+          removeOnFail: true,
+          repeat: {
+            cron: options[repeatEach],
+          },
+        }
+      )
 
-  @hasMany(() => OriginLog, {
-    foreignKey: 'originId',
-    onQuery: (query) => query.orderBy('created_at', 'desc'),
-  })
-  public logs: HasMany<typeof OriginLog>
-
-  @beforeDelete()
-  public static async beforeDelete(origin: Origin) {
-    await origin.related('metadata').query().delete()
-
-    await origin.related('comments').query().delete()
-    await origin.related('views').query().delete()
-
-    await origin.related('users').query().delete()
-    await origin.related('videos').query().delete()
-
-    await origin.related('logs').query().delete()
+      await Redis.set(key, lodash.get(job, 'opts.repeat.key', null))
+      await Redis.set(`${key}:repeatEach`, repeatEach)
+    }
   }
 }

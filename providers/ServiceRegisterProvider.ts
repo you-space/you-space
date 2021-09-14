@@ -5,38 +5,9 @@ export default class OriginServiceProvider {
 
   constructor(protected application: ApplicationContract) {}
 
-  public async register() {
-    await this.registerOrigin()
-
-    await this.registerContent()
-
-    await this.registerQueue()
+  public async boot() {
     await this.registerAuthenticateByToken()
     await this.registerSocket()
-  }
-
-  public async registerOrigin() {
-    const OriginService = (await import('App/Services/Origin/OriginService')).default
-
-    const service = new OriginService()
-
-    this.application.container.singleton('Providers/OriginService', () => service)
-  }
-
-  public async registerContent() {
-    const ContentService = (await import('App/Services/Content/ContentVideos')).default
-
-    const service = new ContentService()
-
-    this.application.container.singleton('Providers/ContentService', () => service)
-  }
-
-  public async registerQueue() {
-    const OriginQueue = (await import('App/Services/Queue/OriginQueue')).default
-
-    const originQueue = new OriginQueue()
-
-    this.application.container.singleton('Providers/Queue/OriginQueue', () => originQueue)
   }
 
   public async registerAuthenticateByToken() {

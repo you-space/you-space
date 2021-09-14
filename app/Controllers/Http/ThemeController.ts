@@ -1,34 +1,101 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import path from 'path'
-import { getThemeMachine } from 'App/Services/ThemeMachine'
-import fs from 'fs'
-import { promisify } from 'util'
+import { schema, rules } from '@ioc:Adonis/Core/Validator'
+import Queue from '@ioc:Queue'
+
+import Theme from 'App/Extensions/Theme'
+import RunThemeScript from 'App/Queue/jobs/RunThemeScript'
 
 export default class ThemeController {
-  public async show({}: HttpContextContract) {
-    throw new Error('themes are working in progress')
+  public async index() {
+    const themes = await Theme.all()
 
-    // const types = {
-    //   js: 'text/javascript',
-    //   map: 'text/javascript',
-    //   css: 'text/css',
-    //   png: 'image/png',
-    //   ico: 'image/x-icon',
-    // }
+    const activeTheme = await Theme.findCurrentThemeName()
 
-    // const filename = request.url()
-    // const extname = path.extname(request.url()).replace('.', '')
+    return themes.map((t) => {
+      const scripts: string[] = []
 
-    // const machine = await getThemeMachine()
+      t.scripts?.forEach((_, key) => scripts.push(key))
 
-    // const themeFiles = machine.staticFiles()
+      return {
+        name: t.name,
+        active: t.name === activeTheme,
+        scripts,
+      }
+    })
+  }
 
-    // if (types[extname] && Object.keys(themeFiles).includes(filename)) {
-    //   response.safeHeader('Content-type', types[extname])
+  public async store({ request }: HttpContextContract) {
+    const { gitUrl } = await request.validate({
+      schema: schema.create({
+        gitUrl: schema.string({}, [
+          rules.url({
+            allowedHosts: ['github.com'],
+          }),
+        ]),
+      }),
+    })
 
-    //   return await promisify(fs.readFile)(themeFiles[filename])
-    // }
+    await Theme.create(gitUrl)
 
-    // return machine.render({ request, response })
+    return {
+      message: 'Theme downloaded',
+    }
+  }
+
+  public async destroy({ params }: HttpContextContract) {
+    const theme = await Theme.findOrFail(params.id)
+
+    const isActive = await theme.isActive()
+
+    if (isActive) {
+      throw new Error('can not delete active theme')
+    }
+
+    await theme.delete()
+
+    return {
+      message: 'Theme deleted',
+    }
+  }
+
+  public async setTheme({ request }: HttpContextContract) {
+    const { name } = await request.validate({
+      schema: schema.create({
+        name: schema.string(),
+      }),
+    })
+
+    await Theme.setTheme(name)
+
+    return {
+      message: 'Current theme updated',
+    }
+  }
+
+  public async executeScripts({ request, params }: HttpContextContract) {
+    const { scripts } = await request.validate({
+      schema: schema.create({
+        scripts: schema.array().members(schema.string()),
+      }),
+    })
+
+    const theme = await Theme.findOrFail(params.name)
+
+    scripts.forEach((s) => {
+      if (!theme.scripts?.get(s)) {
+        throw new Error(`script ${s} not found`)
+      }
+    })
+
+    scripts.forEach((s) => {
+      Queue.add(RunThemeScript.key, {
+        themeName: theme.name,
+        scriptName: s,
+      })
+    })
+
+    return {
+      message: 'sign to run scripts sended',
+    }
   }
 }
