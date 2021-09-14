@@ -23,7 +23,7 @@ export default class GenerateZip extends BaseCommand {
   public async run() {
     return this.generateZip(
       path.resolve(__dirname, '..', 'build'),
-      path.resolve(__dirname, '..', 'release-assets', 'build.zip')
+      path.resolve(__dirname, '..', 'release', 'build.zip')
     )
       .then(() => this.logger.info('operation completed'))
       .catch((err) => this.logger.error(err))
