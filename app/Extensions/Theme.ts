@@ -11,7 +11,7 @@ import { manager, method, property } from './Utils/Decorators'
 import User from 'App/Models/User'
 import ItemsManager from './Utils/ItemsManager'
 import TypeManager from './Utils/TypeManager'
-import { isGithubUrl } from 'App/Services/Helpers'
+import { isGitUrl } from 'App/Services/Helpers'
 
 interface RenderArgs {
   path: string
@@ -113,7 +113,7 @@ export default class Theme extends BaseExtension {
 
     const filename = Application.makePath('content', 'themes', name)
 
-    const isValid = await isGithubUrl(url)
+    const isValid = await isGitUrl(url)
 
     if (!isValid) {
       throw new Error('Repository url invalid')

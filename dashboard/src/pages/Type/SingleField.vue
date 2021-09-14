@@ -50,7 +50,7 @@ export default defineComponent({
         const tm = useI18n();
         const quasar = useQuasar();
 
-        const rows = ref();
+        const rows = ref<TypeField[]>([]);
 
         const columns = [
             {

@@ -52,7 +52,7 @@
 import { defineComponent, ref } from 'vue';
 
 import { useDialogPluginComponent } from 'quasar';
-import { downloadTheme, fetchOfficialThemes } from './compositions';
+import { fetchOfficialPlugins, downloadPlugin } from './compositions';
 
 export default defineComponent({
     emits: [...useDialogPluginComponent.emits],
@@ -65,7 +65,7 @@ export default defineComponent({
         const selected = ref();
 
         async function setOptions() {
-            const items = await fetchOfficialThemes();
+            const items = await fetchOfficialPlugins();
 
             options.value = items;
         }
@@ -73,7 +73,7 @@ export default defineComponent({
         void setOptions();
 
         async function submit() {
-            await downloadTheme(selected.value);
+            await downloadPlugin(selected.value);
             onDialogOK();
         }
 

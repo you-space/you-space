@@ -28,7 +28,7 @@ export async function importIfExist(path: string) {
   }
 }
 
-export async function isGithubUrl(url: string) {
+export async function isGitUrl(url: string) {
   try {
     await execa('git', ['ls-remote', url])
     return true

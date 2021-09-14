@@ -12,8 +12,10 @@ public/*
 !public/.gitkeep
 
 content/themes/**
+content/plugins/**
+
 !content/**/.gitkeep
 
 content/uploads
 
-release-*
+release

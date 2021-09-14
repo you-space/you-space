@@ -11,7 +11,11 @@
                 @click="toggleDrawer"
             />
 
-            <q-toolbar-title> {{ $store.state.app.name }} </q-toolbar-title>
+            <q-toolbar-title>
+                <a href="/" target="_blanck" class="text-grey-8">
+                    {{ $store.state.app.name }}
+                </a>
+            </q-toolbar-title>
 
             <q-btn round color="white" class="q-ml-md" size="sm">
                 <q-avatar size="28px">

@@ -1,5 +1,17 @@
 {
   "commands": {
+    "generate:release_notes": {
+      "settings": {
+        "loadApp": false,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/GenerateReleaseNotes",
+      "commandName": "generate:release_notes",
+      "description": "",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "generate:zip": {
       "settings": {
         "loadApp": false,
