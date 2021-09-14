@@ -7,7 +7,6 @@
     "dev": "node ace serve --watch",
     "test": "node -r @adonisjs/assembler/build/register japaFile.ts",
     "build": "node ace build --production",
-    "build:dashboard": "npm run build --prefix public",
     "lint": "eslint . --ext=.ts",
     "format": "prettier --write ."
   },
