@@ -7,6 +7,10 @@ COPY . .
 
 RUN npm install
 
+RUN yarn --cwd dashboard
+
+RUN npm run build --prefix dashboard
+
 RUN npm run build
 
 ##########################

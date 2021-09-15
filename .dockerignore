@@ -1,6 +1,2 @@
 node_modules
-dashboard
-build
-node_modules
-.vscode
-release-assets
+dashboard/node_modules
