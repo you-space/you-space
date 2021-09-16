@@ -7,16 +7,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:    
+    steps:
       - uses: actions/checkout@v2
 
       - run: npm install
-      
+
+      - run: npm run build
+
       - run: node ace generate:zip && node ace generate:release_notes
-      
+
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "release/build.zip"
-          bodyFile: "release/release-notes.md"
+          artifacts: 'release/build.zip'
+          bodyFile: 'release/release-notes.md'
           token: ${{ secrets.GITHUB_TOKEN }}
-
