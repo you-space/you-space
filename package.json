@@ -1,7 +1,6 @@
 {
   "name": "you-space",
   "version": "0.0.1",
-  "private": true,
   "scripts": {
     "start": "node ace start",
     "dev": "node ace serve --watch",
