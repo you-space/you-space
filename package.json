@@ -1,6 +1,9 @@
 {
   "name": "you-space",
   "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/you-space/you-space"
+  },
   "scripts": {
     "start": "node ace start",
     "dev": "node ace serve --watch",
