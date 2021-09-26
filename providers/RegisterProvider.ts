@@ -1,13 +1,16 @@
 import { ApplicationContract } from '@ioc:Adonis/Core/Application'
+import moduleAlias from 'module-alias'
+import path from 'path'
 
 export default class OriginServiceProvider {
   public static needsApplication = true
 
-  constructor(protected application: ApplicationContract) {}
+  constructor(protected app: ApplicationContract) {}
 
   public async boot() {
     await this.registerAuthenticateByToken()
     await this.registerSocket()
+    await this.registerServicesAlias()
   }
 
   public async registerAuthenticateByToken() {
@@ -16,7 +19,7 @@ export default class OriginServiceProvider {
 
     const authenticateByTokenService = new AuthenticateByTokenService()
 
-    this.application.container.singleton(
+    this.app.container.singleton(
       'Providers/AuthenticateByTokenService',
       () => authenticateByTokenService
     )
@@ -27,6 +30,15 @@ export default class OriginServiceProvider {
 
     const socketService = new SocketService()
 
-    this.application.container.singleton('Providers/SocketService', () => socketService)
+    this.app.container.singleton('Providers/SocketService', () => socketService)
+  }
+
+  public async registerServicesAlias() {
+    moduleAlias.addAlias(
+      `@you-space:services`,
+      path.resolve(__dirname, '..', 'app', 'Services', 'Types')
+    )
+
+    this.app.logger.debug('[register] %s alias registered', `@you-space:services`)
   }
 }

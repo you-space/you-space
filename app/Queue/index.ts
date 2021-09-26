@@ -27,7 +27,7 @@ export default class Queue {
     this.findOrCreate(ProviderJobs.key, ProviderJobs.handler)
     this.findOrCreate(RunThemeScript.key, RunThemeScript.handler)
 
-    Logger.info('queue service started')
+    Logger.info('[queues] service started')
   }
 
   public find<T = Record<string, any>>(name: string) {

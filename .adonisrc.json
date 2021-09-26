@@ -20,7 +20,7 @@
     "@adonisjs/lucid",
     "@adonisjs/redis",
     "@adonisjs/auth",
-    "./providers/ServiceRegisterProvider",
+    "./providers/RegisterProvider",
     "./providers/AppProvider",
     "./providers/QueueProvider"
   ],
