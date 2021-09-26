@@ -2,7 +2,6 @@ import { DateTime } from 'luxon'
 import { BaseModel, scope, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 
 import Item from './Item'
-import TypeField from './TypeField'
 
 export interface TypeOptions {
   label?: string
@@ -33,11 +32,6 @@ export default class Type extends BaseModel {
 
   @column.dateTime()
   public deletedAt: DateTime | null
-
-  @hasMany(() => TypeField, {
-    foreignKey: 'typeId',
-  })
-  public fields: HasMany<typeof TypeField>
 
   public static isNotDeleted = scope((query) => {
     query.whereNull('deletedAt')
