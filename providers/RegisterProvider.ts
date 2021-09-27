@@ -14,7 +14,7 @@ export default class OriginServiceProvider {
   }
 
   public async registerAuthenticateByToken() {
-    const AuthenticateByTokenService = (await import('App/Services/AuthenticateByTokenService'))
+    const AuthenticateByTokenService = (await import('App/Helpers/AuthenticateByTokenService'))
       .default
 
     const authenticateByTokenService = new AuthenticateByTokenService()
@@ -26,7 +26,7 @@ export default class OriginServiceProvider {
   }
 
   public async registerSocket() {
-    const SocketService = (await import('App/Services/SocketService')).default
+    const SocketService = (await import('App/Helpers/SocketService')).default
 
     const socketService = new SocketService()
 

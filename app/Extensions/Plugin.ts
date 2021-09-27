@@ -12,7 +12,7 @@ import BaseExtension from './Utils/BaseExtension'
 import { method, property, hook, manager } from './Utils/Decorators'
 import TypeManager from './Utils/TypeManager'
 import ProviderManager from './Utils/ProviderManager'
-import { isGitUrl } from 'App/Services/Helpers'
+// import { isGitUrl } from 'App/Services/Helpers'
 
 export default class Plugin {
   // @property()

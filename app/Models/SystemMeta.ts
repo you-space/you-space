@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
-import { isJson } from 'App/Services/Helpers'
+import { isJson } from 'App/Helpers'
 
 export enum SystemDefaults {
   CurrentTheme = 'themes:current',
