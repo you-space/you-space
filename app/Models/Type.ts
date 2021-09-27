@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon'
-import { BaseModel, scope, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, scope, column, HasMany, hasMany, afterDelete } from '@ioc:Adonis/Lucid/Orm'
+import Application from '@ioc:Adonis/Core/Application'
+import Drive from '@ioc:Adonis/Core/Drive'
 
 import Item from './Item'
 
@@ -19,11 +21,6 @@ export default class Type extends BaseModel {
   @column()
   public options: TypeOptions
 
-  @hasMany(() => Item, {
-    foreignKey: 'typeId',
-  })
-  public items: HasMany<typeof Item>
-
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
@@ -33,9 +30,23 @@ export default class Type extends BaseModel {
   @column.dateTime()
   public deletedAt: DateTime | null
 
+  public get schemaFilename() {
+    return Application.makePath('content', 'schemas', `${this.name}.js`)
+  }
+
+  @hasMany(() => Item, {
+    foreignKey: 'typeId',
+  })
+  public items: HasMany<typeof Item>
+
   public static isNotDeleted = scope((query) => {
     query.whereNull('deletedAt')
   })
+
+  @afterDelete()
+  public static async afterDelete(type: Type) {
+    await Drive.delete(type.schemaFilename)
+  }
 
   public static fetchByIdOrName(idOrName: string | number) {
     if (!isNaN(Number(idOrName))) {
