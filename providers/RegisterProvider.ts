@@ -34,10 +34,7 @@ export default class OriginServiceProvider {
   }
 
   public async registerServicesAlias() {
-    moduleAlias.addAlias(
-      `@you-space:services`,
-      path.resolve(__dirname, '..', 'app', 'Services', 'Types')
-    )
+    moduleAlias.addAlias(`@you-space:services`, path.resolve(__dirname, '..', 'app', 'Services'))
 
     this.app.logger.debug('[register] %s alias registered', `@you-space:services`)
   }
