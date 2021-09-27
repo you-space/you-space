@@ -70,6 +70,12 @@ const routes: RouteRecordRaw[] = [
                 name: 'jobs',
                 component: () => import('pages/Jobs/Index.vue'),
             },
+            {
+                path: '/server-page/:name',
+                name: 'server-page',
+                props: true,
+                component: () => import('pages/ServerPage/Index.vue'),
+            },
         ],
     },
     {

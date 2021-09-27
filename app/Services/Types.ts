@@ -1,9 +1,10 @@
 import Drive from '@ioc:Adonis/Core/Drive'
 import Application from '@ioc:Adonis/Core/Application'
 import Type from 'App/Models/Type'
+import { Types, TypeItemCreate } from '../../types/services'
 
-class Service {
-  public async create(name: string, schema: string, options?: Type['options']) {
+class Service implements Types {
+  public async create(name, schema) {
     const exist = await Drive.exists(schema)
 
     if (!exist) {
@@ -12,7 +13,17 @@ class Service {
 
     await Drive.copy(schema, Application.makePath('content', 'schemas', `${name}.js`))
 
-    return Type.firstOrCreate({ name }, { name, options })
+    return Type.firstOrCreate({ name }, { name })
+  }
+
+  public async createItems(name: string, items: TypeItemCreate[]) {
+    const type = await Type.fetchByIdOrName(name).first()
+
+    if (!type) {
+      throw new Error('type not found')
+    }
+
+    await type.related('items').updateOrCreateMany(items, ['sourceId'])
   }
 
   public async delete(name: string) {

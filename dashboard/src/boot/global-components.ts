@@ -45,7 +45,7 @@ export default boot(({ app }) => {
             return;
         }
 
-        if (componentName.slice(0, 2) !== 'Ys') {
+        if (componentName.charAt(0) !== 'Y') {
             return;
         }
 

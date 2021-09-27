@@ -47,17 +47,10 @@
 </template>
 
 <script lang="ts">
-import { api } from 'src/boot/axios';
-import { useEvents } from 'src/boot/events';
+// import { useEvents } from 'src/boot/events';
 import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
-
-interface ServerMenu {
-    name: string;
-    label: string;
-    icon?: string;
-    typeId: number;
-}
+import { fetchPages } from './compositions';
 
 export default defineComponent({
     name: 'MainLayout',
@@ -66,12 +59,11 @@ export default defineComponent({
     },
     setup() {
         const tm = useI18n();
-        const events = useEvents();
+        // const events = useEvents();
 
         const drawer = ref(false);
         const loading = ref(false);
-        const links = ref<Map<string, any>>(new Map());
-        const menuList = ref<any[]>([]);
+        const links = ref(new Map());
 
         function setDefaultLinks() {
             links.value.set('general', {
@@ -121,21 +113,39 @@ export default defineComponent({
             });
         }
 
-        function load() {
+        async function setServerLinks() {
+            const pages = await fetchPages();
+
+            pages.forEach((page) => {
+                links.value.set(page.name, {
+                    label: page.name,
+                    icon: 'list',
+                    to: {
+                        name: 'server-page',
+                        params: {
+                            name: page.name,
+                        },
+                    },
+                });
+            });
+        }
+
+        async function load() {
             loading.value = true;
 
             setDefaultLinks();
 
+            await setServerLinks().catch(console.error);
+
             setTimeout(() => (loading.value = false), 800);
         }
 
-        load();
+        void load();
 
         // events.subscribe('menu:update', () => void setMenus());
 
         return {
             links,
-            menuList,
             loading,
             drawer,
         };
