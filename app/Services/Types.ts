@@ -4,16 +4,20 @@ import Type from 'App/Models/Type'
 import { Types, TypeItemCreate } from '../../types/services'
 
 class Service implements Types {
-  public async create(name, schema) {
-    const exist = await Drive.exists(schema)
+  public async create(name: string, schema: string) {
+    const filename = schema.replace('$plugins-folder', Application.makePath('content', 'plugins'))
+
+    const exist = await Drive.exists(filename)
 
     if (!exist) {
       throw new Error('schema file not found')
     }
 
-    await Drive.copy(schema, Application.makePath('content', 'schemas', `${name}.js`))
+    await Drive.copy(filename, Application.makePath('content', 'schemas', `${name}.js`))
 
-    return Type.firstOrCreate({ name }, { name })
+    const create = await Type.firstOrCreate({ name }, { name })
+
+    return create.serialize()
   }
 
   public async createItems(name: string, items: TypeItemCreate[]) {
