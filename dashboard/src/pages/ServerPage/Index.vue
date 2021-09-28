@@ -2,7 +2,7 @@
     <component :is="component" />
 </template>
 <script lang="ts">
-import { defineComponent, h, shallowRef } from 'vue';
+import { defineComponent, h, shallowRef, watch } from 'vue';
 
 export default defineComponent({
     props: {
@@ -25,7 +25,9 @@ export default defineComponent({
             component.value = page.default;
         }
 
-        void setPage();
+        watch(() => props.name, setPage, {
+            immediate: true,
+        });
 
         return {
             component,

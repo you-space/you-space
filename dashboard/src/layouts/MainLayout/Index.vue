@@ -118,8 +118,8 @@ export default defineComponent({
 
             pages.forEach((page) => {
                 links.value.set(page.name, {
-                    label: page.name,
-                    icon: 'list',
+                    label: page.label || page.name,
+                    icon: page.icon || 'list',
                     to: {
                         name: 'server-page',
                         params: {

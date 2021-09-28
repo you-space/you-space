@@ -1,10 +1,17 @@
 import SystemMeta from 'App/Models/SystemMeta'
 
-class Service {
-  public async create(name: string, filename: string) {
-    const metaName = `pages:${name}`
+export interface Page {
+  name: string
+  filename: string
+  label?: string
+  icon?: string
+}
 
-    await SystemMeta.updateOrCreate({ name: metaName }, { name: metaName, value: filename })
+class Service {
+  public async create(page: Page) {
+    const metaName = `pages:${page.name}`
+
+    await SystemMeta.updateOrCreateMetaObject(metaName, page)
   }
 }
 
