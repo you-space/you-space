@@ -8,10 +8,10 @@ import Drive from '@ioc:Adonis/Core/Drive'
 
 import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'
 
-import BaseExtension from './Utils/BaseExtension'
-import { method, property, hook, manager } from './Utils/Decorators'
-import TypeManager from './Utils/TypeManager'
-import ProviderManager from './Utils/ProviderManager'
+// import BaseExtension from './Utils/BaseExtension'
+// import { method, property, hook, manager } from './Utils/Decorators'
+// import TypeManager from './Utils/TypeManager'
+// import ProviderManager from './Utils/ProviderManager'
 // import { isGitUrl } from 'App/Services/Helpers'
 
 export default class Plugin {
@@ -104,17 +104,22 @@ export default class Plugin {
   }
 
   public async start() {
-    const { start } = await import(this.filename)
+    try {
+      const { start } = await import(this.filename)
 
-    if (start) {
-      await start()
+      if (start) {
+        await start()
+      }
+
+      const meta = await SystemMeta.firstOrCreateMetaArray(SystemDefaults.PluginsActive)
+
+      await SystemMeta.updateOrCreateMetaArray(SystemDefaults.PluginsActive, [...meta, this.name])
+
+      Logger.info('[plugins] %s started', this.name)
+    } catch (error) {
+      Logger.error('[plugins] %s fail to start', this.name)
+      Logger.error(error)
     }
-
-    const meta = await SystemMeta.firstOrCreateMetaArray(SystemDefaults.PluginsActive)
-
-    await SystemMeta.updateOrCreateMetaArray(SystemDefaults.PluginsActive, [...meta, this.name])
-
-    Logger.info('[plugins] %s started', this.name)
   }
 
   public async stop() {
@@ -164,5 +169,19 @@ export default class Plugin {
     }
 
     return plugin
+  }
+
+  public static async startActivePlugins() {
+    const plugins = await this.findAll()
+
+    await Promise.all(
+      plugins.map(async (p) => {
+        const active = await p.isActive()
+
+        if (!active) return
+
+        await p.start()
+      })
+    )
   }
 }
