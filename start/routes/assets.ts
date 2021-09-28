@@ -7,3 +7,5 @@ Route.group(() => {
   .prefix('assets')
   .prefix('v1')
   .prefix('api')
+  .middleware('auth')
+  .middleware('acl:admin')

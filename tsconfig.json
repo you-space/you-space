@@ -17,7 +17,8 @@
       "@adonisjs/repl",
       "@adonisjs/lucid",
       "@adonisjs/redis",
-      "@adonisjs/auth"
+      "@adonisjs/auth",
+      "@adonisjs/session"
     ]
   }
 }

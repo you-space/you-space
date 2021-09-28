@@ -9,12 +9,8 @@ interface AuthUserResponse {
 }
 
 const actions: ActionTree<AuthState, RootState> = {
-    async login(context, token: string) {
+    async login(context) {
         try {
-            localStorage.setItem('auth:token', token);
-
-            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
             const request = await api.get<AuthUserResponse>('auth/user');
 
             context.commit('setIsAuthenticated', true);
@@ -25,9 +21,6 @@ const actions: ActionTree<AuthState, RootState> = {
     },
     async logout(context) {
         await api.post('auth/logout').catch(console.error);
-        localStorage.removeItem('auth:token');
-
-        api.defaults.headers.common['Authorization'] = undefined;
 
         context.commit('setIsAuthenticated', false);
         context.commit('setUser', null);

@@ -14,7 +14,7 @@ module.exports = configure(function (/* ctx */) {
         },
         preFetch: false,
         boot: [
-            'import-map',
+            'server-assets',
             'i18n',
             'axios',
             'global-components',

@@ -56,6 +56,11 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
+        const exclude = ['auth/user', 'auth/logout'];
+
+        if (exclude.includes(error.config.url)) {
+            return;
+        }
         let messages: string[] = ['Error in server'];
 
         if (error.response || error.request) {

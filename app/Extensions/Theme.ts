@@ -11,7 +11,7 @@ import { manager, method, property } from './Utils/Decorators'
 import User from 'App/Models/User'
 import ItemsManager from './Utils/ItemsManager'
 import TypeManager from './Utils/TypeManager'
-import { isGitUrl } from 'App/Services/Helpers'
+import { isGitUrl } from 'App/Helpers'
 
 interface RenderArgs {
   path: string

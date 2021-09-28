@@ -7,7 +7,7 @@ Route.group(() => {
   .prefix('admin')
   .prefix('v1')
   .prefix('api')
-// .middleware('auth:api')
+// .middleware('auth')
 // .middleware('acl:admin')
 
 Route.group(() => {

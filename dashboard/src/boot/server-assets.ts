@@ -8,9 +8,7 @@ declare global {
     }
 }
 
-export default boot(async ({}) => {
-    window.vue = vue;
-
+export async function setServerAssets() {
     const { data } = await api.get('assets/import-map');
 
     const im = document.createElement('script');
@@ -20,4 +18,11 @@ export default boot(async ({}) => {
     const head = document.getElementsByTagName('head')[0];
 
     head.appendChild(im);
+}
+
+export default boot(async ({ store }) => {
+    window.vue = vue;
+    if (store.state.auth.isAuthenticated) {
+        await setServerAssets();
+    }
 });
