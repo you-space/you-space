@@ -2,6 +2,7 @@ import { api } from 'src/boot/axios';
 import { ActionTree } from 'vuex';
 import { RootState } from 'src/store';
 import { AuthState } from './state';
+import { setServerAssets } from 'src/boot/server-assets';
 
 interface AuthUserResponse {
     id: number;
@@ -15,6 +16,8 @@ const actions: ActionTree<AuthState, RootState> = {
 
             context.commit('setIsAuthenticated', true);
             context.commit('setUser', request.data);
+
+            await setServerAssets();
         } catch (error) {
             await context.dispatch('logout');
         }

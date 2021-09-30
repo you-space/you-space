@@ -7,6 +7,8 @@ import Application from '@ioc:Adonis/Core/Application'
 import Drive from '@ioc:Adonis/Core/Drive'
 
 import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'
+import { uniq } from 'lodash'
+import Space from 'App/Services/Space'
 
 // import BaseExtension from './Utils/BaseExtension'
 // import { method, property, hook, manager } from './Utils/Decorators'
@@ -113,9 +115,13 @@ export default class Plugin {
 
       const meta = await SystemMeta.firstOrCreateMetaArray(SystemDefaults.PluginsActive)
 
-      await SystemMeta.updateOrCreateMetaArray(SystemDefaults.PluginsActive, [...meta, this.name])
+      const value = uniq([...meta, this.name])
+
+      await SystemMeta.updateOrCreateMetaArray(SystemDefaults.PluginsActive, value)
 
       Logger.info('[plugins] %s started', this.name)
+
+      await Space.emit(`space:plugins:${this.name}:activated`)
     } catch (error) {
       Logger.error('[plugins] %s fail to start', this.name)
       Logger.error(error)

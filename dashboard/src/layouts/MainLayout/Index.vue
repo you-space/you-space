@@ -47,10 +47,10 @@
 </template>
 
 <script lang="ts">
-// import { useEvents } from 'src/boot/events';
 import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { fetchPages } from './compositions';
+import { debounce } from 'lodash';
 
 export default defineComponent({
     name: 'MainLayout',
@@ -59,7 +59,6 @@ export default defineComponent({
     },
     setup() {
         const tm = useI18n();
-        // const events = useEvents();
 
         const drawer = ref(false);
         const loading = ref(false);
@@ -130,19 +129,34 @@ export default defineComponent({
             });
         }
 
-        async function load() {
+        const load = debounce(async () => {
+            console.log('update');
+
             loading.value = true;
+
+            links.value.clear();
 
             setDefaultLinks();
 
             await setServerLinks().catch(console.error);
 
             setTimeout(() => (loading.value = false), 800);
+        });
+
+        async function subscribe() {
+            const { default: space } = await import(
+                /* webpackIgnore: true */
+                'assets/space.js'
+            );
+
+            space.on('space:metas:space:pages:*:created', load);
+            space.on('space:metas:space:pages:*:updated', load);
+            space.on('space:metas:space:pages:*:deleted', load);
         }
 
         void load();
 
-        // events.subscribe('menu:update', () => void setMenus());
+        void subscribe();
 
         return {
             links,

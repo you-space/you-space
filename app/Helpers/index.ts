@@ -1,5 +1,10 @@
-import Logger from '@ioc:Adonis/Core/Logger'
 import execa from 'execa'
+
+import SessionConfig from 'Config/session'
+import AdonisRequest from '@ioc:Adonis/Core/Request'
+import Encryption from '@ioc:Adonis/Core/Encryption'
+import Logger from '@ioc:Adonis/Core/Logger'
+
 export function isJson(str: string) {
   try {
     JSON.parse(str)
@@ -35,4 +40,22 @@ export async function isGitUrl(url: string) {
   } catch (error) {
     return false
   }
+}
+
+export const getSocketUserId = (socket) => {
+  // @ts-ignore
+  const SocketRequest = new AdonisRequest(socket.request, null, Encryption, {})
+  const sessionId = SocketRequest.cookie(SessionConfig.cookieName)
+
+  if (!sessionId) {
+    return null
+  }
+
+  const session = SocketRequest.encryptedCookie(sessionId)
+
+  if (!session || !session.auth_web) {
+    return null
+  }
+
+  return session.auth_web
 }

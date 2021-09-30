@@ -1,6 +1,7 @@
 import * as vue from 'vue';
 import { boot } from 'quasar/wrappers';
 import { api } from './axios';
+import { Notify } from 'quasar';
 
 declare global {
     interface Window {
@@ -20,9 +21,17 @@ export async function setServerAssets() {
     head.appendChild(im);
 }
 
-export default boot(async ({ store }) => {
+export function registerInjects() {
+    const injects = [
+        {
+            name: 'notify',
+            value: Notify,
+        },
+    ];
+
+    injects.forEach((i) => vue.provide(i.name, i.value));
+}
+
+export default boot(() => {
     window.vue = vue;
-    if (store.state.auth.isAuthenticated) {
-        await setServerAssets();
-    }
 });

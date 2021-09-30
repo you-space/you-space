@@ -1,6 +1,4 @@
 import { ApplicationContract } from '@ioc:Adonis/Core/Application'
-import moduleAlias from 'module-alias'
-import path from 'path'
 
 export default class AppProvider {
   public static needsApplication = true
@@ -11,45 +9,40 @@ export default class AppProvider {
     // Register your own bindings
   }
 
-  public async boot() {
-    this.registerServicesAlias()
+  public async boot() {}
 
-    await this.registerQueue()
+  public async ready() {
+    const Space = (await import('App/Services/Space')).default
 
-    await this.startActivePlugins()
+    Space.boot()
 
-    await this.registerAssets()
+    await import('../start/system-events')
+
+    await this.registerQueues()
+
+    await Space.emit('space:pages:create', {
+      name: 'space-config',
+      filename: this.app.resourcesPath('pages', 'config.js'),
+      label: 'Configurations',
+    })
+
+    await Space.emit('space:assets:create', {
+      name: 'space.js',
+      filename: this.app.resourcesPath('space.js'),
+    })
+
+    const plugins = await Space.emit('space:plugins:index')
+
+    await Promise.all(
+      plugins.filter((p) => p.active).map((p) => Space.emit('space:plugins:activate', p.name))
+    )
   }
 
-  public async ready() {}
-
-  public async shutdown() {
-    // Cleanup, since app is going down
-  }
-
-  public async registerQueue() {
+  public async registerQueues() {
     const Queue = (await import('App/Queue')).default
 
     const queue = new Queue()
 
     this.app.container.singleton('Queue', () => queue)
-  }
-
-  public async registerServicesAlias() {
-    moduleAlias.addAlias(`@you-space:services`, path.resolve(__dirname, '..', 'app', 'Services'))
-
-    this.app.logger.debug('[register] %s alias registered', `@you-space:services`)
-  }
-
-  public async startActivePlugins() {
-    const Plugin = (await import('App/Extensions/Plugin')).default
-
-    await Plugin.startActivePlugins()
-  }
-
-  public async registerAssets() {
-    const { assets } = require('@you-space:services')
-
-    await assets.create('@you-space:services', this.app.resourcesPath('services.js'))
   }
 }

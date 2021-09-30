@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import Role from './Role'
 
 export default class UserRole extends BaseModel {
   @column({ isPrimary: true })
@@ -16,4 +17,7 @@ export default class UserRole extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @belongsTo(() => Role)
+  public role: BelongsTo<typeof Role>
 }

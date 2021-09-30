@@ -1,11 +1,19 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import {
+  afterCreate,
+  afterDelete,
+  afterSave,
+  afterUpdate,
+  BaseModel,
+  column,
+} from '@ioc:Adonis/Lucid/Orm'
 
 import { isJson } from 'App/Helpers'
+import Space from 'App/Services/Space'
 
 export enum SystemDefaults {
-  CurrentTheme = 'themes:current',
-  PluginsActive = 'plugins:activated',
+  CurrentTheme = 'space:themes:current',
+  PluginsActive = 'space:plugins:activated',
 }
 
 export default class SystemMeta extends BaseModel {
@@ -44,8 +52,8 @@ export default class SystemMeta extends BaseModel {
     return isJson(meta.value) ? JSON.parse(meta.value) : meta.value
   }
 
-  public static async firstOrCreateMetaObject<T = any>(name: string): Promise<T> {
-    const meta = await this.firstOrCreate({ name }, { name, value: JSON.stringify({}) })
+  public static async firstOrCreateMetaObject<T = any>(name: string, value = {}): Promise<T> {
+    const meta = await this.firstOrCreate({ name }, { name, value: JSON.stringify(value) })
 
     return isJson(meta.value) ? JSON.parse(meta.value) : meta.value
   }
@@ -78,5 +86,20 @@ export default class SystemMeta extends BaseModel {
 
   public toMetaObject<T = any>() {
     return JSON.parse(this.value) as T
+  }
+
+  @afterSave()
+  public static async afterSave(meta: SystemMeta) {
+    await Space.emit(`space:metas:${meta.name}:updated`, meta.serialize())
+  }
+
+  @afterCreate()
+  public static async afterCreate(meta: SystemMeta) {
+    await Space.emit(`space:metas:${meta.name}:created`, meta.serialize())
+  }
+
+  @afterDelete()
+  public static async afterDelete(meta: SystemMeta) {
+    await Space.emit(`space:metas:${meta.name}:deleted`, meta.serialize())
   }
 }
