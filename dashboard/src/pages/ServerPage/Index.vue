@@ -25,13 +25,14 @@ export default defineComponent({
         async function setPage() {
             loading.value = true;
 
-            const page = (
-                await import(
-                    /* webpackIgnore: true */ `/api/v1/pages/${props.name}`
-                )
-            ).default;
+            const { template, script } = await import(
+                /* webpackIgnore: true */ `/api/v1/pages/${props.name}`
+            );
 
-            component.value = page;
+            component.value = {
+                template,
+                ...script,
+            };
 
             setTimeout(() => {
                 loading.value = false;

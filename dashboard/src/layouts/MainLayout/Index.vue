@@ -144,7 +144,7 @@ export default defineComponent({
         async function subscribe() {
             const { default: space } = await import(
                 /* webpackIgnore: true */
-                'assets/space.js'
+                'space'
             );
 
             space.on('space:metas:space:pages:*:created', load);

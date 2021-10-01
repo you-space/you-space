@@ -22,7 +22,7 @@ export default class AppProvider {
 
     await Space.emit('space:pages:create', {
       name: 'space-config',
-      filename: this.app.resourcesPath('pages', 'config.js'),
+      filename: this.app.resourcesPath('pages', 'space-config.vue'),
       label: 'Configurations',
     })
 

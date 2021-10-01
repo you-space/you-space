@@ -39,6 +39,7 @@
     "@adonisjs/redis": "^7.0.9",
     "@adonisjs/repl": "^3.1.6",
     "@adonisjs/session": "^6.1.2",
+    "@vue/compiler-sfc": "^3.2.19",
     "archiver": "^5.3.0",
     "axios": "^0.21.1",
     "bull": "^3.29.1",
