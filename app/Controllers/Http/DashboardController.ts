@@ -1,9 +1,7 @@
 import { promises as fs } from 'fs'
 import path from 'path'
-
 import Application from '@ioc:Adonis/Core/Application'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Type from 'App/Models/Type'
 export default class DashboardController {
   public async show({ request, response }: HttpContextContract) {
     const appPath = Application.publicPath()
@@ -25,18 +23,5 @@ export default class DashboardController {
     response.safeHeader('Content-type', 'text/html')
 
     return await fs.readFile(`${appPath}/index.html`, 'utf-8')
-  }
-
-  public async showMenu() {
-    const types = await Type.query()
-      .whereRaw(`"options"->'showInMenu' = 'true'`)
-      .whereNull('deletedAt')
-
-    return types.map((type) => ({
-      name: type.name,
-      label: type.options.label || type.name,
-      typeId: type.id,
-      icon: type.options.icon,
-    }))
   }
 }

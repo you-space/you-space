@@ -9,19 +9,45 @@ export default class AppProvider {
     // Register your own bindings
   }
 
-  public async boot() {
-    // IoC container is ready
-  }
+  public async boot() {}
 
   public async ready() {
-    const App = await import('@ioc:Adonis/Core/Application')
+    const Space = (await import('App/Services/Space')).default
 
-    if (App.default.environment === 'web') {
-      await import('../start/socket')
-    }
+    Space.boot()
+
+    await import('../start/system-events')
+
+    await this.registerQueues()
+
+    await Space.emit('space:pages:create', {
+      name: 'space-config',
+      filename: this.app.resourcesPath('pages', 'config.js'),
+      label: 'Configurations',
+    })
+
+    await Space.emit('space:assets:create', {
+      name: 'space.js',
+      filename: this.app.resourcesPath('space.js'),
+    })
+
+    await Space.emit('space:dashboard:config:update', {
+      siteName: 'You space',
+      activePages: ['space-jobs'],
+    })
+
+    const plugins = await Space.emit('space:plugins:index')
+
+    await Promise.all(
+      plugins.filter((p) => p.active).map((p) => Space.emit('space:plugins:activate', p.name))
+    )
   }
 
-  public async shutdown() {
-    // Cleanup, since app is going down
+  public async registerQueues() {
+    const Queue = (await import('App/Queue')).default
+
+    const queue = new Queue()
+
+    this.app.container.singleton('Queue', () => queue)
   }
 }

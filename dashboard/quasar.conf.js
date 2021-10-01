@@ -14,6 +14,7 @@ module.exports = configure(function (/* ctx */) {
         },
         preFetch: false,
         boot: [
+            'server-assets',
             'i18n',
             'axios',
             'global-components',
@@ -29,13 +30,14 @@ module.exports = configure(function (/* ctx */) {
 
         build: {
             vueRouterMode: 'history',
+            vueCompiler: true,
             publicPath:
                 process.env.NODE_ENV === 'development' ? '/' : '/ys-admin',
 
             distDir: '../public',
 
-            chainWebpack(/* chain */) {
-                //
+            chainWebpack(chain) {
+                // chain.resolve.alias.set('vue', 'vue/dist/vue.esm.js');
             },
         },
 

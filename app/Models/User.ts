@@ -76,4 +76,12 @@ export default class User extends BaseModel {
       }
     )
   }
+
+  public async haveRoles(rolesNames: string[]) {
+    if (!this.roles) {
+      await (this as User).load('roles')
+    }
+
+    return rolesNames.every((rn) => this.roles.some((r) => r.name === rn))
+  }
 }

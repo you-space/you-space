@@ -1,4 +1,4 @@
-import { importIfExist } from 'App/Services/Helpers'
+import { importIfExist } from 'App/Helpers'
 import { This, HookListener } from './types'
 import Logger from '@ioc:Adonis/Core/Logger'
 

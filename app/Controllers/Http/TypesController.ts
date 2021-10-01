@@ -4,6 +4,7 @@ import Type from 'App/Models/Type'
 import TypeStoreValidator from 'App/Validators/TypeStoreValidator'
 import TypeUpdateValidator from 'App/Validators/TypeUpdateValidator'
 import { DateTime } from 'luxon'
+import { types } from 'App/Services'
 
 export default class TypesController {
   public async index({ request }: HttpContextContract) {
@@ -26,9 +27,9 @@ export default class TypesController {
   }
 
   public async store({ request }: HttpContextContract) {
-    const payload = await request.validate(TypeStoreValidator)
+    const { name, schemaPath } = await request.validate(TypeStoreValidator)
 
-    return Type.create(payload)
+    return types.create(name, schemaPath)
   }
 
   public async update({ request, params }: HttpContextContract) {

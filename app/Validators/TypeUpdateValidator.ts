@@ -4,8 +4,8 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 export default class TypeUpdateValidator {
   constructor(protected ctx: HttpContextContract) {}
   public schema = schema.create({
-    name: schema.string.optional(),
-    options: schema.object.optional().anyMembers(),
+    name: schema.string(),
+    schemaPath: schema.string(),
   })
   public messages = {}
 }

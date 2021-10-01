@@ -6,6 +6,7 @@ const rules = {
   APP_KEY: Env.schema.string.optional(),
   APP_NAME: Env.schema.string(),
   APP_URL: Env.schema.string.optional(),
+  SESSION_DRIVER: Env.schema.string.optional(),
 
   DB_CONNECTION: Env.schema.string.optional(),
 

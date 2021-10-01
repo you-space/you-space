@@ -75,12 +75,12 @@ export default defineComponent({
             try {
                 loading.value = true;
 
-                const request = await api.post('auth/login', {
+                await api.post('auth/login', {
                     emailOrUsername: emailOrUsername.value,
                     password: password.value,
                 });
 
-                await store.dispatch('auth/login', request.data.token);
+                await store.dispatch('auth/login');
 
                 await router.push({ name: 'home' });
 

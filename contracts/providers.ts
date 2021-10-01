@@ -1,5 +1,5 @@
 declare module '@ioc:Providers/AuthenticateByTokenService' {
-  import Service from 'App/Services/AuthenticateByTokenService'
+  import Service from 'App/Helpers/AuthenticateByTokenService'
 
   const AuthenticateByTokenService: Service
 
@@ -7,7 +7,7 @@ declare module '@ioc:Providers/AuthenticateByTokenService' {
 }
 
 declare module '@ioc:Providers/SocketService' {
-  import Service from 'App/Services/SocketService'
+  import Service from 'App/Helpers/SocketService'
 
   const SocketService: Service
 

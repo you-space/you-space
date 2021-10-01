@@ -5,7 +5,7 @@ import Plugin from 'App/Extensions/Plugin'
 
 export default class PluginsController {
   public async index() {
-    const plugins = await Plugin.all()
+    const plugins = await Plugin.findAll()
 
     const data = await Promise.all(
       plugins.map(async (p) => {
@@ -20,21 +20,19 @@ export default class PluginsController {
   }
 
   public async store({ request }: HttpContextContract) {
-    const { gitUrl } = await request.validate({
-      schema: schema.create({
-        gitUrl: schema.string({}, [
-          rules.url({
-            allowedHosts: ['github.com'],
-          }),
-        ]),
-      }),
-    })
-
-    await Plugin.create(gitUrl)
-
-    return {
-      message: 'Plugin downloaded',
-    }
+    // const { gitUrl } = await request.validate({
+    //   schema: schema.create({
+    //     gitUrl: schema.string({}, [
+    //       rules.url({
+    //         allowedHosts: ['github.com'],
+    //       }),
+    //     ]),
+    //   }),
+    // })
+    // await Plugin.create(gitUrl)
+    // return {
+    //   message: 'Plugin downloaded',
+    // }
   }
 
   public async update({ request, params }: HttpContextContract) {
@@ -61,18 +59,14 @@ export default class PluginsController {
   }
 
   public async destroy({ params }: HttpContextContract) {
-    const plugin = await Plugin.findOrFail(params.id)
-
-    const isActive = await plugin.isActive()
-
-    if (isActive) {
-      throw new Error('can not delete active plugin')
-    }
-
-    await plugin.delete()
-
-    return {
-      message: 'Theme deleted',
-    }
+    // const plugin = await Plugin.findOrFail(params.id)
+    // const isActive = await plugin.isActive()
+    // if (isActive) {
+    //   throw new Error('can not delete active plugin')
+    // }
+    // await plugin.delete()
+    // return {
+    //   message: 'Theme deleted',
+    // }
   }
 }

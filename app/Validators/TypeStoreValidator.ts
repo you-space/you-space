@@ -5,7 +5,7 @@ export default class TypeStoreValidator {
   constructor(protected ctx: HttpContextContract) {}
   public schema = schema.create({
     name: schema.string(),
-    options: schema.object.optional().anyMembers(),
+    schemaPath: schema.string(),
   })
   public messages = {}
 }

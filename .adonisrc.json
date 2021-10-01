@@ -20,9 +20,8 @@
     "@adonisjs/lucid",
     "@adonisjs/redis",
     "@adonisjs/auth",
-    "./providers/ServiceRegisterProvider",
-    "./providers/AppProvider",
-    "./providers/QueueProvider"
+    "@adonisjs/session",
+    "./providers/AppProvider"
   ],
   "aceProviders": ["@adonisjs/repl"],
   "metaFiles": [

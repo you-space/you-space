@@ -3,7 +3,7 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
     {
         path: '/',
-        component: () => import('src/layouts/MainLayout.vue'),
+        component: () => import('src/layouts/MainLayout/Index.vue'),
         children: [
             {
                 path: '',
@@ -69,6 +69,12 @@ const routes: RouteRecordRaw[] = [
                 path: '/jobs',
                 name: 'jobs',
                 component: () => import('pages/Jobs/Index.vue'),
+            },
+            {
+                path: '/server-page/:name',
+                name: 'server-page',
+                props: true,
+                component: () => import('pages/ServerPage/Index.vue'),
             },
         ],
     },
