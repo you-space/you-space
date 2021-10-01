@@ -1,6 +1,6 @@
-import space from 'assets/space.js'
+import space from 'space'
 
-const component = {
+export default {
   template: `
         <y-page padding>            
             <div class='text-h4 text-bold q-mb-md'>Configurations</div>
@@ -89,5 +89,3 @@ const component = {
     }
   },
 }
-
-export default component

@@ -27,13 +27,8 @@ export default class AppProvider {
     })
 
     await Space.emit('space:assets:create', {
-      name: 'space.js',
+      name: 'space',
       filename: this.app.resourcesPath('space.js'),
-    })
-
-    await Space.emit('space:dashboard:config:update', {
-      siteName: 'You space',
-      activePages: ['space-jobs'],
     })
 
     const plugins = await Space.emit('space:plugins:index')
