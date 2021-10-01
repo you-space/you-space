@@ -130,8 +130,6 @@ export default defineComponent({
         }
 
         const load = debounce(async () => {
-            console.log('update');
-
             loading.value = true;
 
             links.value.clear();

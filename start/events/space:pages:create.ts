@@ -2,7 +2,9 @@ import SystemMeta from 'App/Models/SystemMeta'
 
 export interface Page {
   name: string
-  filename: string
+  template: string
+  script?: string
+  styles?: string
   label?: string
   icon?: string
 }

@@ -3,10 +3,13 @@
         <q-inner-loading :showing="true" />
     </q-page>
 
-    <component :is="component" v-else />
+    <template v-else> </template>
+
+    <!-- <component :is="component" v-else /> -->
 </template>
 <script lang="ts">
-import { defineComponent, h, ref, shallowRef, watch } from 'vue';
+import { api } from 'src/boot/axios';
+import { defineComponent, h, ref, shallowRef, watch, compile } from 'vue';
 
 export default defineComponent({
     props: {
@@ -25,12 +28,27 @@ export default defineComponent({
         async function setPage() {
             loading.value = true;
 
-            const page = await import(
-                /* webpackIgnore: true */
-                `/api/v1/admin/dashboard/pages/${props.name}`
-            );
+            // const page = await import(
+            //     /* webpackIgnore: true */
+            //     `/api/v1/pages/${props.name}`
+            // );
 
-            component.value = page.default;
+            // const { data: template } = await api.get(
+            //     `pages/${props.name}/template`,
+            // );
+            // const { data: script } = await api.get(
+            //     `pages/${props.name}/script`,
+            // );
+            // const { data: css } = await api.get(`pages/${props.name}/css`);
+
+            // console.log(template, script, css);
+
+            // import('/api/v1/pages/${name}/script`)
+
+            // console.log(page);
+            // console.log(compile(page));
+
+            // component.value = compile(page) as any;
 
             setTimeout(() => {
                 loading.value = false;

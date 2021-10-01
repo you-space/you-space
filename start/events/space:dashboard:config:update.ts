@@ -10,19 +10,22 @@ interface Payload {
 const validPages = [
   {
     name: 'space-jobs',
-    filename: Application.resourcesPath('pages', 'jobs.js'),
     label: 'Jobs',
+    format: 'vue',
+    template: Application.resourcesPath('pages', 'jobs', 'template.html'),
+    script: Application.resourcesPath('pages', 'jobs', 'script.js'),
+    styles: Application.resourcesPath('pages', 'jobs', 'styles.css'),
   },
-  {
-    name: 'space-types',
-    filename: Application.resourcesPath('pages', 'types.js'),
-    label: 'Types',
-  },
-  {
-    name: 'space-items-raw',
-    filename: Application.resourcesPath('pages', 'items-raw.js'),
-    label: 'Items raw',
-  },
+  // {
+  //   name: 'space-types',
+  //   filename: Application.resourcesPath('pages', 'types.js'),
+  //   label: 'Types',
+  // },
+  // {
+  //   name: 'space-items-raw',
+  //   filename: Application.resourcesPath('pages', 'items-raw.js'),
+  //   label: 'Items raw',
+  // },
 ]
 
 export default {

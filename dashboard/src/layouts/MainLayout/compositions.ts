@@ -7,7 +7,7 @@ interface Page {
 }
 
 export async function fetchPages() {
-    const { data } = await api.get<Page[]>('admin/dashboard/pages');
+    const { data } = await api.get<Page[]>('pages');
 
     return data;
 }

@@ -31,6 +31,11 @@ export default class AppProvider {
       filename: this.app.resourcesPath('space.js'),
     })
 
+    await Space.emit('space:dashboard:config:update', {
+      siteName: 'You space',
+      activePages: ['space-jobs'],
+    })
+
     const plugins = await Space.emit('space:plugins:index')
 
     await Promise.all(
