@@ -1,111 +1,101 @@
-import AdonisServer from '@ioc:Adonis/Core/Server'
 import Logger from '@ioc:Adonis/Core/Logger'
-import { Server, Socket } from 'socket.io'
 import minimatch from 'minimatch'
 
-import { getSocketUserId } from 'App/Helpers'
-import User from 'App/Models/User'
+interface SpaceEventCallback {
+  (...args: any[]): Promise<any> | any
+}
 
-interface SpaceEvent {
+interface SpaceEventHandler {
   name: string
   roles?: string[]
-  handler: (...args: any[]) => Promise<any> | any
+  handler: SpaceEventCallback
 }
 
 interface SpaceObserver {
   name: string
-  handler: (...args: any[]) => Promise<any> | any
+  callback: SpaceEventCallback
+}
+
+interface GlobalObserverData {
+  event: string
+  handler?: SpaceEventHandler
+  args: any[]
+  result?: any
+}
+
+interface GlobalObserver {
+  (data: GlobalObserverData): void | Promise<void>
 }
 
 class Space {
-  private io: Server
-  private booted = false
-  private events: SpaceEvent[] = []
+  private eventHandlers: SpaceEventHandler[] = []
   private observers: SpaceObserver[] = []
+  private globalObservers: GlobalObserver[] = []
 
-  public boot() {
-    if (this.booted) {
-      return
-    }
-
-    this.booted = true
-
-    this.io = new Server(AdonisServer.instance, {
-      path: '/api/v1/sockets',
-    })
-
-    this.io.on('connection', (socket) => this.connection(socket))
-
-    Logger.info('[space] service started')
+  public fetchHandlers() {
+    return this.eventHandlers
   }
 
-  public registerHandler(event: SpaceEvent) {
-    const exist = this.events.find((e) => minimatch(e.name, event.name))
+  public registerHandler(event: SpaceEventHandler) {
+    const exist = this.eventHandlers.find((e) => minimatch(e.name, event.name))
 
     if (exist) {
       Logger.error('[space] event handler already exist')
       return
     }
 
-    this.events.push(event)
+    this.eventHandlers.push(event)
 
     Logger.debug('[space] register handler: %s', event.name)
   }
 
-  public subscribe(observer: SpaceObserver) {
-    this.observers.push(observer)
-  }
+  public async emit<T = any>(eventName: string, ...args: any[]) {
+    const subEvents = eventName.split(':').reduce(
+      (result, _, index) => {
+        const newArray = eventName.split(':').slice()
 
-  private async connection(socket: Socket) {
-    Logger.debug('[space] socket connected: %s', socket.id)
+        newArray[index] = '*'
 
-    this.events.forEach((event) => {
-      socket.on(event.name, async (...args: any[]) => {
-        Logger.debug('[space] event emitted: %s', event.name)
+        return result.concat(newArray.join(':'))
+      },
+      [eventName]
+    )
 
-        const callback = args.pop()
-
-        const result = await event.handler(...args)
-
-        callback(result)
-
-        this.observers
-          .filter((o) => minimatch(event.name, o.name))
-          .forEach((o) => o.handler(...args))
-      })
-    })
-  }
-
-  public async emit<T = any>(name: string, ...args: any[]) {
-    this.nativeEmit(name, ...args)
-    // send event to clients
-    name.split(':').forEach((n, index, array) => {
-      const newArray = array.slice()
-      newArray[index] = '*'
-      this.nativeEmit(newArray.join(':'), ...args)
-    })
-
-    this.observers.filter((o) => minimatch(name, o.name)).forEach((o) => o.handler(...args))
-
-    const event = this.events.find((e) => minimatch(name, e.name))
+    const eventHandler = this.eventHandlers.find((e) => minimatch(eventName, e.name))
 
     let result: T | null = null
 
-    Logger.debug('[space] event emitted: %s', name)
+    Logger.debug('[space] event emitted: %s', eventName)
 
-    if (event) {
-      result = await event.handler(...args)
+    if (eventHandler) {
+      result = await eventHandler.handler(...args)
     }
+
+    subEvents.forEach((event) => {
+      this.observers.filter((o) => minimatch(event, o.name)).forEach((o) => o.callback(...args))
+
+      this.globalObservers.forEach((observer) => {
+        observer({
+          event: event,
+          handler: eventHandler,
+          result,
+          args,
+        })
+      })
+    })
 
     return result
   }
 
-  public nativeOn: Server['on'] = (...args) => {
-    return this.io.on(...args)
+  public on(event: string, callback: (...args: any[]) => void | Promise<void>) {
+    this.observers.push({
+      name: event,
+      callback,
+    })
   }
 
-  public nativeEmit: Server['emit'] = (...args) => {
-    return this.io.emit(...args)
+  public onAny(observer: GlobalObserver) {
+    this.globalObservers.push(observer)
   }
 }
 

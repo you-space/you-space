@@ -14,7 +14,9 @@ export default class AppProvider {
   public async ready() {
     const Space = (await import('App/Services/Space')).default
 
-    Space.boot()
+    const Socket = (await import('App/Services/Socket')).default
+
+    Socket.boot()
 
     await import('../start/system-events')
 

@@ -14,11 +14,14 @@ files
     if (event) {
       event = event.default
       Space.registerHandler({
-        name: file,
-        roles: event.roles || ['admin'],
+        name: file.replace('.ts', ''),
+        roles: ['admin'],
         ...event,
       })
     }
   })
 
-global.space = Space
+global.space = {
+  on: Space.on.bind(Space),
+  emit: Space.emit.bind(Space),
+}
