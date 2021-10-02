@@ -53,3 +53,5 @@ export function setInjects() {
 export default boot(() => {
     window.vue = vue;
 });
+
+export { space };

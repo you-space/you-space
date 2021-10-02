@@ -50,7 +50,6 @@ import { defineComponent, ref, computed, watch } from 'vue';
 import { QFile } from 'quasar';
 
 import { useHelper } from 'src/boot/helper';
-import { useFilesToUpload } from 'src/pages/TypeItem/compositions/use-item-files';
 
 export default defineComponent({
     props: {
@@ -74,7 +73,6 @@ export default defineComponent({
     emits: ['update:modelValue'],
     setup(props) {
         const helper = useHelper();
-        const itemFiles = useFilesToUpload();
 
         const base64Preview = ref();
         const picker = ref<QFile>();
@@ -100,14 +98,6 @@ export default defineComponent({
         watch(
             () => file.value,
             async (value) => {
-                if (itemFiles && value) {
-                    itemFiles.value[props.name] = value;
-                }
-
-                if (itemFiles && !value) {
-                    delete itemFiles.value[props.name];
-                }
-
                 if (!value) {
                     return;
                 }
@@ -120,7 +110,6 @@ export default defineComponent({
             picker,
             file,
             preview,
-            itemFiles,
 
             showPicker,
         };
