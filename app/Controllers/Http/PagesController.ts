@@ -1,5 +1,5 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { Page } from 'start/events/space:pages:create'
+import { Page } from 'start/events/pages:create'
 
 import Drive from '@ioc:Adonis/Core/Drive'
 import Space from 'App/Services/Space'
@@ -20,7 +20,7 @@ function compileVueFile(content: string) {
 
 export default class PagesController {
   public async index() {
-    const pages = await Space.emit('space:pages:index')
+    const pages = await Space.emit('pages:index')
 
     return pages.map((p) => ({
       name: p.name,
@@ -30,7 +30,7 @@ export default class PagesController {
   }
 
   public async show({ params, response }: HttpContextContract) {
-    const page = await Space.emit<Page>('space:pages:get', params.id)
+    const page = await Space.emit<Page>('pages:get', params.id)
 
     if (!page) {
       return response.notFound('// Page not found')

@@ -7,7 +7,7 @@ export default class AssetsController {
   public async importMap({ response }: HttpContextContract) {
     response.type('application/importmap+json')
 
-    const assets = await Space.emit('space:assets:index')
+    const assets = await Space.emit('assets:index')
 
     const imports = {}
 
@@ -23,7 +23,7 @@ export default class AssetsController {
   public async show({ response, request }: HttpContextContract) {
     const name = request.params()['*'].join('/')
 
-    const asset = await Space.emit('space:assets:get', name)
+    const asset = await Space.emit('assets:get', name)
 
     if (!asset) {
       return response.notFound('Asset not found')
