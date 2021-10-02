@@ -39,10 +39,6 @@ class Space {
     Logger.info('[space] service started')
   }
 
-  public subscribe(observer: SpaceObserver) {
-    this.observers.push(observer)
-  }
-
   public registerHandler(event: SpaceEvent) {
     const exist = this.events.find((e) => minimatch(e.name, event.name))
 
@@ -54,6 +50,10 @@ class Space {
     this.events.push(event)
 
     Logger.debug('[space] register handler: %s', event.name)
+  }
+
+  public subscribe(observer: SpaceObserver) {
+    this.observers.push(observer)
   }
 
   private async connection(socket: Socket) {

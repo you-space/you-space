@@ -1,0 +1,7 @@
+import test from 'japa'
+
+test.group('{{name}}', () => {
+    test('should be teste', async () => {
+        throw new Error('need tests')
+    })
+})

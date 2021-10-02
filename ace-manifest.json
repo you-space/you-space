@@ -64,6 +64,26 @@
       "aliases": [],
       "flags": []
     },
+    "make:test": {
+      "settings": {
+        "loadApp": false,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/MakeUnitTest",
+      "commandName": "make:test",
+      "description": "",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "filename",
+          "name": "filename",
+          "required": true,
+          "description": "Source file to create teste"
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "start": {
       "settings": {
         "loadApp": false,

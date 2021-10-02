@@ -1,18 +1,24 @@
 import path from 'path'
+import fs from 'fs'
 import Space from 'App/Services/Space'
 
-import { requireAll } from '@ioc:Adonis/Core/Helpers'
+import { requireIfExist } from 'App/Helpers'
 
-const events = requireAll(path.resolve(__dirname, 'events'))
+const files = fs.readdirSync(path.resolve(__dirname, 'events'))
 
-if (events) {
-  Object.entries(events).forEach(([name, handler]) => {
-    Space.registerHandler({
-      name,
-      roles: handler.roles || ['admin'],
-      ...handler,
-    })
+files
+  .filter((f) => !/.*test\.ts/.test(f))
+  .forEach((file) => {
+    let event = requireIfExist(path.resolve(__dirname, 'events', file))
+
+    if (event) {
+      event = event.default
+      Space.registerHandler({
+        name: file,
+        roles: event.roles || ['admin'],
+        ...event,
+      })
+    }
   })
-}
 
 global.space = Space

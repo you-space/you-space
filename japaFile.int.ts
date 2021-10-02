@@ -6,7 +6,7 @@ import sourceMapSupport from 'source-map-support'
 
 import { rollbackMigrations, runMigrations } from './tests/migration.helpers'
 
-process.env.NODE_ENV = 'testing'
+process.env.NODE_ENV = 'int-testing'
 process.env.DB_CONNECTION = 'test'
 process.env.ADONIS_ACE_CWD = join(__dirname)
 sourceMapSupport.install({ handleUncaughtExceptions: false })
@@ -21,7 +21,7 @@ async function startHttpServer() {
  * Configure test runner
  */
 configure({
-  files: ['app/**/*.test.ts', 'tests/**/*.test.ts'],
+  files: ['./**/*.int.test.ts'],
   before: [runMigrations, startHttpServer],
   after: [rollbackMigrations],
   timeout: 10000,
