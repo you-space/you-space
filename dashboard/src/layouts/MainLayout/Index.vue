@@ -51,6 +51,7 @@ import { defineComponent, ref, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { fetchPages } from './compositions';
 import { debounce } from 'lodash';
+import { useSpace } from 'src/boot/space';
 
 export default defineComponent({
     name: 'MainLayout',
@@ -59,6 +60,7 @@ export default defineComponent({
     },
     setup() {
         const tm = useI18n();
+        const space = useSpace();
 
         const drawer = ref(false);
         const loading = ref(false);
@@ -70,11 +72,11 @@ export default defineComponent({
                 header: true,
             });
 
-            links.value.set('origin', {
-                label: tm.t('origin', 2),
-                icon: 'view_in_ar',
-                to: { name: 'origins' },
-            });
+            // links.value.set('origin', {
+            //     label: tm.t('origin', 2),
+            //     icon: 'view_in_ar',
+            //     to: { name: 'origins' },
+            // });
 
             links.value.set('theme', {
                 label: tm.t('theme', 2),
@@ -86,29 +88,6 @@ export default defineComponent({
                 label: tm.t('plugin', 2),
                 icon: 'casino',
                 to: { name: 'plugins' },
-            });
-
-            links.value.set('advanced', {
-                label: tm.t('advanced'),
-                header: true,
-            });
-
-            links.value.set('item', {
-                label: tm.t('item', 2),
-                icon: 'list_alt',
-                to: { name: 'items-all', params: {} },
-            });
-
-            links.value.set('type', {
-                label: tm.t('type', 2),
-                icon: 'title',
-                to: { name: 'types' },
-            });
-
-            links.value.set('job', {
-                label: tm.t('job', 2),
-                icon: 'casino',
-                to: { name: 'jobs' },
             });
         }
 
@@ -141,12 +120,7 @@ export default defineComponent({
             setTimeout(() => (loading.value = false), 800);
         });
 
-        async function subscribe() {
-            const { default: space } = await import(
-                /* webpackIgnore: true */
-                'space'
-            );
-
+        function subscribe() {
             space.on('space:metas:space:pages:*:created', load);
             space.on('space:metas:space:pages:*:updated', load);
             space.on('space:metas:space:pages:*:deleted', load);

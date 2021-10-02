@@ -4,10 +4,10 @@
 <script lang="ts">
 import { defineComponent, watch } from 'vue';
 import { useStore } from 'src/store';
-import packageJSON from '../../package.json';
+import { name, version } from '../../package.json';
 import { useRouter } from 'vue-router';
 import { capitalize } from 'lodash';
-import { registerInjects } from './boot/server-assets';
+import { setInjects } from './boot/space';
 
 export default defineComponent({
     name: 'App',
@@ -15,14 +15,11 @@ export default defineComponent({
         const store = useStore();
         const router = useRouter();
 
-        store.commit(
-            'app/setName',
-            capitalize(packageJSON.name).replace('-', ' '),
-        );
+        store.commit('app/setName', capitalize(name).replace('-', ' '));
 
-        store.commit('app/setVersion', packageJSON.version);
+        store.commit('app/setVersion', version);
 
-        registerInjects();
+        setInjects();
 
         watch(
             () => store.state.auth.isAuthenticated,
