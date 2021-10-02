@@ -59,7 +59,7 @@ class Space {
   private async connection(socket: Socket) {
     Logger.debug('[space] socket connected: %s', socket.id)
 
-    this.events.forEach(async (event) => {
+    this.events.forEach((event) => {
       socket.on(event.name, async (...args: any[]) => {
         Logger.debug('[space] event emitted: %s', event.name)
 

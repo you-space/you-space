@@ -11,17 +11,6 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/Index.vue'),
             },
             {
-                path: 'origins',
-                name: 'origins',
-                component: () => import('pages/Origins/Index.vue'),
-            },
-            {
-                path: 'origins/:id',
-                name: 'origins-single',
-                props: true,
-                component: () => import('pages/Origins/Single.vue'),
-            },
-            {
                 path: 'themes',
                 name: 'themes',
                 component: () => import('pages/Theme/Index.vue'),
@@ -32,46 +21,12 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/Plugins/Index.vue'),
             },
             {
-                path: 'items',
-                name: 'items-all',
-                component: () => import('pages/Item/Index.vue'),
+                path: 'configurations',
+                name: 'configurations',
+                component: () => import('pages/Config/Index.vue'),
             },
             {
-                path: 'types',
-                name: 'types',
-                component: () => import('pages/Type/Index.vue'),
-            },
-            {
-                path: 'types/:id',
-                name: 'type-single',
-                props: true,
-                component: () => import('pages/Type/Single.vue'),
-            },
-            {
-                path: '/types/:typeId/items',
-                name: 'type-items',
-                props: true,
-                component: () => import('pages/TypeItem/Index.vue'),
-            },
-            {
-                path: '/types/:typeId/items/new',
-                name: 'type-item-new',
-                props: true,
-                component: () => import('pages/TypeItem/Single.vue'),
-            },
-            {
-                path: '/types/:typeId/items/:itemId',
-                name: 'type-item-single',
-                props: true,
-                component: () => import('pages/TypeItem/Single.vue'),
-            },
-            {
-                path: '/jobs',
-                name: 'jobs',
-                component: () => import('pages/Jobs/Index.vue'),
-            },
-            {
-                path: '/server-page/:name',
+                path: '/pages/:name',
                 name: 'server-page',
                 props: true,
                 component: () => import('pages/ServerPage/Index.vue'),

@@ -20,26 +20,15 @@ export default class AppProvider {
 
     await this.registerQueues()
 
-    await Space.emit('space:pages:create', {
-      name: 'space-config',
-      filename: this.app.resourcesPath('pages', 'config.js'),
-      label: 'Configurations',
-    })
-
-    await Space.emit('space:assets:create', {
-      name: 'space.js',
+    await Space.emit('assets:create', {
+      name: 'space',
       filename: this.app.resourcesPath('space.js'),
     })
 
-    await Space.emit('space:dashboard:config:update', {
-      siteName: 'You space',
-      activePages: ['space-jobs'],
-    })
-
-    const plugins = await Space.emit('space:plugins:index')
+    const plugins = await Space.emit('plugins:index')
 
     await Promise.all(
-      plugins.filter((p) => p.active).map((p) => Space.emit('space:plugins:activate', p.name))
+      plugins.filter((p) => p.active).map((p) => Space.emit('plugins:activate', p.name))
     )
   }
 

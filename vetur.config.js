@@ -1,3 +1,3 @@
 module.exports = {
-  projects: ['./dashboard'],
+  projects: ['./dashboard', './resources'],
 }

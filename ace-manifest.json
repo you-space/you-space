@@ -24,6 +24,26 @@
       "aliases": [],
       "flags": []
     },
+    "make:event": {
+      "settings": {
+        "loadApp": false,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/MakeEvent",
+      "commandName": "make:event",
+      "description": "create a new event system",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "name",
+          "name": "name",
+          "required": true,
+          "description": "Name of system event"
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "start": {
       "settings": {
         "loadApp": false,
