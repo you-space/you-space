@@ -100,18 +100,18 @@ export default defineComponent({
         async function setServerLinks() {
             const pages = await fetchPages();
 
-            // pages.forEach((page) => {
-            //     links.value.set(page.name, {
-            //         label: page.label || page.name,
-            //         icon: page.icon || 'list',
-            //         to: {
-            //             name: 'server-page',
-            //             params: {
-            //                 name: page.name,
-            //             },
-            //         },
-            //     });
-            // });
+            pages.forEach((page) => {
+                links.value.set(page.name, {
+                    label: page.label || page.name,
+                    icon: page.icon || 'list',
+                    to: {
+                        name: 'server-page',
+                        params: {
+                            name: page.name,
+                        },
+                    },
+                });
+            });
         }
 
         const load = debounce(async () => {

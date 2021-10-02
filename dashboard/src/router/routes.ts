@@ -25,12 +25,12 @@ const routes: RouteRecordRaw[] = [
                 name: 'configurations',
                 component: () => import('pages/Config/Index.vue'),
             },
-            // {
-            //     path: '/server-page/:name',
-            //     name: 'server-page',
-            //     props: true,
-            //     component: () => import('pages/ServerPage/Index.vue'),
-            // },
+            {
+                path: '/pages/:name',
+                name: 'server-page',
+                props: true,
+                component: () => import('pages/ServerPage/Index.vue'),
+            },
         ],
     },
     {

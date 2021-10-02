@@ -20,12 +20,6 @@ export default class AppProvider {
 
     await this.registerQueues()
 
-    await Space.emit('pages:create', {
-      name: 'space-config',
-      filename: this.app.resourcesPath('pages', 'space-config.vue'),
-      label: 'Configurations',
-    })
-
     await Space.emit('assets:create', {
       name: 'space',
       filename: this.app.resourcesPath('space.js'),
