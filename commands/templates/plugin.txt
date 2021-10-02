@@ -1,0 +1,11 @@
+
+// This function is executed when the user start the plugin and when the server restart
+exports.start = async () => {
+
+}
+
+// this function is executed when plugin is stopped by the user
+exports.stop = async () => {
+    
+}
+

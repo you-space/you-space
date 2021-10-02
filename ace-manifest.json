@@ -44,6 +44,26 @@
       "aliases": [],
       "flags": []
     },
+    "make:plugin": {
+      "settings": {
+        "loadApp": false,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/MakePlugin",
+      "commandName": "make:plugin",
+      "description": "Create a plugin",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "name",
+          "name": "name",
+          "required": true,
+          "description": "Name of plugin"
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
     "start": {
       "settings": {
         "loadApp": false,
