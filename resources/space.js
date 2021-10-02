@@ -38,7 +38,7 @@ class Space {
         reject(new Error(`${event} event timeout`))
       }, this.timeout)
 
-      this.socket.emit(event.name, ...args, (result) => {
+      this.socket.emit(event, ...args, (result) => {
         clearTimeout(timer)
         resolve(result)
       })

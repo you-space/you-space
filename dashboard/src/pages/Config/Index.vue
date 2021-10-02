@@ -49,6 +49,7 @@
 <script lang="ts">
 import { useSpace } from 'src/boot/space';
 import { defineComponent, ref } from 'vue';
+import { findSiteInfo, updateSiteInfo } from './compositions';
 
 export default defineComponent({
     setup() {
@@ -60,14 +61,15 @@ export default defineComponent({
         });
 
         async function setSite() {
-            const meta = await space.emit('metas:getAll', 'site:*');
-
-            console.log(meta);
+            site.value = await findSiteInfo();
         }
 
         void setSite();
 
-        function submit() {}
+        async function submit() {
+            await updateSiteInfo(site.value);
+            await setSite();
+        }
 
         return {
             loading,

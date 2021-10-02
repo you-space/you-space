@@ -15,11 +15,6 @@ export default defineComponent({
         const store = useStore();
         const router = useRouter();
 
-        store.commit(
-            'app/setName',
-            capitalize(packageJSON.name).replace('-', ' '),
-        );
-
         store.commit('app/setVersion', packageJSON.version);
 
         setInjects();
