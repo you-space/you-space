@@ -121,7 +121,7 @@ export default class Plugin {
 
       Logger.info('[plugins] %s started', this.name)
 
-      await Space.emit(`space:plugins:${this.name}:activated`)
+      await Space.emit(`plugins:${this.name}:started`)
     } catch (error) {
       Logger.error('[plugins] %s fail to start', this.name)
       Logger.error(error)

@@ -20,10 +20,6 @@ const actions: ActionTree<AuthState, RootState> = {
             await setAssets();
 
             await context.dispatch('app/setName', null, { root: true });
-
-            space.on('metas:site:name:updated', async () => {
-                await context.dispatch('app/setName', null, { root: true });
-            });
         } catch (error) {
             await context.dispatch('logout');
         }

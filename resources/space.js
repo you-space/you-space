@@ -1,22 +1,4 @@
 import 'https://cdn.socket.io/4.0.1/socket.io.min.js'
-
-const withTimeout = (onSuccess, onTimeout, timeout) => {
-  let called = false
-
-  const timer = setTimeout(() => {
-    if (called) return
-    called = true
-    onTimeout(new Error('Event timeout'))
-  }, timeout)
-
-  return (...args) => {
-    if (called) return
-    called = true
-    clearTimeout(timer)
-    onSuccess.apply(this, args)
-  }
-}
-
 class Space {
   socket = io('/', {
     path: '/api/v1/sockets',
@@ -38,9 +20,12 @@ class Space {
         reject(new Error(`${event} event timeout`))
       }, this.timeout)
 
-      this.socket.emit(event, ...args, (result) => {
+      this.socket.emit(event, ...args, (err, result) => {
         clearTimeout(timer)
-        resolve(result)
+        if (err) {
+          return reject(err)
+        }
+        return resolve(result)
       })
     })
   }

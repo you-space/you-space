@@ -32,6 +32,8 @@ class Space {
   private observers: SpaceObserver[] = []
   private globalObservers: GlobalObserver[] = []
 
+  public roles = ['*']
+
   public fetchHandlers() {
     return this.eventHandlers
   }
@@ -62,6 +64,16 @@ class Space {
     )
 
     const eventHandler = this.eventHandlers.find((e) => minimatch(eventName, e.name))
+
+    let allow = true
+
+    if (eventHandler && eventHandler.roles) {
+      allow = eventHandler.roles.some((r) => this.roles.includes(r))
+    }
+
+    if (!allow && !this.roles.includes('*')) {
+      return Promise.reject(new Error('Not Allowed'))
+    }
 
     let result: T | null = null
 

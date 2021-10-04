@@ -47,14 +47,14 @@
     </y-page>
 </template>
 <script lang="ts">
-import { useSpace } from 'src/boot/space';
+import { useStore } from 'src/store';
 import { defineComponent, ref } from 'vue';
 import { findSiteInfo, updateSiteInfo } from './compositions';
 
 export default defineComponent({
     setup() {
         const loading = ref(false);
-        const space = useSpace();
+        const store = useStore();
 
         const site = ref({
             name: '',
@@ -69,6 +69,7 @@ export default defineComponent({
         async function submit() {
             await updateSiteInfo(site.value);
             await setSite();
+            await store.dispatch('app/setName');
         }
 
         return {
