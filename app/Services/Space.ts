@@ -38,6 +38,10 @@ class Space {
     return this.eventHandlers
   }
 
+  public cleanHandlers() {
+    this.eventHandlers = []
+  }
+
   public registerHandler(event: SpaceEventHandler) {
     const exist = this.eventHandlers.find((e) => minimatch(e.name, event.name))
 

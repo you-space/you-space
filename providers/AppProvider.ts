@@ -22,16 +22,16 @@ export default class AppProvider {
 
     await this.registerQueues()
 
-    await Space.emit('assets:create', {
-      name: 'space',
-      filename: this.app.resourcesPath('space.js'),
-    })
+    // await Space.emit('assets:create', {
+    //   name: 'space',
+    //   filename: this.app.resourcesPath('space.js'),
+    // })
 
-    const plugins = await Space.emit('plugins:index')
+    // const plugins = await Space.emit('plugins:index')
 
-    await Promise.all(
-      plugins.filter((p) => p.active).map((p) => Space.emit('plugins:activate', p.name))
-    )
+    // await Promise.all(
+    //   plugins.filter((p) => p.active).map((p) => Space.emit('plugins:activate', p.name))
+    // )
   }
 
   public async registerQueues() {

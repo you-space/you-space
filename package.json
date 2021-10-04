@@ -19,6 +19,7 @@
     "@types/archiver": "^5.1.1",
     "@types/bull": "^3.15.4",
     "@types/lodash": "^4.14.172",
+    "@types/sinon": "^10.0.4",
     "@types/socket.io": "^3.0.2",
     "@types/uuid": "^8.3.1",
     "adonis-preset-ts": "^2.1.0",
@@ -55,6 +56,7 @@
     "phc-argon2": "^1.1.2",
     "proxy-addr": "^2.0.7",
     "reflect-metadata": "^0.1.13",
+    "sinon": "^11.1.2",
     "socket.io": "^4.2.0",
     "source-map-support": "^0.5.19",
     "uuid": "^8.3.2"
