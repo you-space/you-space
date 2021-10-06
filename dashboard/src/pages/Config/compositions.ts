@@ -9,9 +9,11 @@ interface Site {
 }
 
 export async function findSiteInfo() {
-    const metas = await space.emit('metas:getAll', 'site:*');
+    const metas = await space.emit('meta:index', 'site:*');
 
     const site: any = {};
+
+    if (!metas) return site;
 
     metas.forEach((meta: Meta) => {
         site[meta.name.replace('site:', '')] = meta.value;
@@ -26,5 +28,5 @@ export async function updateSiteInfo(site: any) {
         value,
     }));
 
-    await space.emit('metas:updateAll', metas);
+    await space.emit('meta:update-all', metas);
 }
