@@ -5,21 +5,17 @@ import sinon from 'sinon'
 
 test.group('Space.ts (unit)', (group) => {
   group.beforeEach(() => {
-    Space.cleanHandlers()
-    Space.roles = ['*']
+    Space.offAll()
   })
 
   test('should register event handler', async (assert) => {
     const result = faker.lorem.lines(2)
 
-    const handler = {
-      name: 'teste',
-      handler: () => result,
-    }
+    const handler = () => result
 
-    Space.registerHandler(handler)
+    Space.setHandler('teste', handler)
 
-    assert.deepInclude(Space.fetchHandlers(), handler)
+    assert.deepInclude(Space.findEvent('teste'), handler)
   })
 
   test('should listener be called with emit args', async () => {
@@ -36,34 +32,10 @@ test.group('Space.ts (unit)', (group) => {
   test('should event with handler return a result', async (assert) => {
     const result = faker.lorem.lines(2)
 
-    Space.registerHandler({
-      name: 'teste',
-      handler: () => result,
-    })
+    Space.setHandler('teste', () => result)
 
     const emit = await Space.emit('teste')
 
     assert.equal(emit, result)
-  })
-
-  test('should event not be emitted when user do not have permissions', async (assert) => {
-    assert.plan(1)
-
-    const random = faker.lorem.lines(2)
-    const callback = sinon.spy()
-
-    const handler = {
-      name: 'teste',
-      roles: ['admin'],
-      handler: callback,
-    }
-
-    Space.registerHandler(handler)
-
-    Space.on('teste', callback)
-
-    Space.roles = ['not-admin']
-
-    await Space.emit('teste', random).catch((err) => assert.equal(err.message, 'Not Allowed'))
   })
 })

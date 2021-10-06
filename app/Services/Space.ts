@@ -33,6 +33,10 @@ export class Space {
     this.events.set(event, handler)
   }
 
+  public findEvent(name: string) {
+    return this.events.get(name) || null
+  }
+
   public notifyAll(event: string, data: any) {
     this.observers.filter((o) => minimatch(event, o.event)).forEach((o) => o.callback(data))
     this.onAnyObservers.forEach((callback) => callback(event, data))
@@ -47,6 +51,10 @@ export class Space {
 
   public onAny(callback: OnAnyCallback) {
     this.onAnyObservers.push(callback)
+  }
+
+  public offAll() {
+    this.events.clear()
   }
 
   public async emit<T = null>(event: string, data?: any) {
