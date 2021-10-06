@@ -6,6 +6,10 @@ import { getSocketUserId } from 'App/Helpers'
 import User from 'App/Models/User'
 import Space from './Space'
 
+interface SocketCallback {
+  (err: string | null, result?: any): void
+}
+
 class Socket {
   private io: Server
   private booted = false
@@ -41,34 +45,14 @@ class Socket {
   private async connection(socket: IoSocket) {
     Logger.debug('[sockets] socket connected: %s', socket.id)
 
-    const roles: string[] = socket.data.roles || []
-
-    const events = Space.fetchHandlers()
-
-    Space.onAny((event) => {
-      let allow = true
-
-      if (event.handler && event.handler.roles) {
-        allow = event.handler.roles.every((r) => roles.includes(r))
-      }
-
-      if (allow) {
-        socket.emit(event.event, event.args)
-      }
+    Space.onAny((event, data) => {
+      socket.emit(event, data)
     })
 
-    events.forEach((event) => {
-      socket.on(event.name, async (...args: any[]) => {
-        const callback = args.pop()
-
-        Space.roles = roles
-
-        await Space.emit(event.name, ...args)
-          .then((result) => callback(null, result))
-          .catch((err) => callback(err.message))
-
-        Space.roles = ['*']
-      })
+    socket.onAny((event: string, data: any, callback?: SocketCallback) => {
+      return Space.emit(event, data)
+        .then((result) => (callback ? callback(null, result) : null))
+        .catch((err) => (callback ? callback(err.message) : null))
     })
   }
 }

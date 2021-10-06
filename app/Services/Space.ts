@@ -1,117 +1,66 @@
 import Logger from '@ioc:Adonis/Core/Logger'
 import minimatch from 'minimatch'
 
-interface SpaceEventCallback {
-  (...args: any[]): Promise<any> | any
+interface Callback {
+  (data: any): void | Promise<void>
 }
 
-interface SpaceEventHandler {
-  name: string
-  roles?: string[]
-  handler: SpaceEventCallback
+interface OnAnyCallback {
+  (event: string, data: any): void | Promise<void>
 }
 
-interface SpaceObserver {
-  name: string
-  callback: SpaceEventCallback
+interface Handler {
+  (data: any): any | Promise<any>
 }
 
-interface GlobalObserverData {
+interface Observer {
   event: string
-  handler?: SpaceEventHandler
-  args: any[]
-  result?: any
+  callback: Callback
 }
 
-interface GlobalObserver {
-  (data: GlobalObserverData): void | Promise<void>
-}
+export class Space {
+  private observers: Observer[] = []
+  private onAnyObservers: OnAnyCallback[] = []
+  private events: Map<string, Handler> = new Map()
 
-class Space {
-  private eventHandlers: SpaceEventHandler[] = []
-  private observers: SpaceObserver[] = []
-  private globalObservers: GlobalObserver[] = []
-
-  public roles = ['*']
-
-  public fetchHandlers() {
-    return this.eventHandlers
+  constructor() {
+    global.space = Space
+    Logger.info('[space] service started')
   }
 
-  public cleanHandlers() {
-    this.eventHandlers = []
+  public setHandler(event: string, handler: Handler) {
+    Logger.debug('[space] %s event handler defined', event)
+    this.events.set(event, handler)
   }
 
-  public registerHandler(event: SpaceEventHandler) {
-    const exist = this.eventHandlers.find((e) => minimatch(e.name, event.name))
-
-    if (exist) {
-      Logger.error('[space] event handler already exist')
-      return
-    }
-
-    this.eventHandlers.push(event)
-
-    Logger.debug('[space] register handler: %s', event.name)
+  public notifyAll(event: string, data: any) {
+    this.observers.filter((o) => minimatch(event, o.event)).forEach((o) => o.callback(data))
+    this.onAnyObservers.forEach((callback) => callback(event, data))
   }
 
-  public async emit<T = any>(eventName: string, ...args: any[]) {
-    const subEvents = eventName.split(':').reduce(
-      (result, _, index) => {
-        const newArray = eventName.split(':').slice()
-
-        newArray[index] = '*'
-
-        return result.concat(newArray.join(':'))
-      },
-      [eventName]
-    )
-
-    const eventHandler = this.eventHandlers.find((e) => minimatch(eventName, e.name))
-
-    let allow = true
-
-    if (eventHandler && eventHandler.roles) {
-      allow = eventHandler.roles.some((r) => this.roles.includes(r))
-    }
-
-    if (!allow && !this.roles.includes('*')) {
-      return Promise.reject(new Error('Not Allowed'))
-    }
-
-    let result: T | null = null
-
-    Logger.debug('[space] event emitted: %s', eventName)
-
-    if (eventHandler) {
-      result = await eventHandler.handler(...args)
-    }
-
-    subEvents.forEach((event) => {
-      this.observers.filter((o) => minimatch(event, o.name)).forEach((o) => o.callback(...args))
-
-      this.globalObservers.forEach((observer) => {
-        observer({
-          event: event,
-          handler: eventHandler,
-          result,
-          args,
-        })
-      })
-    })
-
-    return result
-  }
-
-  public on(event: string, callback: (...args: any[]) => void | Promise<void>) {
+  public on(event: string, callback: Callback) {
     this.observers.push({
-      name: event,
+      event,
       callback,
     })
   }
 
-  public onAny(observer: GlobalObserver) {
-    this.globalObservers.push(observer)
+  public onAny(callback: OnAnyCallback) {
+    this.onAnyObservers.push(callback)
+  }
+
+  public async emit<T = null>(event: string, data?: any) {
+    const handler = this.events.get(event)
+
+    let result: T | null = null
+
+    if (handler) {
+      result = await handler(data)
+    }
+
+    this.notifyAll(event, data)
+
+    return result
   }
 }
 

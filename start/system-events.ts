@@ -1,27 +1,16 @@
-import path from 'path'
-import fs from 'fs'
 import Space from 'App/Services/Space'
+import Application from '@ioc:Adonis/Core/Application'
+import { requireAll, string } from '@ioc:Adonis/Core/Helpers'
 
-import { requireIfExist } from 'App/Helpers'
+const listeners = requireAll(Application.makePath('app', 'Listeners')) || {}
 
-const files = fs.readdirSync(path.resolve(__dirname, 'events'))
-
-files
-  .filter((f) => !/.*test\.ts/.test(f))
-  .forEach((file) => {
-    let event = requireIfExist(path.resolve(__dirname, 'events', file))
-
-    if (event) {
-      event = event.default
-      Space.registerHandler({
-        name: file.replace('.ts', ''),
-        roles: ['admin'],
-        ...event,
-      })
-    }
+Object.values(listeners).forEach((listener) => {
+  const methods = Object.getOwnPropertyNames(listener.prototype).filter((m) => m !== 'constructor')
+  const instance = new listener()
+  methods.forEach((method) => {
+    Space.setHandler(
+      [string.dashCase(listener.name), string.dashCase(method)].join(':'),
+      instance[method]
+    )
   })
-
-global.space = {
-  on: Space.on.bind(Space),
-  emit: Space.emit.bind(Space),
-}
+})
