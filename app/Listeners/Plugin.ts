@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import execa from 'execa'
 
 import Application from '@ioc:Adonis/Core/Application'
 import Logger from '@ioc:Adonis/Core/Logger'
@@ -7,6 +8,7 @@ import Drive from '@ioc:Adonis/Core/Drive'
 
 import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'
 import { uniq } from 'lodash'
+import { isGitUrl } from 'App/Helpers'
 
 export default class Plugin {
   public async index() {
@@ -26,10 +28,6 @@ export default class Plugin {
       }))
   }
 
-  public async findActive() {
-    return await SystemMeta.firstOrCreateMetaArray(SystemDefaults.PluginsActive)
-  }
-
   public async find(name: string) {
     const filename = Application.makePath('content', 'plugins', name)
 
@@ -46,6 +44,42 @@ export default class Plugin {
       name: path.basename(filename),
       active: pluginsActive.includes(path.basename(filename)),
     }
+  }
+
+  public async download(gitUrl: string) {
+    const name = path.basename(gitUrl).replace('.git', '')
+    const filename = Application.makePath('content', 'plugins', name)
+    const isValid = await isGitUrl(gitUrl)
+
+    if (!isValid) {
+      throw new Error('Repository url invalid')
+    }
+
+    const exist = await Drive.exists(filename)
+
+    if (exist) {
+      throw new Error('plugin already installed')
+    }
+
+    await execa('git', ['clone', gitUrl, filename])
+  }
+
+  public async delete(name: string) {
+    const plugin = await this.find(name)
+
+    if (!plugin) {
+      throw new Error('plugin not found')
+    }
+
+    if (plugin.active) {
+      throw new Error('plugin is active')
+    }
+
+    await execa('rm', ['-rf', plugin.filename])
+  }
+
+  public async findActive() {
+    return await SystemMeta.firstOrCreateMetaArray(SystemDefaults.PluginsActive)
   }
 
   public async start(name: string) {
