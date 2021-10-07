@@ -38,6 +38,10 @@ export class Space {
   }
 
   public notifyAll(event: string, data: any) {
+    this.observers.filter((o) => o.event === event).forEach((o) => o.callback(data))
+
+    this.onAnyObservers.forEach((callback) => callback(event, data))
+
     event.split(':').forEach((current) => {
       const currentName = event.replace(current, '*')
 
