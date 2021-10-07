@@ -24,7 +24,7 @@ export class Space {
   private events: Map<string, Handler> = new Map()
 
   constructor() {
-    global.space = Space
+    global.space = this
     Logger.info('[space] service started')
   }
 
@@ -38,8 +38,13 @@ export class Space {
   }
 
   public notifyAll(event: string, data: any) {
-    this.observers.filter((o) => minimatch(event, o.event)).forEach((o) => o.callback(data))
-    this.onAnyObservers.forEach((callback) => callback(event, data))
+    event.split(':').forEach((current) => {
+      const currentName = event.replace(current, '*')
+
+      this.observers.filter((o) => o.event === currentName).forEach((o) => o.callback(data))
+
+      this.onAnyObservers.forEach((callback) => callback(currentName, data))
+    })
   }
 
   public on(event: string, callback: Callback) {

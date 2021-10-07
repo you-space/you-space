@@ -8,9 +8,10 @@ Object.values(listeners).forEach((listener) => {
   const methods = Object.getOwnPropertyNames(listener.prototype).filter((m) => m !== 'constructor')
   const instance = new listener()
   methods.forEach((method) => {
-    Space.setHandler(
-      [string.dashCase(listener.name), string.dashCase(method)].join(':'),
-      instance[method]
-    )
+    const methodName = string.dashCase(instance.name || listener.name)
+
+    const event = [methodName, string.dashCase(method)].join(':')
+
+    Space.setHandler(event, instance[method].bind(instance))
   })
 })

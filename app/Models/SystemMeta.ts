@@ -12,8 +12,8 @@ import { isJson } from 'App/Helpers'
 import Space from 'App/Services/Space'
 
 export enum SystemDefaults {
-  CurrentTheme = 'space:themes:current',
-  PluginsActive = 'space:plugins:activated',
+  CurrentTheme = 'themes:current',
+  PluginsActive = 'plugins:activated',
 }
 
 export default class SystemMeta extends BaseModel {
@@ -90,16 +90,16 @@ export default class SystemMeta extends BaseModel {
 
   @afterSave()
   public static async afterSave(meta: SystemMeta) {
-    await Space.emit(`metas:${meta.name}:updated`, meta.serialize())
+    await Space.emit(`meta:${meta.name}:updated`, meta.serialize())
   }
 
   @afterCreate()
   public static async afterCreate(meta: SystemMeta) {
-    await Space.emit(`metas:${meta.name}:created`, meta.serialize())
+    await Space.emit(`meta:${meta.name}:created`, meta.serialize())
   }
 
   @afterDelete()
   public static async afterDelete(meta: SystemMeta) {
-    await Space.emit(`metas:${meta.name}:deleted`, meta.serialize())
+    await Space.emit(`meta:${meta.name}:deleted`, meta.serialize())
   }
 }
