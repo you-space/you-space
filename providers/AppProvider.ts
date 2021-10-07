@@ -12,24 +12,13 @@ export default class AppProvider {
   public async boot() {}
 
   public async ready() {
-    const Space = (await import('App/Services/Space')).default
-
-    Space.boot()
-
     await import('../start/system-events')
 
     await this.registerQueues()
 
-    await Space.emit('assets:create', {
-      name: 'space',
-      filename: this.app.resourcesPath('space.js'),
-    })
+    const Socket = (await import('App/Services/Socket')).default
 
-    const plugins = await Space.emit('plugins:index')
-
-    await Promise.all(
-      plugins.filter((p) => p.active).map((p) => Space.emit('plugins:activate', p.name))
-    )
+    Socket.boot()
   }
 
   public async registerQueues() {

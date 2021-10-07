@@ -5,9 +5,9 @@ import { findSiteInfo } from 'src/pages/Config/compositions';
 
 const actions: ActionTree<AppState, RootState> = {
     async setName(context) {
-        const site = await findSiteInfo();
-
-        context.commit('setName', site.name);
+        return findSiteInfo()
+            .then((site) => context.commit('setName', site.name))
+            .catch(() => context.commit('setName', 'You space'));
     },
 };
 

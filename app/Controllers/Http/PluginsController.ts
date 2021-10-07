@@ -1,42 +1,39 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
-
-import Plugin from 'App/Extensions/Plugin'
+import Space from 'App/Services/Space'
 
 export default class PluginsController {
   public async index() {
-    const plugins = await Plugin.findAll()
+    const plugins = await Space.emit<any[]>('plugin:index')
 
-    const data = await Promise.all(
-      plugins.map(async (p) => {
-        return {
-          name: p.name,
-          active: await p.isActive(),
-        }
-      })
-    )
+    if (!plugins) return []
 
-    return data
+    return plugins.map((p) => ({
+      name: p.name,
+      active: p.active,
+    }))
   }
 
   public async store({ request }: HttpContextContract) {
-    // const { gitUrl } = await request.validate({
-    //   schema: schema.create({
-    //     gitUrl: schema.string({}, [
-    //       rules.url({
-    //         allowedHosts: ['github.com'],
-    //       }),
-    //     ]),
-    //   }),
-    // })
-    // await Plugin.create(gitUrl)
-    // return {
-    //   message: 'Plugin downloaded',
-    // }
+    const { gitUrl } = await request.validate({
+      schema: schema.create({
+        gitUrl: schema.string({}, [
+          rules.url({
+            allowedHosts: ['github.com'],
+          }),
+        ]),
+      }),
+    })
+
+    await Space.emit('plugin:download', gitUrl)
+
+    return {
+      message: 'Plugin downloaded',
+    }
   }
 
   public async update({ request, params }: HttpContextContract) {
-    const plugin = await Plugin.findOrFail(params.id)
+    const name = params.id
 
     const { active } = await request.validate({
       schema: schema.create({
@@ -45,11 +42,11 @@ export default class PluginsController {
     })
 
     if (active) {
-      await plugin.start()
+      await Space.emit('plugin:start', name)
     }
 
     if (!active) {
-      await plugin.stop()
+      await Space.emit('plugin:stop', name)
     }
 
     return {
@@ -59,14 +56,12 @@ export default class PluginsController {
   }
 
   public async destroy({ params }: HttpContextContract) {
-    // const plugin = await Plugin.findOrFail(params.id)
-    // const isActive = await plugin.isActive()
-    // if (isActive) {
-    //   throw new Error('can not delete active plugin')
-    // }
-    // await plugin.delete()
-    // return {
-    //   message: 'Theme deleted',
-    // }
+    const name = params.id
+
+    await Space.emit('plugin:delete', name)
+
+    return {
+      message: 'Plugin deleted',
+    }
   }
 }

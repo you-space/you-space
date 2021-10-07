@@ -1,18 +1,17 @@
-import path from 'path'
 import Space from 'App/Services/Space'
+import Application from '@ioc:Adonis/Core/Application'
+import { requireAll, string } from '@ioc:Adonis/Core/Helpers'
 
-import { requireAll } from '@ioc:Adonis/Core/Helpers'
+const listeners = requireAll(Application.makePath('app', 'Listeners')) || {}
 
-const events = requireAll(path.resolve(__dirname, 'events'))
+Object.values(listeners).forEach((listener) => {
+  const methods = Object.getOwnPropertyNames(listener.prototype).filter((m) => m !== 'constructor')
+  const instance = new listener()
+  methods.forEach((method) => {
+    const methodName = string.dashCase(instance.name || listener.name)
 
-if (events) {
-  Object.entries(events).forEach(([name, handler]) => {
-    Space.registerHandler({
-      name,
-      roles: handler.roles || ['admin'],
-      ...handler,
-    })
+    const event = [methodName, string.dashCase(method)].join(':')
+
+    Space.setHandler(event, instance[method].bind(instance))
   })
-}
-
-global.space = Space
+})

@@ -4,17 +4,22 @@ interface Meta {
     name: string;
     value: any;
 }
+interface Site {
+    name: string;
+}
 
 export async function findSiteInfo() {
-    const metas = await space.emit('metas:getAll', 'site:*');
+    const metas = await space.emit('meta:index', 'site:*');
 
-    const site: Record<string, string> = {};
+    const site: any = {};
+
+    if (!metas) return site;
 
     metas.forEach((meta: Meta) => {
         site[meta.name.replace('site:', '')] = meta.value;
     });
 
-    return site;
+    return site as Site;
 }
 
 export async function updateSiteInfo(site: any) {
@@ -23,5 +28,5 @@ export async function updateSiteInfo(site: any) {
         value,
     }));
 
-    await space.emit('metas:updateAll', metas);
+    await space.emit('meta:update-all', metas);
 }

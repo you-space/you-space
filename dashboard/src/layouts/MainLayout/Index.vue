@@ -127,9 +127,9 @@ export default defineComponent({
         });
 
         function subscribe() {
-            space.on('metas:space:pages:*:created', load);
-            space.on('metas:space:pages:*:updated', load);
-            space.on('metas:space:pages:*:deleted', load);
+            space.on('meta:pages:*:created', load);
+            space.on('meta:pages:*:updated', load);
+            space.on('meta:pages:*:deleted', load);
         }
 
         void load();

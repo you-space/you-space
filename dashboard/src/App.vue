@@ -6,7 +6,6 @@ import { defineComponent, watch } from 'vue';
 import { useStore } from 'src/store';
 import packageJSON from '../../package.json';
 import { useRouter } from 'vue-router';
-import { capitalize } from 'lodash';
 import { setInjects } from './boot/space';
 
 export default defineComponent({

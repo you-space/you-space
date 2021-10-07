@@ -86,4 +86,5 @@ export default {
     valid: 'Valid',
     componentProps: 'Component props',
     selectAnOrTypeAGithubUrl: 'Select an option or type a github url',
+    configurations: 'Configurations',
 };

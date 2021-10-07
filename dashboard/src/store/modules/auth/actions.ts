@@ -2,7 +2,7 @@ import { api } from 'src/boot/axios';
 import { ActionTree } from 'vuex';
 import { RootState } from 'src/store';
 import { AuthState } from './state';
-import { setAssets, space } from 'src/boot/space';
+import { setAssets } from 'src/boot/space';
 
 interface AuthUserResponse {
     id: number;
@@ -20,10 +20,6 @@ const actions: ActionTree<AuthState, RootState> = {
             await setAssets();
 
             await context.dispatch('app/setName', null, { root: true });
-
-            space.on('metas:site:name:updated', async () => {
-                await context.dispatch('app/setName', null, { root: true });
-            });
         } catch (error) {
             await context.dispatch('logout');
         }

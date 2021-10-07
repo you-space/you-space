@@ -24,21 +24,41 @@
       "aliases": [],
       "flags": []
     },
-    "make:event": {
+    "make:plugin": {
       "settings": {
         "loadApp": false,
         "stayAlive": false
       },
-      "commandPath": "./commands/MakeEvent",
-      "commandName": "make:event",
-      "description": "create a new event system",
+      "commandPath": "./commands/MakePlugin",
+      "commandName": "make:plugin",
+      "description": "Create a plugin",
       "args": [
         {
           "type": "string",
           "propertyName": "name",
           "name": "name",
           "required": true,
-          "description": "Name of system event"
+          "description": "Name of plugin"
+        }
+      ],
+      "aliases": [],
+      "flags": []
+    },
+    "make:test": {
+      "settings": {
+        "loadApp": false,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/MakeUnitTest",
+      "commandName": "make:test",
+      "description": "",
+      "args": [
+        {
+          "type": "string",
+          "propertyName": "filename",
+          "name": "filename",
+          "required": true,
+          "description": "Source file to create teste"
         }
       ],
       "aliases": [],

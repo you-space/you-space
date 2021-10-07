@@ -34,6 +34,7 @@
                         :label="$t('add')"
                         type="submit"
                         color="primary"
+                        :loading="loading"
                         flat
                     />
                     <q-btn
@@ -61,8 +62,8 @@ export default defineComponent({
             useDialogPluginComponent();
 
         const options = ref<any[]>([]);
-
         const selected = ref();
+        const loading = ref(false);
 
         async function setOptions() {
             const items = await fetchOfficialPlugins();
@@ -73,14 +74,22 @@ export default defineComponent({
         void setOptions();
 
         async function submit() {
-            await downloadPlugin(selected.value);
-            onDialogOK();
+            loading.value = true;
+            await downloadPlugin(selected.value)
+                .catch(() => (loading.value = false))
+                .then(() =>
+                    setTimeout(() => {
+                        onDialogOK();
+                        loading.value = false;
+                    }, 800),
+                );
         }
 
         return {
             dialogRef,
             selected,
             options,
+            loading,
 
             onDialogHide,
             submit,

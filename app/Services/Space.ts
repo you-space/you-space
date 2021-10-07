@@ -1,111 +1,83 @@
-import AdonisServer from '@ioc:Adonis/Core/Server'
 import Logger from '@ioc:Adonis/Core/Logger'
-import { Server, Socket } from 'socket.io'
 import minimatch from 'minimatch'
 
-import { getSocketUserId } from 'App/Helpers'
-import User from 'App/Models/User'
-
-interface SpaceEvent {
-  name: string
-  roles?: string[]
-  handler: (...args: any[]) => Promise<any> | any
+interface Callback {
+  (data: any): void | Promise<void>
 }
 
-interface SpaceObserver {
-  name: string
-  handler: (...args: any[]) => Promise<any> | any
+interface OnAnyCallback {
+  (event: string, data: any): void | Promise<void>
 }
 
-class Space {
-  private io: Server
-  private booted = false
-  private events: SpaceEvent[] = []
-  private observers: SpaceObserver[] = []
+interface Handler {
+  (data: any): any | Promise<any>
+}
 
-  public boot() {
-    if (this.booted) {
-      return
-    }
+interface Observer {
+  event: string
+  callback: Callback
+}
 
-    this.booted = true
+export class Space {
+  private observers: Observer[] = []
+  private onAnyObservers: OnAnyCallback[] = []
+  private events: Map<string, Handler> = new Map()
 
-    this.io = new Server(AdonisServer.instance, {
-      path: '/api/v1/sockets',
-    })
-
-    this.io.on('connection', (socket) => this.connection(socket))
-
+  constructor() {
+    global.space = this
     Logger.info('[space] service started')
   }
 
-  public subscribe(observer: SpaceObserver) {
-    this.observers.push(observer)
+  public setHandler(event: string, handler: Handler) {
+    Logger.debug('[space] %s event handler defined', event)
+    this.events.set(event, handler)
   }
 
-  public registerHandler(event: SpaceEvent) {
-    const exist = this.events.find((e) => minimatch(e.name, event.name))
-
-    if (exist) {
-      Logger.error('[space] event handler already exist')
-      return
-    }
-
-    this.events.push(event)
-
-    Logger.debug('[space] register handler: %s', event.name)
+  public findEvent(name: string) {
+    return this.events.get(name) || null
   }
 
-  private async connection(socket: Socket) {
-    Logger.debug('[space] socket connected: %s', socket.id)
+  public notifyAll(event: string, data: any) {
+    this.observers.filter((o) => o.event === event).forEach((o) => o.callback(data))
 
-    this.events.forEach((event) => {
-      socket.on(event.name, async (...args: any[]) => {
-        Logger.debug('[space] event emitted: %s', event.name)
+    this.onAnyObservers.forEach((callback) => callback(event, data))
 
-        const callback = args.pop()
+    event.split(':').forEach((current) => {
+      const currentName = event.replace(current, '*')
 
-        const result = await event.handler(...args)
+      this.observers.filter((o) => o.event === currentName).forEach((o) => o.callback(data))
 
-        callback(result)
-
-        this.observers
-          .filter((o) => minimatch(event.name, o.name))
-          .forEach((o) => o.handler(...args))
-      })
+      this.onAnyObservers.forEach((callback) => callback(currentName, data))
     })
   }
 
-  public async emit<T = any>(name: string, ...args: any[]) {
-    this.nativeEmit(name, ...args)
-    // send event to clients
-    name.split(':').forEach((n, index, array) => {
-      const newArray = array.slice()
-      newArray[index] = '*'
-      this.nativeEmit(newArray.join(':'), ...args)
+  public on(event: string, callback: Callback) {
+    this.observers.push({
+      event,
+      callback,
     })
+  }
 
-    this.observers.filter((o) => minimatch(name, o.name)).forEach((o) => o.handler(...args))
+  public onAny(callback: OnAnyCallback) {
+    this.onAnyObservers.push(callback)
+  }
 
-    const event = this.events.find((e) => minimatch(name, e.name))
+  public offAll() {
+    this.events.clear()
+  }
+
+  public async emit<T = null>(event: string, data?: any) {
+    const handler = this.events.get(event)
 
     let result: T | null = null
 
-    Logger.debug('[space] event emitted: %s', name)
-
-    if (event) {
-      result = await event.handler(...args)
+    if (handler) {
+      result = await handler(data)
     }
 
+    this.notifyAll(event, data)
+
     return result
-  }
-
-  public nativeOn: Server['on'] = (...args) => {
-    return this.io.on(...args)
-  }
-
-  public nativeEmit: Server['emit'] = (...args) => {
-    return this.io.emit(...args)
   }
 }
 

@@ -1,10 +1,10 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { Page } from 'start/events/pages:create'
 
 import Drive from '@ioc:Adonis/Core/Drive'
 import Space from 'App/Services/Space'
 
 import { parse } from '@vue/compiler-sfc'
+import { PageData } from 'App/Listeners/Page'
 
 function compileVueFile(content: string) {
   const { descriptor } = parse(content)
@@ -20,7 +20,9 @@ function compileVueFile(content: string) {
 
 export default class PagesController {
   public async index() {
-    const pages = await Space.emit('pages:index')
+    const pages = await Space.emit<PageData[]>('page:index')
+
+    if (!pages) return []
 
     return pages.map((p) => ({
       name: p.name,
@@ -30,23 +32,27 @@ export default class PagesController {
   }
 
   public async show({ params, response }: HttpContextContract) {
-    const page = await Space.emit<Page>('pages:get', params.id)
+    const page = await Space.emit<PageData>('page:find', params.id)
+
+    const template = `
+      // Page not found
+      export const template = '<y-page padding><h2>Custom page not found</h2></y-page>'
+    `
+    response.type('js')
 
     if (!page) {
-      return response.notFound('// Page not found')
+      return template
     }
 
     const exist = await Drive.exists(page.filename)
 
     if (!exist) {
-      return response.notFound('// Page filename not found')
+      return template
     }
 
     const file = await Drive.get(page.filename)
 
     const content = file.toString()
-
-    response.type('js')
 
     return compileVueFile(content)
   }
