@@ -1,16 +1,10 @@
-import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { schema } from '@ioc:Adonis/Core/Validator'
 
 export default class ItemStoreValidator {
-  constructor(protected ctx: HttpContextContract) {}
   public schema = schema.create({
+    type: schema.string(),
+    sourceId: schema.string.optional(),
+    visibilityId: schema.number.optional(),
     value: schema.object().anyMembers(),
-    typeId: schema.number([
-      rules.exists({
-        table: 'types',
-        column: 'id',
-      }),
-    ]),
   })
-  public messages = {}
 }

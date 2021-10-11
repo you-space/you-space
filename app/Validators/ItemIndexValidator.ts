@@ -1,23 +1,14 @@
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 export default class ItemIndexValidator {
-  constructor(protected ctx: HttpContextContract) {}
+  constructor() {}
 
   public schema = schema.create({
+    id: schema.string.optional(),
     page: schema.number.optional(),
-    limit: schema.number.optional(),
-
-    // only available if typeid is defined options
-    serialize: schema.boolean.optional(),
-    typeId: schema.number.optional([
-      rules.requiredIfExistsAny(['serialize']),
-      rules.exists({
-        table: 'item_types',
-        column: 'id',
-      }),
-    ]),
+    limit: schema.number.optional([rules.range(1, 40)]),
+    raw: schema.boolean.optional(),
+    type: schema.string.optional(),
+    include: schema.string.optional(),
   })
-
-  public messages = {}
 }
