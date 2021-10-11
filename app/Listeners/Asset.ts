@@ -12,7 +12,7 @@ export default class Asset {
     return metas.map((m) => m.toMetaObject())
   }
 
-  public async find(name: string) {
+  public async show(name: string) {
     const metaName = `assets:${name}`
 
     const meta = await SystemMeta.findBy('name', metaName)

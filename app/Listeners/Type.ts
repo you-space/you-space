@@ -33,7 +33,7 @@ export default class TypeListener {
     return type.serialize()
   }
 
-  public async create({ name, schema }: Payload) {
+  public async store({ name, schema }: Payload) {
     const distFilename = Application.makePath('content', 'schemas', `${name}.js`)
 
     const existSource = await Drive.exists(schema)
@@ -52,7 +52,7 @@ export default class TypeListener {
     return create.serialize()
   }
 
-  public async delete(name: string) {
+  public async destroy(name: string) {
     const type = await Type.findBy('name', name)
 
     if (!type) {

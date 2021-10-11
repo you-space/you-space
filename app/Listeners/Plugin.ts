@@ -28,7 +28,7 @@ export default class Plugin {
       }))
   }
 
-  public async find(name: string) {
+  public async show(name: string) {
     const filename = Application.makePath('content', 'plugins', name)
 
     const exist = await Drive.exists(filename)
@@ -46,7 +46,7 @@ export default class Plugin {
     }
   }
 
-  public async download(gitUrl: string) {
+  public async store(gitUrl: string) {
     const name = path.basename(gitUrl).replace('.git', '')
     const filename = Application.makePath('content', 'plugins', name)
     const isValid = await isGitUrl(gitUrl)
@@ -65,7 +65,7 @@ export default class Plugin {
   }
 
   public async delete(name: string) {
-    const plugin = await this.find(name)
+    const plugin = await this.show(name)
 
     if (!plugin) {
       throw new Error('plugin not found')
@@ -83,7 +83,7 @@ export default class Plugin {
   }
 
   public async start(name: string) {
-    const plugin = await this.find(name)
+    const plugin = await this.show(name)
 
     if (!plugin) {
       throw new Error('plugin not found')
@@ -105,7 +105,7 @@ export default class Plugin {
   }
 
   public async stop(name: string) {
-    const plugin = await this.find(name)
+    const plugin = await this.show(name)
 
     if (!plugin) {
       throw new Error('plugin not found')

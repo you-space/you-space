@@ -14,7 +14,7 @@ export default class Page {
     return metas.map((m) => m.toMetaObject())
   }
 
-  public async find(name: string) {
+  public async show(name: string) {
     const metaName = `pages:${name}`
 
     const meta = await SystemMeta.findBy('name', metaName)
@@ -22,13 +22,13 @@ export default class Page {
     return meta ? meta.toMetaObject() : null
   }
 
-  public async create(data: PageData) {
+  public async store(data: PageData) {
     const metaName = `pages:${data.name}`
 
     return await SystemMeta.firstOrCreateMetaObject(metaName, data)
   }
 
-  public async delete(name: string) {
+  public async destroy(name: string) {
     const metaName = `pages:${name}`
 
     const meta = await SystemMeta.findBy('name', metaName)

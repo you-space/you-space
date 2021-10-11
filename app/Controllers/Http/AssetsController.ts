@@ -28,7 +28,7 @@ export default class AssetsController {
   public async show({ response, request }: HttpContextContract) {
     const name = request.params()['*'].join('/')
 
-    const asset = await Space.emit<AssetData>('asset:find', name)
+    const asset = await Space.emit<AssetData>('asset:show', name)
 
     if (!asset) {
       return response.notFound('Asset not found')

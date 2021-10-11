@@ -22,11 +22,11 @@ export default class TypesController {
   public async store({ request }: HttpContextContract) {
     const payload = await request.validate(TypeStoreValidator)
 
-    return Space.emit('type:create', payload)
+    return Space.emit('type:store', payload)
   }
 
   public async destroy({ params }: HttpContextContract) {
-    await Space.emit('type:delete', params.id)
+    await Space.emit('type:destroy', params.id)
 
     return {
       message: 'Type deleted',
