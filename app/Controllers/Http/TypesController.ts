@@ -1,10 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import Type from 'App/Models/Type'
+import Space from 'App/Services/Space'
 import TypeStoreValidator from 'App/Validators/TypeStoreValidator'
-import TypeUpdateValidator from 'App/Validators/TypeUpdateValidator'
-import { DateTime } from 'luxon'
-import { types } from 'App/Services'
 
 export default class TypesController {
   public async index({ request }: HttpContextContract) {
@@ -15,43 +12,21 @@ export default class TypesController {
       }),
     })
 
-    const query = Type.query()
-
-    query.withScopes((s) => s.isNotDeleted())
-
-    return query.paginate(filters.page || 1, filters.limit)
+    return await Space.emit('type:index', filters)
   }
 
   public async show({ params }: HttpContextContract) {
-    return Type.findOrFail(params.id)
+    return Space.emit('type:show', params.id)
   }
 
   public async store({ request }: HttpContextContract) {
-    const { name, schemaPath } = await request.validate(TypeStoreValidator)
+    const payload = await request.validate(TypeStoreValidator)
 
-    return types.create(name, schemaPath)
-  }
-
-  public async update({ request, params }: HttpContextContract) {
-    const type = await Type.findOrFail(params.id)
-
-    const payload = await request.validate(TypeUpdateValidator)
-
-    Object.assign(type, payload)
-
-    await type.save()
-
-    return {
-      message: 'Type updated',
-    }
+    return Space.emit('type:create', payload)
   }
 
   public async destroy({ params }: HttpContextContract) {
-    const type = await Type.findOrFail(params.id)
-
-    type.deletedAt = DateTime.now()
-
-    await type.save()
+    await Space.emit('type:delete', params.id)
 
     return {
       message: 'Type deleted',

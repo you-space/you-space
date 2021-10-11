@@ -7,8 +7,31 @@ interface Payload {
   schema: string
 }
 
+interface Filter {
+  page?: number
+  limit?: number
+}
+
 export default class TypeListener {
   public name = 'Type'
+
+  public async index(filter?: Filter) {
+    const query = Type.query()
+
+    const paginate = await query.paginate(filter?.page || 1, filter?.limit)
+
+    return paginate.toJSON()
+  }
+
+  public async show(name: string) {
+    const type = await Type.fetchByIdOrName(name).first()
+
+    if (!type) {
+      throw new Error('type not found')
+    }
+
+    return type.serialize()
+  }
 
   public async create({ name, schema }: Payload) {
     const distFilename = Application.makePath('content', 'schemas', `${name}.js`)
@@ -32,8 +55,10 @@ export default class TypeListener {
   public async delete(name: string) {
     const type = await Type.findBy('name', name)
 
-    if (type) {
-      await type.delete()
+    if (!type) {
+      throw new Error('type not found')
     }
+
+    await type.delete()
   }
 }
