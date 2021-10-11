@@ -4,7 +4,7 @@ export default class ItemIndexValidator {
   constructor() {}
 
   public schema = schema.create({
-    id: schema.string.optional(),
+    id: schema.string.optional({}, [rules.numberArray()]),
     page: schema.number.optional(),
     limit: schema.number.optional([rules.range(1, 40)]),
     raw: schema.boolean.optional(),
