@@ -34,20 +34,17 @@ export default class TypeListener {
   }
 
   public async store({ name, schema }: Payload) {
-    const distFilename = Application.makePath('content', 'schemas', `${name}.js`)
-
     const existSource = await Drive.exists(schema)
-    const existDestiny = await Drive.exists(distFilename)
 
     if (!existSource) {
       throw new Error('schema file not found')
     }
 
-    if (!existDestiny) {
-      await Drive.copy(schema, distFilename)
-    }
-
     const create = await Type.firstOrCreate({ name }, { name })
+
+    const distFilename = Application.makePath('content', 'schemas', `${create.id}.js`)
+
+    await Drive.copy(schema, distFilename)
 
     return create.serialize()
   }

@@ -1,15 +1,24 @@
 import { DateTime } from 'luxon'
-import { BaseModel, scope, column, HasMany, hasMany, afterDelete } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, HasMany, hasMany, afterDelete, beforeSave } from '@ioc:Adonis/Lucid/Orm'
 import Application from '@ioc:Adonis/Core/Application'
 import Drive from '@ioc:Adonis/Core/Drive'
 
 import Item from './Item'
+import { kebabCase } from 'lodash'
+import { requireIfExist } from 'App/Helpers'
 
 export interface TypeOptions {
   label?: string
   icon?: string
   showInMenu?: boolean
 }
+interface Schema {
+  type: 'string'
+  required?: boolean
+  serialize?: (raw: any) => any
+}
+
+export type TypeSchema = Record<string, Schema>
 
 export default class Type extends BaseModel {
   @column({ isPrimary: true })
@@ -31,7 +40,7 @@ export default class Type extends BaseModel {
   public deletedAt: DateTime | null
 
   public get schemaFilename() {
-    return Application.makePath('content', 'schemas', `${this.name}.js`)
+    return Application.makePath('content', 'schemas', `${this.id}.js`)
   }
 
   @hasMany(() => Item, {
@@ -39,9 +48,10 @@ export default class Type extends BaseModel {
   })
   public items: HasMany<typeof Item>
 
-  public static isNotDeleted = scope((query) => {
-    query.whereNull('deletedAt')
-  })
+  @beforeSave()
+  public static beforeSave(type: Type) {
+    type.name = kebabCase(type.name)
+  }
 
   @afterDelete()
   public static async afterDelete(type: Type) {
@@ -54,5 +64,13 @@ export default class Type extends BaseModel {
     }
 
     return Type.query().where('name', idOrName).whereNull('deletedAt')
+  }
+
+  public static findSchemaById(id: string | number) {
+    const filename = Application.makePath('content', 'schemas', `${id}.js`)
+
+    const schema = requireIfExist(filename)
+
+    return schema as TypeSchema | null
   }
 }
