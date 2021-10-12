@@ -61,6 +61,10 @@ export class SpaceService {
     this.onAnyObservers.push(callback)
   }
 
+  public off(event: string) {
+    this.events.delete(event)
+  }
+
   public offAll() {
     this.events.clear()
   }
