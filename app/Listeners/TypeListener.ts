@@ -18,7 +18,7 @@ export default class TypeListener {
 
     const paginate = await query.paginate(filter?.page || 1, filter?.limit)
 
-    return paginate.toJSON()
+    return paginate.serialize()
   }
 
   public async show(name: string) {
@@ -48,7 +48,7 @@ export default class TypeListener {
   }
 
   public async destroy(name: string) {
-    const type = await Type.findBy('name', name)
+    const type = await Type.fetchByIdOrName(name).first()
 
     if (!type) {
       throw new Error('type not found')

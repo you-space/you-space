@@ -16,6 +16,8 @@ export const ItemFactory = Factory.define(Item, ({ faker }) => {
 export const TypeFactory = Factory.define(Type, ({ faker }) => {
   return {
     name: faker.name.firstName(),
+    options: {},
+    deletedAt: null,
   }
 })
   .relation('items', () => ItemFactory)
