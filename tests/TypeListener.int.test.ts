@@ -23,7 +23,9 @@ test.group('TypeListener (int)', (group) => {
   })
 
   group.beforeEach(async () => {
-    await Type.query().delete()
+    const types = await Type.query()
+
+    await Promise.all(types.map((t) => t.delete()))
   })
 
   test('[type:index] should return list of types in database in', async (assert) => {
@@ -62,7 +64,7 @@ test.group('TypeListener (int)', (group) => {
     assert.deepEqual(type.serialize(), result)
   })
 
-  test('[type:show] should throw a error if type was not found', async (assert) => {
+  test('[type:show] should throw an error if type was not found', async (assert) => {
     assert.plan(1)
 
     await Space.emit('type:show', 'not-exist').catch((err) =>
@@ -81,7 +83,7 @@ test.group('TypeListener (int)', (group) => {
     assert.deepEqual(result?.name, 'test-type')
   })
 
-  test('[type:store] should throw a error if schema filename do not exist', async (assert) => {
+  test('[type:store] should throw an error if schema filename do not exist', async (assert) => {
     assert.plan(1)
 
     await Space.emit('type:store', { name: 'err', schema: '/not-exist' }).catch((err) =>
@@ -120,7 +122,7 @@ test.group('TypeListener (int)', (group) => {
     assert.isNull(type)
   })
 
-  test('[type:destroy] should throw a error if type was not found', async (assert) => {
+  test('[type:destroy] should throw an error if type was not found', async (assert) => {
     assert.plan(1)
 
     await Space.emit('type:destroy', 'no-exist').catch((err) =>
