@@ -1,9 +1,9 @@
 import test from 'japa'
-import Space from './Space'
+import { Space } from 'App/Services/SpaceService'
 import faker from 'faker'
 import sinon from 'sinon'
 
-test.group('Space.ts (unit)', (group) => {
+test.group('SpaceService.ts (unit)', (group) => {
   group.beforeEach(() => {
     Space.offAll()
   })

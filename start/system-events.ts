@@ -1,4 +1,4 @@
-import Space from 'App/Services/Space'
+import { Space } from 'App/Services/SpaceService'
 import Application from '@ioc:Adonis/Core/Application'
 import { requireAll, string } from '@ioc:Adonis/Core/Helpers'
 
