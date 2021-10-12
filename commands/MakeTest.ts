@@ -10,7 +10,7 @@ export default class MakeUnitTest extends BaseCommand {
     stayAlive: false,
   }
 
-  @args.string({ description: 'Source file to create teste', required: true })
+  @args.string({ description: 'Source file to create test', required: true })
   public name: string
 
   public async run() {

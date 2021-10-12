@@ -58,7 +58,7 @@
           "propertyName": "name",
           "name": "name",
           "required": true,
-          "description": "Source file to create teste"
+          "description": "Source file to create test"
         }
       ],
       "aliases": [],
