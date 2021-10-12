@@ -1,12 +1,7 @@
 import Env from '@ioc:Adonis/Core/Env'
 
 const rules = {
-  NODE_ENV: Env.schema.enum.optional([
-    'development',
-    'production',
-    'int-testing',
-    'unit-testing',
-  ] as const),
+  NODE_ENV: Env.schema.enum.optional(['development', 'production', 'testing'] as const),
 
   APP_KEY: Env.schema.string.optional(),
   APP_NAME: Env.schema.string(),
