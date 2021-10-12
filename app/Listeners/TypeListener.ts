@@ -13,8 +13,6 @@ interface Filter {
 }
 
 export default class TypeListener {
-  public name = 'Type'
-
   public async index(filter?: Filter) {
     const query = Type.query()
 

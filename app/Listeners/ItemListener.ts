@@ -7,16 +7,7 @@ import ItemIndexValidator from 'App/Validators/ItemIndexValidator'
 import ItemValueValidator from 'App/Validators/ItemValueValidator'
 import ItemUpdateValidator from 'App/Validators/ItemUpdateValidator'
 
-interface Payload {
-  [prop: string]: any
-  type: string | number
-  sourceId?: string
-  visibilityId?: number
-}
-
 export default class ItemListener {
-  public name = 'item'
-
   public async index(payload?: any) {
     const filters = await validator.validate({
       schema: new ItemIndexValidator().schema,
@@ -55,7 +46,7 @@ export default class ItemListener {
     }
   }
 
-  public async store(payload: Payload) {
+  public async store(payload: any) {
     const data = await validator.validate({
       schema: new ItemStoreValidator().schema,
       data: payload,
@@ -89,7 +80,7 @@ export default class ItemListener {
     return item.serialize()
   }
 
-  public async update(payload: Payload) {
+  public async update(payload: any) {
     const data = await validator.validate({
       schema: new ItemUpdateValidator().schema,
       data: payload,
