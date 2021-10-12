@@ -24,7 +24,7 @@ export const TypeFactory = Factory.define(Type, ({ faker }) => {
   .after('create', async (_, type) => {
     return Drive.put(
       Application.makePath('content', 'schemas', `${type.id}.js`),
-      'module.exports = { title: { type: "string" } }'
+      'module.exports = { title: { type: "string", required: true } }'
     )
   })
   .build()

@@ -8,7 +8,7 @@ import ItemValueValidator from 'App/Validators/ItemValueValidator'
 import ItemUpdateValidator from 'App/Validators/ItemUpdateValidator'
 
 export default class ItemListener {
-  public async index(payload?: any) {
+  public async index(payload: any = {}) {
     const filters = await validator.validate({
       schema: new ItemIndexValidator().schema,
       data: payload,
@@ -46,7 +46,7 @@ export default class ItemListener {
     }
   }
 
-  public async store(payload: any) {
+  public async store(payload: any = {}) {
     const data = await validator.validate({
       schema: new ItemStoreValidator().schema,
       data: payload,
@@ -80,13 +80,13 @@ export default class ItemListener {
     return item.serialize()
   }
 
-  public async update(payload: any) {
+  public async update(payload: any = {}) {
     const data = await validator.validate({
       schema: new ItemUpdateValidator().schema,
       data: payload,
     })
 
-    const item = await Item.query().first()
+    const item = await Item.find(data.id)
 
     if (!item) {
       throw new Error('item not found')
@@ -112,5 +112,15 @@ export default class ItemListener {
     return {
       message: 'item updated',
     }
+  }
+
+  public async destroy(id: number) {
+    const item = await Item.find(id)
+
+    if (!item) {
+      throw new Error('item not found')
+    }
+
+    await item.delete()
   }
 }

@@ -16,13 +16,13 @@ export async function startHttpServer() {
 }
 
 async function runMigrations() {
-  console.log('running migration...')
+  console.log('[migrations] running...')
 
   await execa.node('ace', ['migration:run'])
 }
 
 async function rollbackMigrations() {
-  console.log('rollback migration...')
+  console.log('[migrations] rollback...')
 
   await execa.node('ace', ['migration:rollback'])
 }

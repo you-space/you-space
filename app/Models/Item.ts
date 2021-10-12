@@ -24,7 +24,7 @@ export default class Item extends BaseModel {
   public id: number
 
   @column()
-  public originId: number
+  public originId = null as number | null
 
   @column()
   public typeId: number
@@ -33,10 +33,10 @@ export default class Item extends BaseModel {
   public visibilityId: number
 
   @column()
-  public parentId: number
+  public parentId = null as number | null
 
   @column()
-  public sourceId: string
+  public sourceId = null as number | null
 
   @column()
   public value: Record<string, unknown>
