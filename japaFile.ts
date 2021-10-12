@@ -16,20 +16,20 @@ export async function startHttpServer() {
 }
 
 async function runMigrations() {
-  await execa.node('ace', ['migration:run'], {
-    stdio: 'inherit',
-  })
+  console.log('running migration...')
+
+  await execa.node('ace', ['migration:run'])
 }
 
 async function rollbackMigrations() {
-  await execa.node('ace', ['migration:rollback'], {
-    stdio: 'inherit',
-  })
+  console.log('rollback migration...')
+
+  await execa.node('ace', ['migration:rollback'])
 }
 
 configure({
+  bail: true,
   files: ['./tests/**/*.test.ts'],
   before: [runMigrations, startHttpServer],
   after: [rollbackMigrations],
-  timeout: 10000,
 })
