@@ -1,5 +1,4 @@
 import Logger from '@ioc:Adonis/Core/Logger'
-import minimatch from 'minimatch'
 
 interface Callback {
   (data: any): void | Promise<void>
@@ -18,7 +17,7 @@ interface Observer {
   callback: Callback
 }
 
-export class Space {
+export class SpaceService {
   private observers: Observer[] = []
   private onAnyObservers: OnAnyCallback[] = []
   private events: Map<string, Handler> = new Map()
@@ -62,6 +61,10 @@ export class Space {
     this.onAnyObservers.push(callback)
   }
 
+  public off(event: string) {
+    this.events.delete(event)
+  }
+
   public offAll() {
     this.events.clear()
   }
@@ -81,4 +84,6 @@ export class Space {
   }
 }
 
-export default new Space()
+export const Space = new SpaceService()
+
+export default Space

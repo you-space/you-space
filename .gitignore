@@ -3,10 +3,13 @@ build
 coverage
 .vscode
 .DS_STORE
-.env
-.env.old
-*.log
 tmp
+
+*.log
+
+.env*
+!.env.example
+
 
 public/*
 !public/.gitkeep

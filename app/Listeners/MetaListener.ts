@@ -7,19 +7,13 @@ export default class Meta {
     return metas.map((m) => m.serialize())
   }
 
-  public async find(name: string) {
+  public async show(name: string) {
     const meta = await SystemMeta.findBy('name', name)
 
     return meta ? meta.value : null
   }
 
-  public create() {}
-
-  public update() {}
-
   public async updateAll(metas: Pick<SystemMeta, 'name' | 'value'>[]) {
     await SystemMeta.updateOrCreateMany('name', metas)
   }
-
-  public delete() {}
 }

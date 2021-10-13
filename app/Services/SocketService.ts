@@ -4,13 +4,13 @@ import { Server, Socket as IoSocket } from 'socket.io'
 
 import { getSocketUserId } from 'App/Helpers'
 import User from 'App/Models/User'
-import Space from './Space'
+import { Space } from './SpaceService'
 
 interface SocketCallback {
   (err: string | null, result?: any): void
 }
 
-class Socket {
+class SocketService {
   private io: Server
   private booted = false
 
@@ -57,4 +57,6 @@ class Socket {
   }
 }
 
-export default new Socket()
+export const Socket = new SocketService()
+
+export default Socket

@@ -16,7 +16,7 @@ export default class AppProvider {
 
     await this.registerQueues()
 
-    const Socket = (await import('App/Services/Socket')).default
+    const { Socket } = await import('App/Services/SocketService')
 
     Socket.boot()
   }

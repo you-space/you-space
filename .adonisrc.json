@@ -14,7 +14,16 @@
     "Contracts": "contracts",
     "Providers": "providers"
   },
-  "preloads": ["./start/routes", "./start/kernel"],
+  "preloads": [
+    "./start/routes",
+    "./start/kernel",
+    {
+      "file": "./start/validator",
+      "environment": [
+        "web"
+      ]
+    }
+  ],
   "providers": [
     "@adonisjs/core",
     "@adonisjs/lucid",
@@ -23,7 +32,9 @@
     "@adonisjs/session",
     "./providers/AppProvider"
   ],
-  "aceProviders": ["@adonisjs/repl"],
+  "aceProviders": [
+    "@adonisjs/repl"
+  ],
   "metaFiles": [
     {
       "pattern": "public",

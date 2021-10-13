@@ -32,7 +32,7 @@ export default class PagesController {
   }
 
   public async show({ params, response }: HttpContextContract) {
-    const page = await Space.emit<PageData>('page:find', params.id)
+    const page = await Space.emit<PageData>('page:show', params.id)
 
     const template = `
       // Page not found

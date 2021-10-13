@@ -1,5 +1,3 @@
-import lodash from 'lodash'
-
 import { DateTime } from 'luxon'
 import {
   BaseModel,
@@ -10,8 +8,9 @@ import {
   HasMany,
   hasManyThrough,
   HasManyThrough,
-  scope,
 } from '@ioc:Adonis/Lucid/Orm'
+
+import Logger from '@ioc:Adonis/Core/Logger'
 
 import Visibility from './Visibility'
 import Origin from './Origin'
@@ -19,14 +18,13 @@ import Type from './Type'
 import ItemMeta from './ItemMeta'
 import ItemFile from './ItemFile'
 import File from './File'
-import TypeField from './TypeField'
 
 export default class Item extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
   @column()
-  public originId: number
+  public originId = null as number | null
 
   @column()
   public typeId: number
@@ -35,10 +33,10 @@ export default class Item extends BaseModel {
   public visibilityId: number
 
   @column()
-  public parentId: number
+  public parentId = null as number | null
 
   @column()
-  public sourceId: string
+  public sourceId = null as number | null
 
   @column()
   public value: Record<string, unknown>
@@ -79,59 +77,32 @@ export default class Item extends BaseModel {
   })
   public files: HasManyThrough<typeof File>
 
-  public serializeByType(type: Type) {
+  public serializeByTypeSchema() {
     const item: any = {
       id: this.id,
-      sourceId: this.sourceId,
-
-      typeId: type.id,
-      typeName: type.name,
-
-      visibilityId: this.visibilityId,
-      visibilityName: this.visibility?.name,
-
-      createdAt: this.createdAt,
+      source_id: this.sourceId,
+      parent_id: this.parentId,
     }
 
-    type.fields
-      .filter((f) => f.type === 'mapped')
-      .forEach(({ name, options }) => {
-        item[name] = lodash.get(this.value, options?.path || '', this.value[name])
-      })
+    const schema = Type.findSchemaById(this.typeId)
 
-    type.fields
-      .filter((f) => f.type === 'editable')
-      .forEach(({ name }) => {
-        const meta = this.metas.find((m) => m.name === name)
-        item[name] = lodash.get(meta, 'value', null)
-      })
+    if (!schema) {
+      Logger.error('[items] schema not found for type %i', this.typeId)
+      return item
+    }
 
-    type.fields
-      .filter((f) => f.type === 'file')
-      .forEach(({ id, name }) => {
-        const itemFile = this.itemFiles.find((f) => f.typeFieldId === id)
+    Object.entries(schema).forEach(([key, field]) => {
+      if (field.serialize) {
+        item[key] = field.serialize(this.value)
+        return
+      }
 
-        if (itemFile) {
-          item[name] = itemFile.url
-        }
-      })
+      item[key] = this.value[key]
+    })
+
+    item.type = this.type
+    item.visibility = this.visibility
 
     return item
   }
-
-  public static filterByField = scope((query, field: TypeField, value: any) => {
-    if (field.options.path) {
-      const path = field.options.path.split('.')
-
-      const selector = path
-        .slice(0, path.length - 1)
-        .reduce((result, p) => `${result}->'${p}'`, 'value')
-
-      const comparator = {
-        [field.name]: value,
-      }
-
-      query.whereRaw(`${selector} @> ?`, [JSON.stringify(comparator)])
-    }
-  })
 }

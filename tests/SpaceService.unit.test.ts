@@ -1,11 +1,13 @@
 import test from 'japa'
-import Space from './Space'
+import { Space } from 'App/Services/SpaceService'
 import faker from 'faker'
 import sinon from 'sinon'
 
-test.group('Space.ts (unit)', (group) => {
+test.group('SpaceService.ts (unit)', (group) => {
+  const eventName = 'test'
+
   group.beforeEach(() => {
-    Space.offAll()
+    Space.off(eventName)
   })
 
   test('should register event handler', async (assert) => {
@@ -13,18 +15,18 @@ test.group('Space.ts (unit)', (group) => {
 
     const handler = () => result
 
-    Space.setHandler('teste', handler)
+    Space.setHandler(eventName, handler)
 
-    assert.deepInclude(Space.findEvent('teste'), handler)
+    assert.deepInclude(Space.findEvent(eventName), handler)
   })
 
   test('should listener be called with emit args', async () => {
     const random = faker.lorem.lines(2)
     const callback = sinon.spy()
 
-    Space.on('teste', callback)
+    Space.on(eventName, callback)
 
-    await Space.emit('teste', random)
+    await Space.emit(eventName, random)
 
     sinon.assert.calledOnceWithExactly(callback, random)
   })
@@ -32,9 +34,9 @@ test.group('Space.ts (unit)', (group) => {
   test('should event with handler return a result', async (assert) => {
     const result = faker.lorem.lines(2)
 
-    Space.setHandler('teste', () => result)
+    Space.setHandler(eventName, () => result)
 
-    const emit = await Space.emit('teste')
+    const emit = await Space.emit(eventName)
 
     assert.equal(emit, result)
   })

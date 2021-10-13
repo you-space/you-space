@@ -9,7 +9,7 @@ import {
 } from '@ioc:Adonis/Lucid/Orm'
 
 import { isJson } from 'App/Helpers'
-import Space from 'App/Services/Space'
+import { Space } from 'App/Services/SpaceService'
 
 export enum SystemDefaults {
   CurrentTheme = 'themes:current',

@@ -25,7 +25,7 @@ export default class PluginsController {
       }),
     })
 
-    await Space.emit('plugin:download', gitUrl)
+    await Space.emit('plugin:store', gitUrl)
 
     return {
       message: 'Plugin downloaded',

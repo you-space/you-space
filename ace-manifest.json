@@ -49,16 +49,16 @@
         "loadApp": false,
         "stayAlive": false
       },
-      "commandPath": "./commands/MakeUnitTest",
+      "commandPath": "./commands/MakeTest",
       "commandName": "make:test",
-      "description": "",
+      "description": "Create a test file",
       "args": [
         {
           "type": "string",
-          "propertyName": "filename",
-          "name": "filename",
+          "propertyName": "name",
+          "name": "name",
           "required": true,
-          "description": "Source file to create teste"
+          "description": "Source file to create test"
         }
       ],
       "aliases": [],
