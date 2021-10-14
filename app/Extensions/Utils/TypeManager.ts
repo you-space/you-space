@@ -1,5 +1,4 @@
 import Type from 'App/Models/Type'
-import TypeField from 'App/Models/TypeField'
 import Logger from '@ioc:Adonis/Core/Logger'
 
 interface Filters {
@@ -38,38 +37,8 @@ export default class TypeManager {
     }
   }
 
-  public async createFields(name: string, fields: TypeField['options'] & { name: string }[]) {
-    if (!this.allowWrite) {
-      Logger.error('write is disabled for manger')
-      return
-    }
-
-    const type = await Type.findBy('name', name)
-
-    if (!type) {
-      throw new Error(`type ${name} not registered`)
-    }
-
-    await type.related('fields').updateOrCreateMany(fields, 'name')
-  }
-
-  public async deleteFields(name: string, fields: string[]) {
-    if (!this.allowWrite) {
-      Logger.error('write is disabled for manger')
-      return
-    }
-
-    const type = await Type.findBy('name', name)
-
-    if (!type) {
-      throw new Error(`type ${name} not registered`)
-    }
-
-    await type.related('fields').query().delete().whereIn('name', fields)
-  }
-
   public async fetchItems(typeName: string, filters?: Filters) {
-    const type = await Type.fetchByIdOrName(typeName).preload('fields').firstOrFail()
+    const type = await Type.fetchByIdOrName(typeName).firstOrFail()
 
     const query = type
       .related('items')
@@ -77,16 +46,6 @@ export default class TypeManager {
       .preload('metas')
       .preload('itemFiles')
       .preload('visibility', (s) => s.select('name'))
-
-    if (filters) {
-      type.fields
-        .filter((f) => filters[f.name] !== undefined)
-        .filter((f) => f.type === 'mapped')
-        .filter((f) => !!f.options.path)
-        .forEach((field) => {
-          query.apply((s) => s.filterByField(field, filters[field.name]))
-        })
-    }
 
     if (filters?.search) {
       query.whereRaw('to_tsvector(value) @@ plainto_tsquery(?)', [filters.search])
@@ -108,7 +67,7 @@ export default class TypeManager {
 
     const paginate = await query.paginate(filters?.page || 1, filters?.limit)
 
-    const data = paginate.all().map((i) => i.serializeByType(type))
+    const data = paginate.all().map((i) => i.serializeByTypeSchema())
 
     return {
       meta: paginate.getMeta(),

@@ -16,10 +16,6 @@ export default class ItemsManager {
       .preload('itemFiles')
       .preload('visibility', (s) => s.select('name'))
 
-    if (serialize) {
-      query.preload('type', (q) => q.preload('fields'))
-    }
-
     if (filters?.search) {
       query
         .whereRaw('to_tsvector(value) @@ plainto_tsquery(?)', [filters.search])
@@ -33,7 +29,7 @@ export default class ItemsManager {
     let data = paginate.all()
 
     if (serialize) {
-      data = paginate.all().map((i) => i.serializeByType(i.type))
+      data = paginate.all().map((i) => i.serializeByTypeSchema())
     }
 
     return {
