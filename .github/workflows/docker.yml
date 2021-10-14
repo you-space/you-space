@@ -34,11 +34,11 @@ jobs:
           push: true
           tags: zzhenryquezz/you-space:${{ steps.get_version.outputs.major }}.${{ steps.get_version.outputs.minor }}
 
-      - name: Push major
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          tags: zzhenryquezz/you-space:${{ steps.get_version.outputs.major }}
+      # - name: Push major
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     push: true
+      #     tags: zzhenryquezz/you-space:${{ steps.get_version.outputs.major }}
 
       - name: Push latest
         uses: docker/build-push-action@v2
