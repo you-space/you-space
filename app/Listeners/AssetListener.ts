@@ -19,4 +19,10 @@ export default class Asset {
 
     return meta ? meta.toMetaObject() : null
   }
+
+  public async store(data: AssetData) {
+    const metaName = `assets:${data.name}`
+
+    return await SystemMeta.firstOrCreateMetaObject(metaName, data)
+  }
 }

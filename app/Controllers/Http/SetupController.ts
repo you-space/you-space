@@ -11,6 +11,7 @@ import SetupValidator from 'App/Validators/SetupValidator'
 import Env from '@ioc:Adonis/Core/Env'
 import Database from '@ioc:Adonis/Lucid/Database'
 import User from 'App/Models/User'
+import Space from 'App/Services/SpaceService'
 export default class SetupsController {
   public async show({ response }: HttpContextContract) {
     const setupHtml = Application.makePath('resources', 'setup.html')
@@ -87,6 +88,11 @@ export default class SetupsController {
     })
 
     await admin.addRoleByName('admin')
+
+    await Space.emit('asset:store', {
+      name: 'space',
+      filename: Application.resourcesPath('space.js'),
+    })
 
     response.json({
       message: 'setup ready',
