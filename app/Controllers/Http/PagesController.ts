@@ -1,10 +1,10 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import Drive from '@ioc:Adonis/Core/Drive'
-import Space from 'App/Services/Space'
+import { Space } from 'App/Services/SpaceService'
 
 import { parse } from '@vue/compiler-sfc'
-import { PageData } from 'App/Listeners/Page'
+import { PageData } from 'App/Listeners/PageListener'
 
 function compileVueFile(content: string) {
   const { descriptor } = parse(content)

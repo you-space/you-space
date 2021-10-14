@@ -1,4 +1,4 @@
-import { schema, rules } from '@ioc:Adonis/Core/Validator'
+import { schema } from '@ioc:Adonis/Core/Validator'
 import { TypeSchema } from 'App/Models/Type'
 
 export default class ItemValueValidator {

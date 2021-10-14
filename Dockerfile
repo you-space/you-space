@@ -20,6 +20,8 @@ FROM node:14-alpine
 
 COPY --from=build /app/build /app
 
+RUN apk add git
+
 WORKDIR /app
 
 RUN npm ci --production

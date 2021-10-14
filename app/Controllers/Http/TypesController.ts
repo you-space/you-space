@@ -1,6 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import Space from 'App/Services/Space'
+import Space from 'App/Services/SpaceService'
 import TypeStoreValidator from 'App/Validators/TypeStoreValidator'
 
 export default class TypesController {

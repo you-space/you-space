@@ -8,7 +8,7 @@ import VisibilityValidator from 'App/Validators/VisibilityValidator'
 
 export default class VisibilitiesController {
   public async index() {
-    return Visibility.query().preload('requiredPermissions')
+    return Visibility.query().preload('permissions')
   }
 
   public async store({ request }: HttpContextContract) {
@@ -36,7 +36,7 @@ export default class VisibilitiesController {
   }
 
   public async show({ params }: HttpContextContract) {
-    return Visibility.query().preload('requiredPermissions').where('id', params.id).firstOrFail()
+    return Visibility.query().preload('permissions').where('id', params.id).firstOrFail()
   }
 
   public async update({ params, request }: HttpContextContract) {

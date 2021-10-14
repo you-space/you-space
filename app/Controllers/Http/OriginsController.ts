@@ -1,6 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
-import Origin, { OriginScheduleOptions } from 'App/Models/Origin'
+import Origin from 'App/Models/Origin'
 import OriginValidator from 'App/Validators/OriginValidator'
 import OriginUpdateValidator from 'App/Validators/OriginUpdateValidator'
 import SystemMeta from 'App/Models/SystemMeta'
@@ -25,7 +25,6 @@ export default class OriginsController {
           valid: !!provider,
           fields: provider?.fields || [],
           options: provider?.options,
-          schedule: await o.findSchedule(),
         }
       })
     )
@@ -45,7 +44,6 @@ export default class OriginsController {
       valid: !!provider,
       fields: provider?.fields || [],
       ...origin?.serialize(),
-      schedule: await origin.findSchedule(),
     }
   }
 
@@ -64,10 +62,6 @@ export default class OriginsController {
 
     await origin.save()
 
-    if (schedule?.repeatEach) {
-      await origin.updateSchedule(schedule.repeatEach)
-    }
-
     return {
       status: 200,
       message: 'Origin updated',
@@ -76,8 +70,6 @@ export default class OriginsController {
 
   public async destroy({ params }: HttpContextContract) {
     const origin = await Origin.findOrFail(params.id)
-
-    await origin.updateSchedule(OriginScheduleOptions.None)
 
     await origin.delete()
 

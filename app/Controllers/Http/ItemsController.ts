@@ -1,5 +1,5 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Space from 'App/Services/Space'
+import { Space } from 'App/Services/SpaceService'
 export default class ItemsController {
   public async index({ request }: HttpContextContract) {
     const payload = request.qs()

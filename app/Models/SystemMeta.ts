@@ -1,12 +1,5 @@
 import { DateTime } from 'luxon'
-import {
-  afterCreate,
-  afterDelete,
-  afterSave,
-  afterUpdate,
-  BaseModel,
-  column,
-} from '@ioc:Adonis/Lucid/Orm'
+import { afterCreate, afterDelete, afterSave, BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 
 import { isJson } from 'App/Helpers'
 import { Space } from 'App/Services/SpaceService'

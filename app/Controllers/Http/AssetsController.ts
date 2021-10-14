@@ -1,8 +1,8 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import path from 'path'
 import Drive from '@ioc:Adonis/Core/Drive'
-import Space from 'App/Services/Space'
-import { AssetData } from 'App/Listeners/Asset'
+import { Space } from 'App/Services/SpaceService'
+import { AssetData } from 'App/Listeners/AssetListener'
 
 export default class AssetsController {
   public async importMap({ response }: HttpContextContract) {
