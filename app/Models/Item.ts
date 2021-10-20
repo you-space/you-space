@@ -36,7 +36,7 @@ export default class Item extends BaseModel {
   public parentId = null as number | null
 
   @column()
-  public sourceId = null as number | null
+  public sourceId = null as string | null
 
   @column()
   public value: Record<string, unknown>
