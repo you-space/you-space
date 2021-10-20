@@ -7,6 +7,7 @@
 
 import proxyAddr from 'proxy-addr'
 import Env from '@ioc:Adonis/Core/Env'
+import Application from '@ioc:Adonis/Core/Application'
 import { ServerConfig } from '@ioc:Adonis/Core/Server'
 import { LoggerConfig } from '@ioc:Adonis/Core/Logger'
 import { ProfilerConfig } from '@ioc:Adonis/Core/Profiler'
@@ -145,7 +146,7 @@ export const logger: LoggerConfig = {
   | Enable or disable logger application wide
   |
   */
-  enabled: ['production', 'development'].includes(Env.get('NODE_ENV', 'development')),
+  enabled: Application.environment === 'web',
 
   /*
   |--------------------------------------------------------------------------
