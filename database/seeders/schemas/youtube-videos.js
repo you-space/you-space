@@ -21,6 +21,10 @@ module.exports = {
     type: 'date',
     serialize: ({ snippet }) => snippet.publishedAt,
   },
+  tags: {
+    type: 'date',
+    serialize: ({ snippet }) => snippet.tags || [],
+  },
   viewCount: {
     type: 'number',
     serialize: ({ statistics }) => statistics.viewCount,
@@ -28,5 +32,9 @@ module.exports = {
   likeCount: {
     type: 'number',
     serialize: ({ statistics }) => statistics.likeCount,
+  },
+  duration: {
+    type: 'string',
+    serialize: ({ contentDetails }) => contentDetails.duration,
   },
 }
