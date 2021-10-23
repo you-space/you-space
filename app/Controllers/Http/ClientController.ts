@@ -10,17 +10,13 @@ export default class ClientController {
     }
 
     const context = {
-      headers: new Map<string, string>(),
       url: request.url(true),
+      response,
     }
 
     const { render } = await import(theme.filename)
 
     const content = await render(context)
-
-    context.headers.forEach((value, name) => {
-      response.safeHeader(name, value)
-    })
 
     return content
   }
