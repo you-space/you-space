@@ -8,10 +8,10 @@ import ItemValueValidator from 'App/Validators/ItemValueValidator'
 import ItemUpdateValidator from 'App/Validators/ItemUpdateValidator'
 
 export default class ItemListener {
-  public async index(payload: any = {}) {
+  public async index(payload: any) {
     const filters = await validator.validate({
       schema: new ItemIndexValidator().schema,
-      data: payload,
+      data: payload || {},
     })
 
     const query = Item.query()
@@ -30,15 +30,15 @@ export default class ItemListener {
       query.preload('type', (q) => q.select('name'))
     }
 
+    if (filters.search) {
+      query.whereRaw(`LOWER(value::text) LIKE '%${filters.search.toLowerCase()}%'`)
+    }
+
     const paginate = await query.paginate(filters?.page || 1, filters?.limit)
 
-    const data = paginate.all().map((item) => {
-      if (!filters?.raw) {
-        return item.serializeByTypeSchema()
-      }
-
-      return item.serialize()
-    })
+    const data = paginate
+      .all()
+      .map((item) => (filters?.raw ? item.serialize() : item.serializeByTypeSchema()))
 
     return {
       meta: paginate.getMeta(),

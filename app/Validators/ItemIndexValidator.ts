@@ -10,5 +10,6 @@ export default class ItemIndexValidator {
     raw: schema.boolean.optional(),
     type: schema.string.optional(),
     include: schema.string.optional(),
+    search: schema.string.optional(),
   })
 }
