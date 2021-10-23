@@ -16,7 +16,9 @@ export default class SystemMeta extends BaseModel {
   @column()
   public name: string
 
-  @column()
+  @column({
+    serialize: (v) => (isJson(v) ? JSON.parse(v) : v),
+  })
   public value: string
 
   @column.dateTime({ autoCreate: true })

@@ -14,13 +14,13 @@ class Space {
     this.timeout = 5000
   }
 
-  emit(event, ...args) {
+  emit(event, data) {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         reject(new Error(`${event} event timeout`))
       }, this.timeout)
 
-      this.socket.emit(event, ...args, (err, result) => {
+      this.socket.emit(event, data, (err, result) => {
         clearTimeout(timer)
         if (err) {
           return reject(err)

@@ -146,7 +146,7 @@ export const logger: LoggerConfig = {
   | Enable or disable logger application wide
   |
   */
-  enabled: Application.environment === 'web',
+  enabled: Application.environment === 'web' && Application.nodeEnvironment !== 'testing',
 
   /*
   |--------------------------------------------------------------------------
