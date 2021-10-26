@@ -1,6 +1,13 @@
-module.exports = {
+const schema = {
   title: {
     type: 'string',
-    required: true,
+    map: 'title',
+    editable: true,
+  },
+  thumbnail: {
+    type: 'image',
+    editable: true,
   },
 }
+
+module.exports = schema

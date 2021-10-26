@@ -8,7 +8,10 @@ import {
   HasMany,
   hasManyThrough,
   HasManyThrough,
+  scope,
 } from '@ioc:Adonis/Lucid/Orm'
+
+import lodash from 'lodash'
 
 import Logger from '@ioc:Adonis/Core/Logger'
 
@@ -77,11 +80,28 @@ export default class Item extends BaseModel {
   })
   public files: HasManyThrough<typeof File>
 
+  public static orderByValueProperty = scope((query, propertyMap: string) => {
+    const map = propertyMap
+      .split('.')
+      .map((key) => `'${key}'`)
+      .join('->')
+
+    query.orderByRaw(`value->${map}`)
+  })
+
+  public static whereValueProperty = scope((query, propertyMap: string, value: any) => {
+    const map = lodash.set({}, propertyMap, value)
+
+    query.whereRaw('value @> ?', [JSON.stringify(map)])
+  })
+
   public serializeByTypeSchema() {
     const item: any = {
       id: this.id,
       source_id: this.sourceId,
       parent_id: this.parentId,
+      type: this.type,
+      visibility: this.visibility,
     }
 
     const schema = Type.findSchemaById(this.typeId)
@@ -97,11 +117,8 @@ export default class Item extends BaseModel {
         return
       }
 
-      item[key] = this.value[key]
+      item[key] = lodash.get(this.value, field.map || key)
     })
-
-    item.type = this.type
-    item.visibility = this.visibility
 
     return item
   }

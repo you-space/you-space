@@ -1,5 +1,13 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, HasMany, hasMany, afterDelete, beforeSave } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  column,
+  HasMany,
+  hasMany,
+  afterDelete,
+  beforeSave,
+  scope,
+} from '@ioc:Adonis/Lucid/Orm'
 import Application from '@ioc:Adonis/Core/Application'
 import Drive from '@ioc:Adonis/Core/Drive'
 
@@ -13,8 +21,9 @@ export interface TypeOptions {
   showInMenu?: boolean
 }
 interface Schema {
-  type: 'string'
+  type: 'string' | 'number'
   required?: boolean
+  map?: string
   serialize?: (raw: any) => any
 }
 
@@ -58,12 +67,20 @@ export default class Type extends BaseModel {
     await Drive.delete(type.schemaFilename)
   }
 
-  public static fetchByIdOrName(idOrName: string | number) {
-    if (!isNaN(Number(idOrName))) {
-      return Type.query().where('id', idOrName).whereNull('deletedAt')
-    }
+  public static idOrName = scope((query) => {
+    query.where('publishedOn', '<=', DateTime.utc().toSQLDate())
+  })
 
-    return Type.query().where('name', idOrName).whereNull('deletedAt')
+  public static fetchByIdOrName(idOrName: string) {
+    return Type.query()
+      .whereIn(
+        'id',
+        idOrName.split(',').filter((id) => !isNaN(Number(id)))
+      )
+      .orWhereIn(
+        'name',
+        idOrName.split(',').filter((name) => isNaN(Number(name)))
+      )
   }
 
   public static findSchemaById(id: string | number) {
@@ -72,5 +89,9 @@ export default class Type extends BaseModel {
     const schema = requireIfExist(filename)
 
     return schema as TypeSchema | null
+  }
+
+  public findSchema() {
+    return Type.findSchemaById(this.id)
   }
 }

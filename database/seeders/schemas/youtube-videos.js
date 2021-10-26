@@ -4,11 +4,11 @@ module.exports = {
   },
   title: {
     type: 'string',
-    serialize: ({ snippet }) => snippet.title,
+    map: 'snippet.title',
   },
   description: {
     type: 'string',
-    serialize: ({ snippet }) => snippet.description,
+    map: 'snippet.description',
   },
   thumbnail: {
     type: 'object',
@@ -19,22 +19,23 @@ module.exports = {
   },
   publishedAt: {
     type: 'date',
-    serialize: ({ snippet }) => snippet.publishedAt,
+    map: 'snippet.publishedAt',
   },
   tags: {
     type: 'date',
+    map: 'snippet.tags',
     serialize: ({ snippet }) => snippet.tags || [],
   },
   viewCount: {
     type: 'number',
-    serialize: ({ statistics }) => statistics.viewCount,
+    map: 'statistics.viewCount',
   },
   likeCount: {
     type: 'number',
-    serialize: ({ statistics }) => statistics.likeCount,
+    map: 'statistics.likeCount',
   },
   duration: {
     type: 'string',
-    serialize: ({ contentDetails }) => contentDetails.duration,
+    map: 'contentDetails.duration',
   },
 }
