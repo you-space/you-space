@@ -40,6 +40,8 @@ export default class ItemIndexValidator {
     include: schema.string.optional(),
     search: schema.string.optional(),
     orderBy: schema.string.optional(),
+    orderDesc: schema.boolean.optional(),
+    pick: schema.string.optional(),
   }
 
   public schema = schema.create(

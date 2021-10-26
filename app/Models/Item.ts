@@ -80,13 +80,13 @@ export default class Item extends BaseModel {
   })
   public files: HasManyThrough<typeof File>
 
-  public static orderByValueProperty = scope((query, propertyMap: string) => {
+  public static orderByValueProperty = scope((query, propertyMap: string, desc = false) => {
     const map = propertyMap
       .split('.')
       .map((key) => `'${key}'`)
       .join('->')
 
-    query.orderByRaw(`value->${map}`)
+    query.orderByRaw(`value->${map} ${desc ? 'DESC' : 'ASC'}`)
   })
 
   public static whereValueProperty = scope((query, propertyMap: string, value: any) => {

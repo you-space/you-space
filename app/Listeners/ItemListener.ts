@@ -1,4 +1,5 @@
 import Item from 'App/Models/Item'
+import lodash from 'lodash'
 
 import Type, { TypeSchema } from 'App/Models/Type'
 import { validator } from '@ioc:Adonis/Core/Validator'
@@ -10,7 +11,10 @@ import ItemUpdateValidator from 'App/Validators/ItemUpdateValidator'
 export default class ItemListener {
   public async index(payload?: any) {
     const types: Type[] = await Promise.all(
-      (payload?.type || '').split(',').map((t) => Type.fetchByIdOrName(t).firstOrFail())
+      (payload?.type || '')
+        .split(',')
+        .filter((t) => !!t)
+        .map((t) => Type.fetchByIdOrName(t).firstOrFail())
     )
 
     const schemas = types.map((type) => type.findSchema()).filter((s) => !!s)
@@ -54,7 +58,7 @@ export default class ItemListener {
           .filter(([, value]) => !!value.map)
           .forEach(([key, value]) => {
             if (filters.orderBy === key) {
-              query.apply((s) => s.orderByValueProperty(value.map as string))
+              query.apply((s) => s.orderByValueProperty(value.map as string, filters.orderDesc))
             }
 
             if (filters[key]) {
@@ -66,9 +70,11 @@ export default class ItemListener {
 
     const paginate = await query.paginate(filters?.page || 1, filters?.limit)
 
-    const data = paginate
-      .all()
-      .map((item) => (filters?.raw ? item.serialize() : item.serializeByTypeSchema()))
+    const data = paginate.all().map((item) => {
+      const content = filters?.raw ? item.serialize() : item.serializeByTypeSchema()
+
+      return filters.pick ? lodash.pick(content, filters.pick.split(',')) : content
+    })
 
     return {
       meta: paginate.getMeta(),
