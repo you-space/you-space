@@ -16,7 +16,7 @@
             <template #body-selection="props">
                 <q-toggle
                     :model-value="props.row.active"
-                    @update:model-value="setActiveTheme(props.row)"
+                    @update:model-value="updateTheme(props.row)"
                 />
             </template>
 
@@ -58,6 +58,7 @@ import { deleteThemeByName, executeScript } from './compositions';
 
 interface SiteTheme {
     name: string;
+    active: boolean;
 }
 
 export default defineComponent({
@@ -86,8 +87,10 @@ export default defineComponent({
 
         void setThemes();
 
-        async function setActiveTheme(theme: SiteTheme) {
-            await api.post('admin/themes/set-theme', { name: theme.name });
+        async function updateTheme(theme: SiteTheme) {
+            await api.patch(`admin/themes/${theme.name}`, {
+                active: !theme.active,
+            });
 
             await setThemes();
         }
@@ -130,7 +133,7 @@ export default defineComponent({
             columns,
 
             addNew,
-            setActiveTheme,
+            updateTheme,
             executeThemeScript,
             deleteTheme,
         };
