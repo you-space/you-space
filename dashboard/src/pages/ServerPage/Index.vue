@@ -1,11 +1,11 @@
 <template>
-    <q-page padding>
+    <q-page ref="page" padding>
         <q-inner-loading :showing="loading" />
         <div ref="element" />
     </q-page>
 </template>
 <script lang="ts">
-import { useQuasar } from 'quasar';
+import { QPage, useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import { defineComponent, h, ref, shallowRef, onMounted } from 'vue';
 import { findPage, findPageFile, PageFile } from './compositions';
@@ -23,6 +23,7 @@ export default defineComponent({
         const router = useRouter();
 
         const element = ref();
+        const page = ref<QPage>();
 
         const component = shallowRef<any>({
             render: () => h('h1', 'Loaging...'),
@@ -51,7 +52,7 @@ export default defineComponent({
 
                 style.innerHTML = css;
 
-                element.value.appendChild(style);
+                page.value?.$el.appendChild(style);
             }
         }
 
@@ -78,6 +79,7 @@ export default defineComponent({
         // });
 
         return {
+            page,
             element,
             component,
             loading,
