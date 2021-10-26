@@ -20,4 +20,10 @@ export default class Meta {
   public async updateAll(metas: Pick<SystemMeta, 'name' | 'value'>[]) {
     await SystemMeta.updateOrCreateMany('name', metas)
   }
+
+  public async destroyAll(name: string) {
+    const metas = await SystemMeta.fetchByName(name)
+
+    await Promise.all(metas.map((m) => m.delete()))
+  }
 }
