@@ -75,11 +75,15 @@ export default class Type extends BaseModel {
     return Type.query()
       .whereIn(
         'id',
-        idOrName.split(',').filter((id) => !isNaN(Number(id)))
+        String(idOrName)
+          .split(',')
+          .filter((id) => !isNaN(Number(id)))
       )
       .orWhereIn(
         'name',
-        idOrName.split(',').filter((name) => isNaN(Number(name)))
+        String(idOrName)
+          .split(',')
+          .filter((name) => isNaN(Number(name)))
       )
   }
 

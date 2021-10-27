@@ -13,7 +13,13 @@ export default class ItemValueValidator {
         return
       }
 
-      fields[key] = schema[field.type].optional()
+      if (field.type === 'string') {
+        fields[key] = schema.string.optional()
+      }
+
+      if (field.type === 'number') {
+        fields[key] = schema.number.optional()
+      }
     })
 
     this.schema = schema.create(fields)

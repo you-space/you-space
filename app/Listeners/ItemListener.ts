@@ -82,10 +82,10 @@ export default class ItemListener {
     }
   }
 
-  public async store(payload: any = {}) {
+  public async store(payload: any) {
     const data = await validator.validate({
       schema: new ItemStoreValidator().schema,
-      data: payload,
+      data: payload || {},
     })
 
     const type = await Type.fetchByIdOrName(data.type).first()
