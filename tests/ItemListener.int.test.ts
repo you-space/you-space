@@ -4,7 +4,10 @@ import faker from 'faker'
 import Item from 'App/Models/Item'
 import Type from 'App/Models/Type'
 import Space from 'App/Services/SpaceService'
+import Drive from '@ioc:Adonis/Core/Drive'
 import { ItemFactory, TypeFactory } from 'Database/factories'
+import Application from '@ioc:Adonis/Core/Application'
+import Content from 'App/Services/ContentService'
 
 interface IndexResult {
   meta: any
@@ -16,6 +19,11 @@ test.group('ItemListener (int)', (group) => {
 
   group.before(async () => {
     type = await TypeFactory.create()
+
+    await Drive.copy(
+      Application.makePath('database', 'seeders', 'schemas', 'simple.js'),
+      Content.makePath('schemas', `${type.id}.js`)
+    )
   })
 
   group.after(async () => {

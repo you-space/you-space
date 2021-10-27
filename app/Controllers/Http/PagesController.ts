@@ -3,20 +3,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Drive from '@ioc:Adonis/Core/Drive'
 import { Space } from 'App/Services/SpaceService'
 
-import { parse } from '@vue/compiler-sfc'
 import { PageData } from 'App/Listeners/PageListener'
-
-function compileVueFile(content: string) {
-  const { descriptor } = parse(content)
-
-  const template = descriptor.template?.content.trim()
-
-  let code = `export const template = \`${template}\`; \n`
-
-  code += descriptor.script?.content.replace('export default', 'export const script = ')
-
-  return code
-}
 
 export default class PagesController {
   public async index() {
@@ -34,26 +21,44 @@ export default class PagesController {
   public async show({ params, response }: HttpContextContract) {
     const page = await Space.emit<PageData>('page:show', params.id)
 
-    const template = `
-      // Page not found
-      export const template = '<y-page padding><h2>Custom page not found</h2></y-page>'
-    `
     response.type('js')
 
     if (!page) {
-      return template
+      return response.notFound('// page not found')
     }
 
-    const exist = await Drive.exists(page.filename)
+    const files = page.files.map((file) => ({
+      ...file,
+      filename: undefined,
+    }))
+
+    return {
+      ...page,
+      files,
+    }
+  }
+
+  public async showFile({ response, params }: HttpContextContract) {
+    const page = await Space.emit<PageData>('page:show', params.page)
+
+    if (!page) {
+      throw new Error('Page not found')
+    }
+
+    const file = page.files.find((f) => f.name === params.file)
+
+    if (!file) {
+      throw new Error('File not found')
+    }
+
+    const exist = Drive.exists(file.filename)
 
     if (!exist) {
-      return template
+      throw new Error('File not found')
     }
 
-    const file = await Drive.get(page.filename)
+    response.type(file.type === 'main' ? 'js' : file.type)
 
-    const content = file.toString()
-
-    return compileVueFile(content)
+    return (await Drive.get(file.filename)).toString()
   }
 }

@@ -2,9 +2,7 @@ import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
   Route.resource('pages', 'PagesController').only(['index', 'show'])
-  Route.get('pages/:id/template', 'PagesController.showTemplate')
-  Route.get('pages/:id/script', 'PagesController.showScript')
-  Route.get('pages/:id/styles', 'PagesController.showStyles')
+  Route.get('pages/:page/:file', 'PagesController.showFile')
 })
   .prefix('v1')
   .prefix('api')

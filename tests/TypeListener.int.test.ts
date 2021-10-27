@@ -5,6 +5,7 @@ import Drive from '@ioc:Adonis/Core/Drive'
 import Type from 'App/Models/Type'
 import { Space } from 'App/Services/SpaceService'
 import { TypeFactory } from 'Database/factories'
+import Content from 'App/Services/ContentService'
 
 interface Pagination<T = any> {
   meta: any
@@ -97,7 +98,7 @@ test.group('TypeListener (int)', (group) => {
       schema: schemaFilename,
     })
 
-    const exist = await Drive.exists(Application.makePath('content', 'schemas', `${type?.id}.js`))
+    const exist = await Drive.exists(Content.makePath('schemas', `${type?.id}.js`))
 
     assert.equal(exist, true)
   })

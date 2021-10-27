@@ -11,4 +11,3 @@ Route.group(() => {
 })
   .prefix('v1')
   .prefix('api')
-  .middleware('auth')

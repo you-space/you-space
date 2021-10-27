@@ -16,19 +16,19 @@
             <template #body-selection="props">
                 <q-toggle
                     :model-value="props.row.active"
-                    @update:model-value="setActiveTheme(props.row)"
+                    @update:model-value="updateTheme(props.row)"
                 />
             </template>
 
             <template #body-cell-scripts="props">
                 <q-td :props="props">
                     <q-btn
-                        v-for="script in props.value"
+                        v-for="script in Object.keys(props.value || {})"
                         :key="script"
                         :label="script"
                         color="primary"
                         class="q-mr-md"
-                        @click="executeThemeScript(props.row, script)"
+                        @click="runThemeScript(props.row, script)"
                     />
                 </q-td>
             </template>
@@ -54,16 +54,20 @@ import { defineComponent, defineAsyncComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { api } from 'src/boot/axios';
-import { deleteThemeByName, executeScript } from './compositions';
+import { deleteThemeByName } from './compositions';
+import { useSpace } from 'src/boot/space';
 
 interface SiteTheme {
+    id: string;
     name: string;
+    active: boolean;
 }
 
 export default defineComponent({
     setup() {
         const tm = useI18n();
         const quasar = useQuasar();
+        const space = useSpace();
 
         const themes = ref<SiteTheme[]>([]);
 
@@ -86,20 +90,25 @@ export default defineComponent({
 
         void setThemes();
 
-        async function setActiveTheme(theme: SiteTheme) {
-            await api.post('admin/themes/set-theme', { name: theme.name });
+        async function updateTheme(theme: SiteTheme) {
+            await api.patch(`admin/themes/${theme.name}`, {
+                active: !theme.active,
+            });
 
             await setThemes();
         }
 
-        function executeThemeScript(theme: SiteTheme, scriptName: string) {
+        function runThemeScript(theme: SiteTheme, scriptName: string) {
             quasar
                 .dialog({
                     title: tm.t('areYouSure'),
                     cancel: true,
                 })
                 .onOk(async () => {
-                    await executeScript(theme.name, [scriptName]);
+                    await space.emit('theme:run-script', {
+                        name: theme.id,
+                        script: scriptName,
+                    });
                 });
         }
 
@@ -130,8 +139,8 @@ export default defineComponent({
             columns,
 
             addNew,
-            setActiveTheme,
-            executeThemeScript,
+            updateTheme,
+            runThemeScript,
             deleteTheme,
         };
     },

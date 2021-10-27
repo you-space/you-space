@@ -12,6 +12,10 @@ export default class AppProvider {
   public async boot() {}
 
   public async ready() {
+    const Content = (await import('App/Services/ContentService')).default
+
+    await Content.start()
+
     await import('../start/system-events')
 
     await this.registerQueues()

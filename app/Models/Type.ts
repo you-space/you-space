@@ -1,11 +1,19 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, HasMany, hasMany, afterDelete, beforeSave } from '@ioc:Adonis/Lucid/Orm'
-import Application from '@ioc:Adonis/Core/Application'
+import {
+  BaseModel,
+  column,
+  HasMany,
+  hasMany,
+  afterDelete,
+  beforeSave,
+  scope,
+} from '@ioc:Adonis/Lucid/Orm'
 import Drive from '@ioc:Adonis/Core/Drive'
 
 import Item from './Item'
 import { kebabCase } from 'lodash'
 import { requireIfExist } from 'App/Helpers'
+import Content from 'App/Services/ContentService'
 
 export interface TypeOptions {
   label?: string
@@ -13,8 +21,9 @@ export interface TypeOptions {
   showInMenu?: boolean
 }
 interface Schema {
-  type: 'string'
+  type: 'string' | 'number'
   required?: boolean
+  map?: string
   serialize?: (raw: any) => any
 }
 
@@ -40,7 +49,7 @@ export default class Type extends BaseModel {
   public deletedAt: DateTime | null
 
   public get schemaFilename() {
-    return Application.makePath('content', 'schemas', `${this.id}.js`)
+    return Content.makePath('schemas', `${this.id}.js`)
   }
 
   @hasMany(() => Item, {
@@ -58,19 +67,35 @@ export default class Type extends BaseModel {
     await Drive.delete(type.schemaFilename)
   }
 
-  public static fetchByIdOrName(idOrName: string | number) {
-    if (!isNaN(Number(idOrName))) {
-      return Type.query().where('id', idOrName).whereNull('deletedAt')
-    }
+  public static idOrName = scope((query) => {
+    query.where('publishedOn', '<=', DateTime.utc().toSQLDate())
+  })
 
-    return Type.query().where('name', idOrName).whereNull('deletedAt')
+  public static fetchByIdOrName(idOrName: string) {
+    return Type.query()
+      .whereIn(
+        'id',
+        String(idOrName)
+          .split(',')
+          .filter((id) => !isNaN(Number(id)))
+      )
+      .orWhereIn(
+        'name',
+        String(idOrName)
+          .split(',')
+          .filter((name) => isNaN(Number(name)))
+      )
   }
 
   public static findSchemaById(id: string | number) {
-    const filename = Application.makePath('content', 'schemas', `${id}.js`)
+    const filename = Content.makePath('schemas', `${id}.js`)
 
     const schema = requireIfExist(filename)
 
     return schema as TypeSchema | null
+  }
+
+  public findSchema() {
+    return Type.findSchemaById(this.id)
   }
 }

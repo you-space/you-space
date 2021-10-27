@@ -1,8 +1,5 @@
 import Bull, { Job, JobOptions } from 'bull'
 import Logger from '@ioc:Adonis/Core/Logger'
-import OriginScheduleImport from './jobs/OriginScheduleImport'
-import ProviderJobs from './jobs/ProviderJobs'
-import RunThemeScript from './jobs/RunThemeScript'
 import Env from '@ioc:Adonis/Core/Env'
 export interface QueueHandler {
   name: string
@@ -23,10 +20,6 @@ export default class Queue {
   }
 
   public start() {
-    this.findOrCreate(OriginScheduleImport.key, OriginScheduleImport.handler)
-    this.findOrCreate(ProviderJobs.key, ProviderJobs.handler)
-    this.findOrCreate(RunThemeScript.key, RunThemeScript.handler)
-
     Logger.info('[queues] all queues started')
   }
 

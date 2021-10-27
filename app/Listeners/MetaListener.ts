@@ -10,10 +10,20 @@ export default class Meta {
   public async show(name: string) {
     const meta = await SystemMeta.findBy('name', name)
 
-    return meta ? meta.value : null
+    return meta ? meta.serialize().value : null
+  }
+
+  public async update(meta: any) {
+    await SystemMeta.updateOrCreate({ name: meta.name }, meta)
   }
 
   public async updateAll(metas: Pick<SystemMeta, 'name' | 'value'>[]) {
     await SystemMeta.updateOrCreateMany('name', metas)
+  }
+
+  public async destroyAll(name: string) {
+    const metas = await SystemMeta.fetchByName(name)
+
+    await Promise.all(metas.map((m) => m.delete()))
   }
 }

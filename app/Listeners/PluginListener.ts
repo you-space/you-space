@@ -2,17 +2,17 @@ import fs from 'fs'
 import path from 'path'
 import execa from 'execa'
 
-import Application from '@ioc:Adonis/Core/Application'
 import Logger from '@ioc:Adonis/Core/Logger'
 import Drive from '@ioc:Adonis/Core/Drive'
 
+import Content from 'App/Services/ContentService'
 import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'
 import { uniq } from 'lodash'
 import { isGitUrl } from 'App/Helpers'
 
 export default class Plugin {
   public async index() {
-    const context = await fs.promises.readdir(Application.makePath('content', 'plugins'), {
+    const context = await fs.promises.readdir(Content.makePath('plugins'), {
       withFileTypes: true,
     })
 
@@ -20,7 +20,7 @@ export default class Plugin {
 
     return context
       .filter((f) => f.isDirectory())
-      .map((f) => Application.makePath('content', 'plugins', f.name))
+      .map((f) => Content.makePath('plugins', f.name))
       .map((filename) => ({
         filename,
         name: path.basename(filename),
@@ -29,7 +29,7 @@ export default class Plugin {
   }
 
   public async show(name: string) {
-    const filename = Application.makePath('content', 'plugins', name)
+    const filename = Content.makePath('plugins', name)
 
     const exist = await Drive.exists(filename)
 
@@ -48,7 +48,7 @@ export default class Plugin {
 
   public async store(gitUrl: string) {
     const name = path.basename(gitUrl).replace('.git', '')
-    const filename = Application.makePath('content', 'plugins', name)
+    const filename = Content.makePath('plugins', name)
     const isValid = await isGitUrl(gitUrl)
 
     if (!isValid) {

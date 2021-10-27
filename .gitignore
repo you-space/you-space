@@ -3,6 +3,7 @@ build
 coverage
 .vscode
 .DS_STORE
+.nyc_output
 tmp
 
 *.log
