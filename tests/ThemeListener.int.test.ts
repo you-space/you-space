@@ -7,7 +7,6 @@ import { listFolder } from 'App/Helpers'
 import { string } from '@ioc:Adonis/Core/Helpers'
 import SystemMeta from 'App/Models/SystemMeta'
 import { Theme } from 'App/Listeners/ThemeListener'
-import { assert } from 'sinon'
 
 async function createFakeTheme(name: string) {
   const path = Content.makePath('themes', name)

@@ -2,7 +2,6 @@ import fs from 'fs'
 import execa from 'execa'
 import path from 'path'
 
-import Application from '@ioc:Adonis/Core/Application'
 import Drive from '@ioc:Adonis/Core/Drive'
 
 import SystemMeta, { SystemDefaults } from 'App/Models/SystemMeta'

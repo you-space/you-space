@@ -38,7 +38,7 @@ export default class PagesController {
     }
   }
 
-  public async showFile({ request, response, params }: HttpContextContract) {
+  public async showFile({ response, params }: HttpContextContract) {
     const page = await Space.emit<PageData>('page:show', params.page)
 
     if (!page) {
