@@ -2,9 +2,9 @@ import { DateTime } from 'luxon'
 import { BaseModel, beforeDelete, column, computed } from '@ioc:Adonis/Lucid/Orm'
 import fs from 'fs'
 import { promisify } from 'util'
-import Application from '@ioc:Adonis/Core/Application'
 import { MultipartFileContract } from '@ioc:Adonis/Core/BodyParser'
 import { cuid } from '@ioc:Adonis/Core/Helpers'
+import Content from 'App/Services/ContentService'
 
 export default class File extends BaseModel {
   @column({ isPrimary: true })
@@ -27,7 +27,7 @@ export default class File extends BaseModel {
 
   @computed({ serializeAs: null })
   public get filepath() {
-    return Application.makePath('content', 'uploads', this.filename)
+    return Content.makePath('uploads', this.filename)
   }
 
   @beforeDelete()
@@ -36,7 +36,7 @@ export default class File extends BaseModel {
   }
 
   public async deleteFile() {
-    const filePath = Application.makePath('content', 'uploads', this.filename)
+    const filePath = Content.makePath('uploads', this.filename)
     const exist = await promisify(fs.exists)(filePath)
     if (exist) {
       await promisify(fs.unlink)(filePath)
@@ -44,7 +44,7 @@ export default class File extends BaseModel {
   }
 
   public static async upload(file: MultipartFileContract) {
-    const uploadFolders = Application.makePath('content', 'uploads')
+    const uploadFolders = Content.makePath('uploads')
     const filename = `${cuid()}.${file.extname}`
 
     file.move(uploadFolders, {

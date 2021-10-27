@@ -1,11 +1,11 @@
 import fs from 'fs'
 import path from 'path'
 import { pick, uniq } from 'lodash'
-import Application from '@ioc:Adonis/Core/Application'
 import Drive from '@ioc:Adonis/Core/Drive'
 import SystemMeta from 'App/Models/SystemMeta'
 import { isGitUrl } from 'App/Helpers'
 import execa from 'execa'
+import Content from 'App/Services/ContentService'
 
 export interface Theme {
   name: string
@@ -18,7 +18,7 @@ export interface Theme {
 
 export default class ThemeListener {
   public async index(filter?: string[]) {
-    const folders = await fs.promises.readdir(Application.makePath('content', 'themes'), {
+    const folders = await fs.promises.readdir(Content.makePath('themes'), {
       withFileTypes: true,
     })
 
@@ -33,9 +33,8 @@ export default class ThemeListener {
             id: folder.name,
             name: folder.name,
             active: active.includes(folder.name),
-            filename: Application.makePath('content', 'themes', folder.name),
-            makePath: (...args: string[]) =>
-              Application.makePath('content', 'themes', folder.name, ...args),
+            filename: Content.makePath('themes', folder.name),
+            makePath: (...args: string[]) => Content.makePath('themes', folder.name, ...args),
           }
 
           const exist = await Drive.exists(theme.makePath('space.json'))
@@ -63,7 +62,7 @@ export default class ThemeListener {
 
   public async store(gitUrl: string) {
     const name = path.basename(gitUrl).replace('.git', '')
-    const filename = Application.makePath('content', 'themes', name)
+    const filename = Content.makePath('themes', name)
     const isValid = await isGitUrl(gitUrl)
 
     if (!isValid) {

@@ -8,12 +8,12 @@ import {
   beforeSave,
   scope,
 } from '@ioc:Adonis/Lucid/Orm'
-import Application from '@ioc:Adonis/Core/Application'
 import Drive from '@ioc:Adonis/Core/Drive'
 
 import Item from './Item'
 import { kebabCase } from 'lodash'
 import { requireIfExist } from 'App/Helpers'
+import Content from 'App/Services/ContentService'
 
 export interface TypeOptions {
   label?: string
@@ -49,7 +49,7 @@ export default class Type extends BaseModel {
   public deletedAt: DateTime | null
 
   public get schemaFilename() {
-    return Application.makePath('content', 'schemas', `${this.id}.js`)
+    return Content.makePath('schemas', `${this.id}.js`)
   }
 
   @hasMany(() => Item, {
@@ -84,7 +84,7 @@ export default class Type extends BaseModel {
   }
 
   public static findSchemaById(id: string | number) {
-    const filename = Application.makePath('content', 'schemas', `${id}.js`)
+    const filename = Content.makePath('schemas', `${id}.js`)
 
     const schema = requireIfExist(filename)
 

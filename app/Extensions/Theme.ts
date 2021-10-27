@@ -12,6 +12,7 @@ import User from 'App/Models/User'
 import ItemsManager from './Utils/ItemsManager'
 import TypeManager from './Utils/TypeManager'
 import { isGitUrl } from 'App/Helpers'
+import Content from 'App/Services/ContentService'
 
 interface RenderArgs {
   path: string
@@ -49,11 +50,11 @@ export default class Theme extends BaseExtension {
   }
 
   public get filename() {
-    return Application.makePath('content', 'themes', this.name)
+    return Content.makePath('themes', this.name)
   }
 
   public static async all() {
-    const folders = await fs.promises.readdir(Application.makePath('content', 'themes'), {
+    const folders = await fs.promises.readdir(Content.makePath('themes'), {
       withFileTypes: true,
     })
 
@@ -65,7 +66,7 @@ export default class Theme extends BaseExtension {
   }
 
   public static async find(name: string) {
-    const theme = await this.$mount(Application.makePath('content', 'themes', name || ''))
+    const theme = await this.$mount(Content.makePath('themes', name || ''))
 
     if (!theme) {
       return null
@@ -77,7 +78,7 @@ export default class Theme extends BaseExtension {
   }
 
   public static async findOrFail(name: string) {
-    const theme = await this.$mount(Application.makePath('content', 'themes', name || ''))
+    const theme = await this.$mount(Content.makePath('themes', name || ''))
 
     if (!theme) {
       throw new Error('theme not found')
@@ -111,7 +112,7 @@ export default class Theme extends BaseExtension {
   public static async create(url: string) {
     const name = path.basename(url).replace('.git', '')
 
-    const filename = Application.makePath('content', 'themes', name)
+    const filename = Content.makePath('themes', name)
 
     const isValid = await isGitUrl(url)
 

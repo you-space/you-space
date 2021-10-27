@@ -1,18 +1,18 @@
 import BaseSeeder from '@ioc:Adonis/Lucid/Seeder'
-import Application from '@ioc:Adonis/Core/Application'
 import path from 'path'
 import Drive from '@ioc:Adonis/Core/Drive'
 import faker from 'faker'
 
 import Type from 'App/Models/Type'
 import { ItemFactory } from 'Database/factories'
+import Content from 'App/Services/ContentService'
 
 export default class TypeYoutubeVideoSeeder extends BaseSeeder {
   public static developmentOnly = true
 
   public async run() {
     const type = await Type.updateOrCreate({ name: 'youtube-videos' }, { name: 'youtube-videos' })
-    const schema = Application.makePath('content', 'schemas', `${type.id}.js`)
+    const schema = Content.makePath('schemas', `${type.id}.js`)
 
     await ItemFactory.createMany(100, (model) => {
       model.typeId = type.id

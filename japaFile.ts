@@ -7,6 +7,8 @@ import { configure } from 'japa'
 
 process.env.NODE_ENV = 'testing'
 process.env.ADONIS_ACE_CWD = join(__dirname)
+process.env.CONTENT_PATH = join(__dirname, 'tmp', 'content')
+
 sourceMapSupport.install({ handleUncaughtExceptions: false })
 
 export async function startHttpServer() {

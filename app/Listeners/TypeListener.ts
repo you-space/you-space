@@ -1,6 +1,6 @@
-import Application from '@ioc:Adonis/Core/Application'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Type from 'App/Models/Type'
+import Content from 'App/Services/ContentService'
 
 interface Payload {
   name: string
@@ -40,7 +40,7 @@ export default class TypeListener {
 
     const create = await Type.firstOrCreate({ name }, { name })
 
-    const distFilename = Application.makePath('content', 'schemas', `${create.id}.js`)
+    const distFilename = Content.makePath('schemas', `${create.id}.js`)
 
     await Drive.copy(schema, distFilename)
 

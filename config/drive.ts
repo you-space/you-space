@@ -1,5 +1,5 @@
 import { DriveConfig } from '@ioc:Adonis/Core/Drive'
-import Application from '@ioc:Adonis/Core/Application'
+import Content from 'App/Services/ContentService'
 
 const driveConfig: DriveConfig = {
   disk: 'local',
@@ -8,7 +8,7 @@ const driveConfig: DriveConfig = {
     local: {
       driver: 'local',
       visibility: 'public',
-      root: Application.makePath('content', 'uploads'),
+      root: Content.makePath('uploads'),
       basePath: '/uploads',
       //   serveAssets: true,
     },

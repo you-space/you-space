@@ -6,6 +6,7 @@ const rules = {
   APP_KEY: Env.schema.string.optional(),
   APP_NAME: Env.schema.string(),
   APP_URL: Env.schema.string.optional(),
+
   SESSION_DRIVER: Env.schema.string.optional(),
 
   DB_CONNECTION: Env.schema.string.optional(),
@@ -23,6 +24,8 @@ const rules = {
   REDIS_HOST: Env.schema.string.optional(),
   REDIS_PORT: Env.schema.number.optional(),
   REDIS_PASSWORD: Env.schema.string.optional(),
+
+  CONTENT_PATH: Env.schema.string.optional(),
 }
 
 if (process.env.NODE_ENV === 'int-testing') {
