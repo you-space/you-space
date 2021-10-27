@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { uniq } from 'lodash'
+import { pick, uniq } from 'lodash'
 import Application from '@ioc:Adonis/Core/Application'
 import Drive from '@ioc:Adonis/Core/Drive'
 import SystemMeta from 'App/Models/SystemMeta'
@@ -9,43 +9,56 @@ import execa from 'execa'
 
 export interface Theme {
   name: string
-  filename: string
   active: boolean
+  description?: string
+  scripts?: Record<string, string>
+  filename: string
+  makePath: (...args: string[]) => string
 }
 
 export default class ThemeListener {
-  public async index() {
+  public async index(filter?: string[]) {
     const folders = await fs.promises.readdir(Application.makePath('content', 'themes'), {
       withFileTypes: true,
     })
 
     const active = await SystemMeta.firstOrCreateMetaArray<string>('themes:active')
 
-    return folders
-      .filter((f) => f.isDirectory())
-      .map((t) => ({
-        name: t.name,
-        active: active.includes(t.name),
-        filename: Application.makePath('content', 'themes', t.name),
-      }))
+    const themes = await Promise.all(
+      folders
+        .filter((f) => f.isDirectory())
+        .filter((t) => !filter || filter.includes(t.name))
+        .map(async (folder) => {
+          const theme = {
+            id: folder.name,
+            name: folder.name,
+            active: active.includes(folder.name),
+            filename: Application.makePath('content', 'themes', folder.name),
+            makePath: (...args: string[]) =>
+              Application.makePath('content', 'themes', folder.name, ...args),
+          }
+
+          const exist = await Drive.exists(theme.makePath('space.json'))
+
+          if (exist) {
+            const content = await Drive.get(theme.makePath('space.json'))
+            Object.assign(
+              theme,
+              pick(JSON.parse(content.toString()), ['name', 'description', 'scripts'])
+            )
+          }
+
+          return theme
+        })
+    )
+
+    return themes as Theme[]
   }
 
   public async show(name: string) {
-    const filename = Application.makePath('content', 'themes', name)
+    const theme = await this.index([name])
 
-    const active = await SystemMeta.firstOrCreateMetaArray<string>('themes:active')
-
-    const exist = await Drive.exists(filename)
-
-    if (!exist) {
-      return null
-    }
-
-    return {
-      filename,
-      name,
-      active: active.includes(name),
-    }
+    return theme[0] || null
   }
 
   public async store(gitUrl: string) {
@@ -139,5 +152,23 @@ export default class ThemeListener {
     if (!active) {
       await this.stop(theme.name)
     }
+  }
+
+  public async runScript(data: { name: string; script: string }) {
+    const theme = await this.show(data.name)
+
+    if (!theme) {
+      throw new Error('Theme not found')
+    }
+
+    if (!theme.scripts || !theme.scripts[data.script]) {
+      throw new Error('Theme script not found')
+    }
+
+    const [file, ...args] = theme.scripts[data.script].split(' ')
+
+    await execa(file, args, {
+      cwd: theme.filename,
+    })
   }
 }

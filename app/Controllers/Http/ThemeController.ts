@@ -2,15 +2,13 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import { Theme } from 'App/Listeners/ThemeListener'
 import Space from 'App/Services/SpaceService'
+import { pick } from 'lodash'
 
 export default class ThemeController {
   public async index() {
     const themes = (await Space.emit<Theme[]>('theme:index')) || []
 
-    return themes.map((theme) => ({
-      name: theme.name,
-      active: theme.active,
-    }))
+    return themes.map((theme) => pick(theme, ['id', 'name', 'active', 'description', 'scripts']))
   }
 
   public async store({ request }: HttpContextContract) {
