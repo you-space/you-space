@@ -66,13 +66,13 @@ export default class ThemeListener {
     const isValid = await isGitUrl(gitUrl)
 
     if (!isValid) {
-      throw new Error('Repository url invalid')
+      throw new Error('Invalid git url')
     }
 
     const exist = await Drive.exists(filename)
 
     if (exist) {
-      throw new Error('plugin already installed')
+      throw new Error('Theme already installed')
     }
 
     await execa('git', ['clone', gitUrl, filename])
