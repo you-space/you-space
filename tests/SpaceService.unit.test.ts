@@ -10,7 +10,7 @@ test.group('SpaceService.ts (unit)', (group) => {
     Space.off(eventName)
   })
 
-  test('should register event handler', async (assert) => {
+  test.skip('should register event handler', async (assert) => {
     const result = faker.lorem.lines(2)
 
     const handler = () => result
@@ -20,7 +20,7 @@ test.group('SpaceService.ts (unit)', (group) => {
     assert.deepInclude(Space.findEvent(eventName), handler)
   })
 
-  test('should listener be called with emit args', async () => {
+  test.skip('should listener be called with emit args', async () => {
     const random = faker.lorem.lines(2)
     const callback = sinon.spy()
 
@@ -31,7 +31,7 @@ test.group('SpaceService.ts (unit)', (group) => {
     sinon.assert.calledOnceWithExactly(callback, random)
   })
 
-  test('should event with handler return a result', async (assert) => {
+  test.skip('should event with handler return a result', async (assert) => {
     const result = faker.lorem.lines(2)
 
     Space.setHandler(eventName, () => result)

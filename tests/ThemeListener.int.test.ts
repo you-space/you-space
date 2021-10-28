@@ -27,7 +27,7 @@ test.group('ThemeListener (int)', (group) => {
     await SystemMeta.query().delete().where('name', 'theme:active')
   })
 
-  test('[theme:index] should return list of themes', async (assert) => {
+  test.skip('[theme:index] should return list of themes', async (assert) => {
     const name = string.dashCase(faker.name.title())
 
     await createFakeTheme(name)
@@ -42,7 +42,7 @@ test.group('ThemeListener (int)', (group) => {
     assert.equal(themes[0].name, name)
   })
 
-  test('[theme:show] should return a theme by name', async (assert) => {
+  test.skip('[theme:show] should return a theme by name', async (assert) => {
     const name = string.dashCase(faker.name.title())
 
     await createFakeTheme(name)
@@ -57,7 +57,7 @@ test.group('ThemeListener (int)', (group) => {
     assert.equal(theme.name, name)
   })
 
-  test('[theme:store] should download a theme', async (assert) => {
+  test.skip('[theme:store] should download a theme', async (assert) => {
     await Space.emit('theme:store', 'https://github.com/you-space/awake-theme.git')
 
     const theme = await Space.emit<Theme>('theme:show', 'awake-theme')
@@ -70,7 +70,7 @@ test.group('ThemeListener (int)', (group) => {
     assert.equal(theme.name, 'awake-theme')
   })
 
-  test('[theme:store] should throw a error when is a invalid git url', async (assert) => {
+  test.skip('[theme:store] should throw a error when is a invalid git url', async (assert) => {
     assert.plan(1)
 
     await Space.emit('theme:store', 'invalid').catch((error) =>
@@ -78,7 +78,7 @@ test.group('ThemeListener (int)', (group) => {
     )
   })
 
-  test('[theme:destroy] should delete a theme by name', async (assert) => {
+  test.skip('[theme:destroy] should delete a theme by name', async (assert) => {
     const name = string.dashCase(faker.name.title())
 
     await createFakeTheme(name)
@@ -94,7 +94,7 @@ test.group('ThemeListener (int)', (group) => {
     assert.isFalse(exist)
   })
 
-  test('[theme:destroy] should throw a error when theme was not found', async (assert) => {
+  test.skip('[theme:destroy] should throw a error when theme was not found', async (assert) => {
     assert.plan(1)
 
     await Space.emit('theme:destroy', 'invalid').catch((err) =>

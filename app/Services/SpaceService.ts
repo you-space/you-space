@@ -28,6 +28,7 @@ export class SpaceService {
   }
 
   public setHandler(event: string, handler: Handler) {
+    Logger.child({ event, handler }).error('Feature current disabled')
     Logger.debug('[space] %s event handler defined', event)
     this.events.set(event, handler)
   }
