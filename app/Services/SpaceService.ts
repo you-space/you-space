@@ -69,18 +69,21 @@ export class SpaceService {
     this.events.clear()
   }
 
-  public async emit<T = null>(event: string, data?: any) {
-    const handler = this.events.get(event)
+  public async emit<T = any>(event: string, data?: any) {
+    Logger.child({ event, data }).error('Feature current disabled')
 
-    let result: T | null = null
+    return null as T | null
+    // const handler = this.events.get(event)
 
-    if (handler) {
-      result = await handler(data)
-    }
+    // let result: T | null = null
 
-    this.notifyAll(event, data)
+    // if (handler) {
+    //   result = await handler(data)
+    // }
 
-    return result
+    // this.notifyAll(event, data)
+
+    // return result
   }
 }
 

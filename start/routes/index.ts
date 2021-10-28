@@ -9,6 +9,3 @@ const files = listDirectoryFiles(__dirname, Application.appRoot, [
 files.forEach((file) => {
   require(Application.makePath(file))
 })
-
-// need to be in the last import
-import './client'

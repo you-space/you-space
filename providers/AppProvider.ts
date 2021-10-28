@@ -16,13 +16,7 @@ export default class AppProvider {
 
     await Content.start()
 
-    await import('../start/system-events')
-
     await this.registerQueues()
-
-    const { Socket } = await import('App/Services/SocketService')
-
-    Socket.boot()
   }
 
   public async registerQueues() {
