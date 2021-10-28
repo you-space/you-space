@@ -22,7 +22,7 @@ The CMS do not replace others platforms but use they as a source of content, you
 
 You can also upload some videos in the local you-space instance too and mix they with the normal youtube videos if you want.
 
-## Principes and objectives
+## Principles and objectives
 
 - This project is for video content creators and not pretend to be a wordpress
 - The goal is make a youtube like open-source project
