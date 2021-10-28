@@ -1,7 +1,7 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
-  Route.resource('permissions', 'Admin/PermissionsController').only(['index'])
+  Route.resource('permissions', 'PermissionsController').only(['index'])
 })
   .prefix('admin')
   .prefix('v1')
