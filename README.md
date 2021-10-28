@@ -8,13 +8,13 @@ Content management center for creators.
 
 ⚠️ Not ready for production
 
-[Documentation](https://you-space.github.io/docs/)
+[Documentation](https://you-space.github.io/docs/) - [Board](https://github.com/orgs/you-space/projects/2)
 
 </div>
 
 ## About
 
-You space is a content management that can connect with others sources of content and centralize all they in just one place.
+You space is a content management that can connect with others sources of videos and centralize all they in just one place.
 
 The ideia of you-space is centralize the content of one creator and give him a more freedom way to interact with his public.
 
@@ -22,9 +22,15 @@ The CMS do not replace others platforms but use they as a source of content, you
 
 You can also upload some videos in the local you-space instance too and mix they with the normal youtube videos if you want.
 
-## Development and Roadmap
+## Principes and objectives
 
-You can check the current state of development in [development-board](https://github.com/you-space/you-space/projects/1) and the roadmap in [roadmap-board](https://github.com/you-space/you-space/projects/2)
+- This project is for video content creators and not pretend to be a wordpress
+- The goal is make a youtube like open-source project
+- Have integration with other platforms like youtube, twitch, vimeo.
+- Have nice integrations with chat systems, twitter, and others.
+- Make possible to link instances for creators that work together.
+- Give good tools to creators engage very nice with their public.
+- Have a very trusted and comfortable notification system
 
 ## Releases
 
