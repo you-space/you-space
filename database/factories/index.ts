@@ -5,5 +5,6 @@ export const ImageFactory = Factory.define(Image, ({ faker }) => {
   return {
     src: faker.image.imageUrl(),
     alt: faker.lorem.sentence(),
+    source: 'unknown',
   }
 }).build()

@@ -20,7 +20,9 @@ export default class ImageListener {
 
     query.orderBy(filters.order_by || 'created_at', filters.order_desc ? 'desc' : 'asc')
 
-    return await query.paginate(filters.page || 1, filters.limit)
+    const result = await query.paginate(filters.page || 1, filters.limit)
+
+    return result.serialize()
   }
 
   public async show(payload: any) {
@@ -35,7 +37,9 @@ export default class ImageListener {
       query.select(filters.fields)
     }
 
-    return query.where('id', filters.id).firstOrFail()
+    const image = await query.where('id', filters.id).firstOrFail()
+
+    return image.serialize()
   }
 
   public async store(payload: any) {
@@ -55,7 +59,7 @@ export default class ImageListener {
       data: payload || {},
     })
 
-    const image = await this.show({ id })
+    const image = await Image.findOrFail(id)
 
     image.merge(data)
 
@@ -65,7 +69,7 @@ export default class ImageListener {
   }
 
   public async destroy(id: number) {
-    const image = await this.show({ id })
+    const image = await Image.findOrFail(id)
 
     await image.delete()
   }
