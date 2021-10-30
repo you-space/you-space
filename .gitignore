@@ -15,11 +15,9 @@ tmp
 public/*
 !public/.gitkeep
 
-content/themes/**
-content/plugins/**
+content
 
-!content/**/.gitkeep
-
-content/uploads
+!tests/data/*.gitkeep
+tests/data/*
 
 release
