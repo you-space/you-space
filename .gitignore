@@ -17,7 +17,6 @@ public/*
 
 content/themes/**
 content/plugins/**
-content/schemas/**
 
 !content/**/.gitkeep
 
