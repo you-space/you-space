@@ -48,14 +48,14 @@ export default class ImageListener {
   }
 
   public async update(payload: any) {
-    const { id, src, alt } = await validator.validate({
+    const { id, ...data } = await validator.validate({
       schema: new ImageUpdateValidator().schema,
       data: payload || {},
     })
 
     const image = await this.show({ id })
 
-    image.merge({ src, alt })
+    image.merge(data)
 
     await image.save()
 

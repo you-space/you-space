@@ -4,6 +4,7 @@ export default class ImageStoreValidator {
   public schema = schema.create({
     src: schema.string({}, [rules.url()]),
     alt: schema.string.optional(),
+    source: schema.string.optional(),
   })
   public messages = {}
 }

@@ -7,6 +7,7 @@ export default class Images extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
 
+      table.string('source').notNullable().defaultTo('unknown')
       table.string('src').notNullable()
       table.string('alt')
 

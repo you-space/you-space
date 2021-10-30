@@ -9,6 +9,9 @@ export default class Image extends BaseModel {
   public src: string
 
   @column()
+  public source: string
+
+  @column()
   public alt: string | null
 
   @column.dateTime({ autoCreate: true })

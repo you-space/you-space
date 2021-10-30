@@ -5,6 +5,7 @@ export default class ImageUpdateValidator {
     id: schema.number(),
     src: schema.string.optional({}, [rules.url()]),
     alt: schema.string.optional(),
+    source: schema.string.optional(),
   })
   public messages = {}
 }
