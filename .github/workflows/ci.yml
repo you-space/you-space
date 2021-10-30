@@ -9,11 +9,15 @@ on:
 
 env:
   NODE_ENV: testing
+  HOST: localhost
+  PORT: 3333
+
   PG_HOST: localhost
   PG_PORT: 5432
   PG_USER: postgres
   PG_PASSWORD: docker
   PG_DB_NAME: space-tests
+
   REDIS_HOST: localhost
   REDIS_PORT: 6379
 
