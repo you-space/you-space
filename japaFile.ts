@@ -1,7 +1,6 @@
 import 'reflect-metadata'
 import execa from 'execa'
 import sourceMapSupport from 'source-map-support'
-import getPort from 'get-port'
 import { join } from 'path'
 import { configure } from 'japa'
 
@@ -13,8 +12,6 @@ sourceMapSupport.install({ handleUncaughtExceptions: false })
 
 export async function startHttpServer() {
   const { Ignitor } = await import('@adonisjs/core/build/src/Ignitor')
-  process.env.HOST = 'localhost'
-  process.env.PORT = String(await getPort())
   await new Ignitor(__dirname).httpServer().start()
 }
 
