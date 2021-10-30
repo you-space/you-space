@@ -22,6 +22,10 @@ test.group('ImageController (int)', (group) => {
     const images = await Image.all()
 
     await Promise.all(images.map(async (image) => image.delete()))
+
+    const files = await fs.promises.readdir(Content.makePath('uploads'))
+
+    await Promise.all(files.map((file) => fs.promises.rm(Content.makePath('uploads', file))))
   })
 
   test('should upload a image', async (assert) => {
