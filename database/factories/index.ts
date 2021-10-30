@@ -36,5 +36,6 @@ export const VideoFactory = Factory.define(Video, ({ faker }) => {
     description: faker.lorem.sentence(),
     slug: string.dashCase(title),
     publishedAt: DateTime.fromJSDate(faker.date.past()),
+    raw: {},
   }
 }).build()
