@@ -1,10 +1,9 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Drive from '@ioc:Adonis/Core/Drive'
-import Application from '@ioc:Adonis/Core/Application'
+import Env from '@ioc:Adonis/Core/Env'
 
 export default class CheckDatabaseConnection {
   public async handle({ response, request }: HttpContextContract, next: () => Promise<void>) {
-    const haveEnv = await Drive.exists(Application.makePath('.env'))
+    const haveEnv = Env.get('PG_DB_NAME')
 
     if (haveEnv && request.url() === '/setup') {
       return response.redirect().toPath('/')

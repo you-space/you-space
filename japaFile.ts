@@ -13,6 +13,7 @@ sourceMapSupport.install({ handleUncaughtExceptions: false })
 
 export async function startHttpServer() {
   const { Ignitor } = await import('@adonisjs/core/build/src/Ignitor')
+  process.env.HOST = 'localhost'
   process.env.PORT = String(await getPort())
   await new Ignitor(__dirname).httpServer().start()
 }
@@ -21,6 +22,13 @@ async function runMigrations() {
   console.log('[migrations] running...')
 
   await execa.node('ace', ['migration:run'])
+}
+
+async function runSeeds() {
+  console.log('[seeds] running...')
+
+  await execa.node('ace', ['db:seed', '-f', './database/seeders/RoleSeeder.ts'])
+  await execa.node('ace', ['db:seed', '-f', './database/seeders/VisibilitySeeder.ts'])
 }
 
 async function rollbackMigrations() {
@@ -32,6 +40,6 @@ async function rollbackMigrations() {
 configure({
   bail: true,
   files: ['./tests/**/*.test.ts'],
-  before: [runMigrations, startHttpServer],
+  before: [runMigrations, runSeeds, startHttpServer],
   after: [rollbackMigrations],
 })

@@ -16,6 +16,8 @@ export default class AppProvider {
 
     await Content.start()
 
+    await import('../start/space-events')
+
     await this.registerQueues()
   }
 
