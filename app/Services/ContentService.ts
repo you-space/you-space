@@ -14,11 +14,7 @@ class ContentService {
   }
 
   public async start() {
-    const defaultPaths = [
-      this.makePath('themes'),
-      this.makePath('plugins'),
-      this.makePath('schemas'),
-    ]
+    const defaultPaths = [this.makePath('themes'), this.makePath('plugins')]
 
     await Promise.all(
       defaultPaths.map(async (path) => {
