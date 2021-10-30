@@ -55,8 +55,8 @@ export default class VideosController {
     const video = await Video.findOrFail(params.id)
 
     if (video.source !== 'local') {
-      return response.notFound({
-        message: 'Only local videos can be embed',
+      return response.badRequest({
+        message: 'Only local videos can be embedded',
       })
     }
 

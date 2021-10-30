@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, beforeDelete, column } from '@ioc:Adonis/Lucid/Orm'
 import Env from '@ioc:Adonis/Core/Env'
+import Drive from '@ioc:Adonis/Core/Drive'
 
 function serializeSrc({ source, src, id }: Video) {
   if (source === 'local') {
@@ -48,4 +49,11 @@ export default class Video extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @beforeDelete()
+  public static async deleteFile(video: Video) {
+    if (video.source === 'local') {
+      await Drive.delete(video.src)
+    }
+  }
 }
