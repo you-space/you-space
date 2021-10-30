@@ -1,7 +1,7 @@
 import Route from '@ioc:Adonis/Core/Route'
 
 Route.group(() => {
-  Route.resource('images', 'ImagesController').only(['index', 'show', 'store', 'destroy'])
+  Route.resource('images', 'ImagesController').only(['index', 'show', 'store', 'update', 'destroy'])
 })
   .prefix('v1')
   .prefix('api')
