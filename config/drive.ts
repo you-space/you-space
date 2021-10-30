@@ -7,10 +7,8 @@ const driveConfig: DriveConfig = {
   disks: {
     local: {
       driver: 'local',
-      visibility: 'public',
+      visibility: 'private',
       root: Content.makePath('uploads'),
-      basePath: '/uploads',
-      //   serveAssets: true,
     },
   },
 }

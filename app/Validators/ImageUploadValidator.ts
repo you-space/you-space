@@ -1,10 +1,11 @@
 import { schema } from '@ioc:Adonis/Core/Validator'
 
-export default class ImageStoreValidator {
+export default class ImageUploadValidator {
   public schema = schema.create({
-    src: schema.string(),
+    file: schema.file({
+      extnames: ['jpg', 'jpeg', 'png', 'gif'],
+    }),
     alt: schema.string.optional(),
-    source: schema.string.optional(),
   })
   public messages = {}
 }
