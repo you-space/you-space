@@ -16,7 +16,7 @@ export default class Videos extends BaseSchema {
       table.string('source_id')
 
       table.string('source').notNullable().defaultTo('unknown')
-      table.string('slug')
+      table.string('slug').notNullable().unique()
       table.string('src').notNullable()
 
       table.string('title').notNullable()
