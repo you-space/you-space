@@ -11,7 +11,7 @@
     "coverage": "nyc npm run test",
     "coverage:report": "nyc report",
     "build": "node ace build --production",
-    "lint": "eslint . --ext=.ts",
+    "lint": "eslint . --ext=.ts --max-warnings=0",
     "format": "prettier --write .",
     "prepare": "husky install"
   },

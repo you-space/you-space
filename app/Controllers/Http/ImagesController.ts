@@ -10,7 +10,7 @@ export default class ImagesController {
     return Space.emit('image:index', request.qs())
   }
 
-  public async show({ request, response, params }: HttpContextContract) {
+  public async show({ request, params }: HttpContextContract) {
     return Space.emit<Image>('image:show', {
       id: params.id,
       ...request.qs(),
@@ -50,7 +50,7 @@ export default class ImagesController {
     })
   }
 
-  public async embed({ request, response, params }: HttpContextContract) {
+  public async embed({ response, params }: HttpContextContract) {
     const image = await Space.emit<Image>('image:show', { id: params.id })
 
     if (!image) {
