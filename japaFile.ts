@@ -24,6 +24,13 @@ async function runMigrations() {
   await execa.node('ace', ['migration:run'])
 }
 
+async function runSeeds() {
+  console.log('[seeds] running...')
+
+  await execa.node('ace', ['db:seed', '-f', './database/seeders/RoleSeeder.ts'])
+  await execa.node('ace', ['db:seed', '-f', './database/seeders/VisibilitySeeder.ts'])
+}
+
 async function rollbackMigrations() {
   console.log('[migrations] rollback...')
 
@@ -33,6 +40,6 @@ async function rollbackMigrations() {
 configure({
   bail: true,
   files: ['./tests/**/*.test.ts'],
-  before: [runMigrations, startHttpServer],
+  before: [runMigrations, runSeeds, startHttpServer],
   after: [rollbackMigrations],
 })
