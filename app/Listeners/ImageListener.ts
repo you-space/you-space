@@ -8,7 +8,7 @@ import ImageUpdateValidator from 'App/Validators/ImageUpdateValidator'
 export default class ImageListener {
   public async index(payload: any) {
     const filters = await validator.validate({
-      schema: new ImageIndexValidator().schema,
+      ...new ImageIndexValidator(),
       data: payload || {},
     })
 
@@ -17,6 +17,8 @@ export default class ImageListener {
     if (filters.fields) {
       query.select(filters.fields)
     }
+
+    query.orderBy(filters.order_by || 'created_at', filters.order_desc ? 'desc' : 'asc')
 
     return await query.paginate(filters.page || 1, filters.limit)
   }

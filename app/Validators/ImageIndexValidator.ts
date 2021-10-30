@@ -1,15 +1,17 @@
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import { string } from '@ioc:Adonis/Core/Helpers'
 import Image from 'App/Models/Image'
+
+const columns = Array.from(Image.$columnsDefinitions.keys()).map(string.snakeCase)
 export default class ImageIndexValidator {
   constructor() {}
 
   public schema = schema.create({
     page: schema.number.optional(),
     limit: schema.number.optional([rules.range(1, 40)]),
-    fields: schema.array
-      .optional()
-      .members(schema.enum(Array.from(Image.$columnsDefinitions.keys()).map(string.snakeCase))),
+    fields: schema.array.optional().members(schema.enum(columns)),
+    order_by: schema.enum.optional(columns),
+    order_desc: schema.boolean.optional(),
   })
 
   public messages = {}
