@@ -69,7 +69,7 @@ export class SpaceService {
     this.events.clear()
   }
 
-  public async emit<T = any>(event: string, data?: any) {
+  public async emit<T = undefined>(event: string, data?: any) {
     const handler = this.events.get(event)
 
     let result: T | null = null
