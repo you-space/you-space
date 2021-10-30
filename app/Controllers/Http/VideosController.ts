@@ -1,7 +1,10 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { extname } from 'path'
+import Drive from '@ioc:Adonis/Core/Drive'
 
-// import Video from 'App/Models/Video'
+import Video from 'App/Models/Video'
 import Space from 'App/Services/SpaceService'
+import VideoUploadValidator from 'App/Validators/VideoUploadValidator'
 
 export default class VideosController {
   public async index({ request }: HttpContextContract) {
@@ -32,5 +35,43 @@ export default class VideosController {
     return {
       message: 'Video deleted ',
     }
+  }
+
+  public async upload({ request }: HttpContextContract) {
+    const { file, ...data } = await request.validate(VideoUploadValidator)
+
+    await file.moveToDisk('./')
+
+    const src = file.fileName
+
+    return await Space.emit('video:store', {
+      ...data,
+      src,
+      source: 'local',
+    })
+  }
+
+  public async embed({ params, response }: HttpContextContract) {
+    const video = await Video.findOrFail(params.id)
+
+    if (video.source !== 'local') {
+      return response.notFound({
+        message: 'Only local videos can be embed',
+      })
+    }
+
+    const exist = await Drive.exists(video.src)
+
+    if (!exist) {
+      return response.notFound({
+        message: 'Video not found',
+      })
+    }
+
+    const stream = await Drive.getStream(video.src)
+
+    response.type(extname(video.src))
+
+    response.stream(stream)
   }
 }

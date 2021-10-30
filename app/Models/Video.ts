@@ -1,5 +1,14 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import Env from '@ioc:Adonis/Core/Env'
+
+function serializeSrc({ source, src, id }: Video) {
+  if (source === 'local') {
+    return [Env.get('APP_URL'), 'api', 'v1', 'videos', 'embed', id].join('/')
+  }
+
+  return src
+}
 
 export default class Video extends BaseModel {
   @column({ isPrimary: true })
@@ -17,7 +26,9 @@ export default class Video extends BaseModel {
   @column()
   public slug: string
 
-  @column()
+  @column({
+    serialize: (_v, _, video: Video) => serializeSrc(video),
+  })
   public src: string
 
   @column()
