@@ -6,7 +6,7 @@ import Image from 'App/Models/Image'
 
 import { createClient } from './fixtures/client'
 
-test.group('ImageListener (int)', (group) => {
+test.group('ImageController (int)', (group) => {
   const client = createClient()
 
   group.beforeEach(async () => {
