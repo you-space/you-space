@@ -36,13 +36,15 @@ export function createClient() {
   }
 
   client.login = async () => {
-    await User.updateOrCreate(
+    const user = await User.updateOrCreate(
       { username: 'admin' },
       {
         username: 'admin',
         password: 'ys-123',
       }
     )
+
+    await user.addRoleByName('admin')
 
     const { headers } = await client
       .post('/api/v1/auth/login')
