@@ -20,6 +20,9 @@ export default class Image extends BaseModel {
   public src: string
 
   @column()
+  public name: string | null
+
+  @column()
   public source: string
 
   @column()

@@ -15,7 +15,11 @@ export default class VideoListener {
     const query = Video.query()
 
     if (filters.fields) {
-      query.select(filters.fields)
+      query.select([...filters.fields, 'id'].map((f) => `videos.${f}`))
+    }
+
+    if (filters.include?.includes('images')) {
+      query.preload('images')
     }
 
     query.orderBy(filters.order_by || 'created_at', filters.order_desc ? 'desc' : 'asc')

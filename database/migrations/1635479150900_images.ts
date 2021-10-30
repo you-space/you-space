@@ -8,6 +8,7 @@ export default class Images extends BaseSchema {
       table.increments('id')
 
       table.string('source').notNullable().defaultTo('unknown')
+      table.string('name')
       table.string('src').notNullable()
       table.string('alt')
 

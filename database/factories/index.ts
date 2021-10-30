@@ -6,6 +6,7 @@ import { DateTime } from 'luxon'
 
 export const ImageFactory = Factory.define(Image, ({ faker }) => {
   return {
+    name: faker.name.title(),
     src: faker.image.imageUrl(),
     alt: faker.lorem.sentence(),
     source: 'unknown',

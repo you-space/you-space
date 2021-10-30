@@ -1,7 +1,17 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeDelete, column } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  beforeDelete,
+  column,
+  HasMany,
+  hasMany,
+  HasManyThrough,
+  hasManyThrough,
+} from '@ioc:Adonis/Lucid/Orm'
 import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
+import VideoImage from './VideoImage'
+import Image from './Image'
 
 function serializeSrc({ source, src, id }: Video) {
   if (source === 'local') {
@@ -49,6 +59,16 @@ export default class Video extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @hasMany(() => VideoImage)
+  public videoImages: HasMany<typeof VideoImage>
+
+  @hasManyThrough([() => Image, () => VideoImage], {
+    foreignKey: 'videoId',
+    throughLocalKey: 'imageId',
+    throughForeignKey: 'id',
+  })
+  public images: HasManyThrough<typeof Image>
 
   @beforeDelete()
   public static async deleteFile(video: Video) {
