@@ -12,7 +12,11 @@ export default class Videos extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
 
-      table.integer('visibility_id').notNullable().defaultTo(visibility.id)
+      table
+        .integer('visibility_id')
+        .references('visibilities.id')
+        .notNullable()
+        .defaultTo(visibility.id)
       table.string('source_id')
 
       table.string('source').notNullable().defaultTo('unknown')

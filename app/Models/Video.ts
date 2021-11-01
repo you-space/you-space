@@ -3,6 +3,7 @@ import { BaseModel, beforeDelete, column, HasMany, hasMany } from '@ioc:Adonis/L
 import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Image from './Image'
+import View from './View'
 
 function serializeSrc({ source, src, id }: Video) {
   if (source === 'local') {
@@ -53,6 +54,9 @@ export default class Video extends BaseModel {
 
   @hasMany(() => Image)
   public images: HasMany<typeof Image>
+
+  @hasMany(() => View)
+  public views: HasMany<typeof View>
 
   @beforeDelete()
   public static async deleteFile(video: Video) {
