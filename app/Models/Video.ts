@@ -4,6 +4,7 @@ import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Image from './Image'
 import View from './View'
+import Comment from './Comment'
 
 function serializeSrc({ source, src, id }: Video) {
   if (source === 'local') {
@@ -57,6 +58,9 @@ export default class Video extends BaseModel {
 
   @hasMany(() => View)
   public views: HasMany<typeof View>
+
+  @hasMany(() => Comment)
+  public comments: HasMany<typeof Comment>
 
   @beforeDelete()
   public static async deleteFile(video: Video) {

@@ -26,6 +26,10 @@ export default class VideoListener {
       query.preload('views', (q) => q.select('id', 'source', 'count'))
     }
 
+    if (filters.include?.includes('comments')) {
+      query.preload('comments')
+    }
+
     query.orderBy(filters.order_by || 'created_at', filters.order_desc ? 'desc' : 'asc')
 
     const result = await query.paginate(filters.page || 1, filters.limit)
