@@ -4,6 +4,7 @@ import Video from 'App/Models/Video'
 import { string } from '@ioc:Adonis/Core/Helpers'
 import { DateTime } from 'luxon'
 import View from 'App/Models/View'
+import Comment from 'App/Models/Comment'
 
 export const ImageFactory = Factory.define(Image, ({ faker }) => {
   return {
@@ -19,6 +20,16 @@ export const ViewFactory = Factory.define(View, ({ faker }) => {
   return {
     count: faker.datatype.number(),
     source: 'unknown',
+  }
+}).build()
+
+export const CommentFactory = Factory.define(Comment, ({ faker }) => {
+  return {
+    source: 'unknown',
+    content: faker.lorem.sentence(),
+    username: faker.internet.userName(),
+    avatarSrc: faker.image.avatar(),
+    publishedAt: DateTime.fromJSDate(faker.date.past()),
   }
 }).build()
 
@@ -51,4 +62,5 @@ export const VideoFactory = Factory.define(Video, ({ faker }) => {
 })
   .relation('images', () => ImageFactory)
   .relation('views', () => ViewFactory)
+  .relation('comments', () => CommentFactory)
   .build()

@@ -1,16 +1,13 @@
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import { string } from '@ioc:Adonis/Core/Helpers'
+import Comment from 'App/Models/Comment'
 
-import Video from 'App/Models/Video'
+const columns = Array.from(Comment.$columnsDefinitions.keys()).map(string.snakeCase)
 
-const columns = Array.from(Video.$columnsDefinitions.keys()).map(string.snakeCase)
-
-export default class VideoIndexValidator {
+export default class CommentIndexValidator {
   public schema = schema.create({
     page: schema.number.optional(),
     limit: schema.number.optional([rules.range(1, 40)]),
-    fields: schema.array.optional().members(schema.enum(columns)),
-    include: schema.array.optional().members(schema.enum(['images', 'views', 'comments'])),
     order_by: schema.enum.optional(columns),
     order_desc: schema.boolean.optional(),
   })
