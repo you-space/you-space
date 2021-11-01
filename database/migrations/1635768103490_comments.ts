@@ -17,7 +17,7 @@ export default class Comments extends BaseSchema {
       table.string('username').notNullable()
       table.string('content').notNullable()
 
-      table.dateTime('published_at').notNullable()
+      table.dateTime('published_at').notNullable().defaultTo('$now')
 
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
