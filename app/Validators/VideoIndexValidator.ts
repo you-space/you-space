@@ -10,7 +10,7 @@ export default class VideoIndexValidator {
     page: schema.number.optional(),
     limit: schema.number.optional([rules.range(1, 40)]),
     fields: schema.array.optional().members(schema.enum(columns)),
-    include: schema.array.optional().members(schema.enum(['images'])),
+    include: schema.array.optional().members(schema.enum(['images', 'views'])),
     order_by: schema.enum.optional(columns),
     order_desc: schema.boolean.optional(),
   })
