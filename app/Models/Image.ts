@@ -14,10 +14,16 @@ export default class Image extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
+  @column()
+  public videoId: number | null
+
   @column({
     serialize: (_v, _, image: Image) => serializeSrc(image),
   })
   public src: string
+
+  @column()
+  public name: string | null
 
   @column()
   public source: string

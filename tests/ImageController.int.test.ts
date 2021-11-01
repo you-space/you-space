@@ -1,13 +1,18 @@
 import test from 'japa'
-import path from 'path'
 import fs from 'fs'
 import Content from 'App/Services/ContentService'
 import Image from 'App/Models/Image'
 
 import { createClient } from './fixtures/client'
+import { createFakeImage } from './fixtures/create-fake-file'
 
-test.group('ImageListener (int)', (group) => {
+test.group('ImageController (int)', (group) => {
   const client = createClient()
+  let filename: string
+
+  group.before(async () => {
+    filename = await createFakeImage('fake-image.png')
+  })
 
   group.beforeEach(async () => {
     if (!client.isAuthenticated()) {
@@ -17,12 +22,14 @@ test.group('ImageListener (int)', (group) => {
     const images = await Image.all()
 
     await Promise.all(images.map(async (image) => image.delete()))
+
+    const files = await fs.promises.readdir(Content.makePath('uploads'))
+
+    await Promise.all(files.map((file) => fs.promises.rm(Content.makePath('uploads', file))))
   })
 
   test('should upload a image', async (assert) => {
-    await client
-      .post('/api/v1/images/upload')
-      .attach('file', path.resolve(__dirname, 'data', 'space.jpg'))
+    await client.post('/api/v1/images/upload').attach('file', filename).expect(200)
 
     const files = await fs.promises.readdir(Content.makePath('uploads'))
 
@@ -30,9 +37,7 @@ test.group('ImageListener (int)', (group) => {
   })
 
   test('should remove image file when delete a local image ', async (assert) => {
-    const { body } = await client
-      .post('/api/v1/images/upload')
-      .attach('file', path.resolve(__dirname, 'data', 'space.jpg'))
+    const { body } = await client.post('/api/v1/images/upload').attach('file', filename)
 
     const image = await Image.findOrFail(body.id)
 

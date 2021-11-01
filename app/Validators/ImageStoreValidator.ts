@@ -5,6 +5,7 @@ export default class ImageStoreValidator {
     src: schema.string(),
     alt: schema.string.optional(),
     source: schema.string.optional(),
+    name: schema.string.optional(),
   })
   public messages = {}
 }

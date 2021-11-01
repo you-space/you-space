@@ -7,7 +7,10 @@ export default class Images extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
 
+      table.integer('video_id').references('videos.id')
+
       table.string('source').notNullable().defaultTo('unknown')
+      table.string('name')
       table.string('src').notNullable()
       table.string('alt')
 

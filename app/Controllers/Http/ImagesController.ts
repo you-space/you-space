@@ -51,13 +51,7 @@ export default class ImagesController {
   }
 
   public async embed({ response, params }: HttpContextContract) {
-    const image = await Space.emit<Image>('image:show', { id: params.id })
-
-    if (!image) {
-      return response.notFound({
-        message: 'Image not found',
-      })
-    }
+    const image = await Image.findOrFail(params.id)
 
     if (image.source !== 'local') {
       return response.badRequest({
