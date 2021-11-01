@@ -11,8 +11,8 @@ export default class VideoIndexValidator {
     limit: schema.number.optional([rules.range(1, 40)]),
     fields: schema.array.optional().members(schema.enum(columns)),
     include: schema.array.optional().members(schema.enum(['images', 'views', 'comments'])),
-    order_by: schema.enum.optional(columns),
-    order_desc: schema.boolean.optional(),
+    orderBy: schema.enum.optional(columns),
+    orderDesc: schema.boolean.optional(),
   })
 
   public messages = {}

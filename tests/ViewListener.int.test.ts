@@ -52,7 +52,7 @@ test.group('ViewListener (int)', (group) => {
     const video = await VideoFactory.create()
 
     const data = {
-      video_id: video.id,
+      videoId: video.id,
       count: 8,
     }
 
@@ -63,7 +63,7 @@ test.group('ViewListener (int)', (group) => {
       return
     }
 
-    assert.equal(result.video_id, data.video_id)
+    assert.equal(result.videoId, data.videoId)
     assert.equal(result.count, data.count)
   })
 
