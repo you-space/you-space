@@ -16,9 +16,9 @@ export default class CommentListener {
 
     query.orderBy(filters.order_by || 'created_at', filters.order_desc ? 'desc' : 'asc')
 
-    const pagination = await query.paginate(filters.page || 1, filters.limit)
+    const result = await query.paginate(filters.page || 1, filters.limit)
 
-    return pagination.serialize()
+    return result.serialize()
   }
 
   public async show(payload: any) {
@@ -48,8 +48,6 @@ export default class CommentListener {
       ...new CommentUpdateValidator(),
       data: payload || {},
     })
-
-    console.log(payload)
 
     const comment = await Comment.findOrFail(id)
 

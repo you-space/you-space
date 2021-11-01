@@ -12,7 +12,7 @@ export default class Comment extends BaseModel {
   public source: string
 
   @column()
-  public parentId: number
+  public parentId: number | null
 
   @column()
   public videoId: number

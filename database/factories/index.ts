@@ -26,6 +26,8 @@ export const ViewFactory = Factory.define(View, ({ faker }) => {
 export const CommentFactory = Factory.define(Comment, ({ faker }) => {
   return {
     source: 'unknown',
+    sourceId: null,
+    parentId: null,
     content: faker.lorem.sentence(),
     username: faker.internet.userName(),
     avatarSrc: faker.image.avatar(),
