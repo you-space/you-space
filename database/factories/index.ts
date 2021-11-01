@@ -10,6 +10,7 @@ export const ImageFactory = Factory.define(Image, ({ faker }) => {
     src: faker.image.imageUrl(),
     alt: faker.lorem.sentence(),
     source: 'unknown',
+    videoId: null,
   }
 }).build()
 
@@ -39,4 +40,6 @@ export const VideoFactory = Factory.define(Video, ({ faker }) => {
     publishedAt: DateTime.fromJSDate(faker.date.past()),
     raw: {},
   }
-}).build()
+})
+  .relation('images', () => ImageFactory)
+  .build()

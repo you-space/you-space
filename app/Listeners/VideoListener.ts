@@ -19,7 +19,7 @@ export default class VideoListener {
     }
 
     if (filters.include?.includes('images')) {
-      query.preload('images')
+      query.preload('images', (q) => q.select('id', 'name', 'src', 'alt'))
     }
 
     query.orderBy(filters.order_by || 'created_at', filters.order_desc ? 'desc' : 'asc')
