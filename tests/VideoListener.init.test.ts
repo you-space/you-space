@@ -2,6 +2,7 @@ import test from 'japa'
 
 import Space from 'App/Services/SpaceService'
 import Video from 'App/Models/Video'
+import Image from 'App/Models/Image'
 import { VideoFactory } from 'Database/factories'
 
 interface IndexResult {
@@ -104,5 +105,15 @@ test.group('VideoListener (int)', (group) => {
     await Space.emit('video:destroy', 1).catch((err) =>
       assert.equal(err.message, 'E_ROW_NOT_FOUND: Row not found')
     )
+  })
+
+  test('[video:destroy] should also delete related images', async (assert) => {
+    const video = await VideoFactory.with('images', 1).create()
+
+    await Space.emit('video:destroy', video.id)
+
+    const images = await Image.all()
+
+    assert.equal(images.length, 0)
   })
 })

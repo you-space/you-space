@@ -75,6 +75,10 @@ export default class VideoListener {
   public async destroy(id: number) {
     const video = await Video.findOrFail(id)
 
+    const images = await video.related('images').query()
+
+    await Promise.all(images.map((image) => image.delete()))
+
     await video.delete()
   }
 }
