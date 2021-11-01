@@ -2,7 +2,7 @@ import { schema, rules } from '@ioc:Adonis/Core/Validator'
 
 export default class CommentUpdateValidator {
   public schema = schema.create({
-    id: schema.number([rules.exists({ table: 'comments', column: 'id' })]),
+    id: schema.number(),
 
     content: schema.string.optional(),
     username: schema.string.optional(),
