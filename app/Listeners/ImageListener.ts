@@ -18,7 +18,7 @@ export default class ImageListener {
       query.select(filters.fields)
     }
 
-    query.orderBy(filters.order_by || 'created_at', filters.order_desc ? 'desc' : 'asc')
+    query.orderBy(filters.orderBy || 'created_at', filters.orderDesc ? 'desc' : 'asc')
 
     const result = await query.paginate(filters.page || 1, filters.limit)
 

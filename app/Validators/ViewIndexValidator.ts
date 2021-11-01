@@ -9,8 +9,8 @@ export default class ViewIndexValidator {
     page: schema.number.optional(),
     limit: schema.number.optional([rules.range(1, 40)]),
     fields: schema.enumSet.optional(columns),
-    order_by: schema.enum.optional(columns),
-    order_desc: schema.boolean.optional(),
+    orderBy: schema.enum.optional(columns),
+    orderDesc: schema.boolean.optional(),
   })
 
   public messages = {}

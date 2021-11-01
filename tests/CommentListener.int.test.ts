@@ -77,7 +77,7 @@ test.group('CommentListener (int)', (group) => {
 
     assert.equal(result.username, data.username)
     assert.equal(result.content, data.content)
-    assert.equal(result.video_id, data.videoId)
+    assert.equal(result.videoId, data.videoId)
   })
 
   test('[comment:update] should update a comment', async (assert) => {

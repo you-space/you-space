@@ -9,8 +9,8 @@ export default class VideoShowValidator {
   public schema = schema.create({
     id: schema.number(),
     fields: schema.array.optional().members(schema.enum(columns)),
-    order_by: schema.enum.optional(columns),
-    order_desc: schema.boolean.optional(),
+    orderBy: schema.enum.optional(columns),
+    orderDesc: schema.boolean.optional(),
   })
 
   public messages = {}
