@@ -41,6 +41,8 @@ test.group('VideoController (int)', (group) => {
       .attach('file', filename)
       .expect(200)
 
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
     const files = await fs.promises.readdir(Content.makePath('uploads'))
 
     assert.equal(files.length, 1)
