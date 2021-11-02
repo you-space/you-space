@@ -1,19 +1,14 @@
 import fastq from 'fastq'
 import Logger from '@ioc:Adonis/Core/Logger'
 import UploadWorker from './workers/Upload'
+import ImportWorker from './workers/Import'
 import { cuid } from '@ioc:Adonis/Core/Helpers'
+import { Job } from './Job'
 
 interface JobOptions {
   queue: string
   jobId?: string
   args?: any
-}
-
-interface Job {
-  jobId: string
-  args: any
-  queue?: string
-  status: 'pending' | 'done' | 'failed'
 }
 
 export class QueueService {
@@ -22,7 +17,18 @@ export class QueueService {
 
   public start() {
     Logger.info(`[queue] queue service started`)
+
     this.addQueue('upload', UploadWorker)
+    this.addQueue('import', ImportWorker)
+
+    Array.from({ length: 2 }).forEach((_, i) => {
+      this.addJob({
+        queue: 'import',
+        args: {
+          id: i,
+        },
+      })
+    })
   }
 
   public addQueue(name: string, worker: fastq.asyncWorker<any>) {
@@ -31,28 +37,28 @@ export class QueueService {
       return
     }
 
-    const queue = fastq.promise(worker, 1)
+    const queue = fastq.promise(this.workerMiddleware(worker), 1)
 
     this.queues.set(name, queue)
 
     Logger.info(`[queue] queue ${name} added`)
   }
 
-  public updateJob(jobId: string, options: Partial<Job>) {
-    const job = this.jobs.get(jobId)
+  public workerMiddleware(worker: fastq.asyncWorker<any>) {
+    return (jobId: string) => {
+      const job = this.jobs.get(jobId)
 
-    if (!job) {
-      Logger.error(`[queue] job ${jobId} does not exist`)
-      return
+      if (!job) {
+        return Promise.resolve()
+      }
+
+      job.status = 'active'
+
+      return worker(job)
     }
-
-    this.jobs.set(jobId, {
-      ...job,
-      ...options,
-    })
   }
 
-  public addJob(options: Exclude<JobOptions, 'status'>) {
+  public addJob(options: JobOptions) {
     const jobId = options.jobId || cuid()
     const queue = this.queues.get(options.queue)
 
@@ -64,16 +70,22 @@ export class QueueService {
       throw new Error(`[queue] queue ${options.queue} does not exist`)
     }
 
-    this.jobs.set(jobId, {
-      jobId,
+    const job = new Job({
+      id: jobId,
+      args: options.args || {},
+      queue: options.queue,
       status: 'pending',
-      args: options.args,
     })
 
+    this.jobs.set(jobId, job)
+
     queue
-      .push(options.args)
-      .catch(() => this.updateJob(jobId, { status: 'failed' }))
-      .then(() => this.updateJob(jobId, { status: 'done' }))
+      .push(jobId)
+      .then(() => (job.status = 'done'))
+      .catch((err) => {
+        job.status = 'failed'
+        job.error = err.message
+      })
 
     return jobId
   }

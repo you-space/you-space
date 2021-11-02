@@ -1,12 +1,15 @@
 import { MultipartFileContract } from '@ioc:Adonis/Core/BodyParser'
 import Logger from '@ioc:Adonis/Core/Logger'
+import { Job } from 'App/Queue'
 
 interface Payload {
   filename: string
   file: MultipartFileContract
 }
 
-export async function worker({ file, filename }: Payload) {
+export async function worker(job: Job<Payload>) {
+  const { file, filename } = job.args
+
   const start = Date.now()
 
   Logger.debug(`[upload] start uploading ${filename}`)
