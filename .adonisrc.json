@@ -19,22 +19,17 @@
     "./start/kernel",
     {
       "file": "./start/validator",
-      "environment": [
-        "web"
-      ]
+      "environment": ["web"]
     }
   ],
   "providers": [
     "@adonisjs/core",
     "@adonisjs/lucid",
-    "@adonisjs/redis",
     "@adonisjs/auth",
     "@adonisjs/session",
     "./providers/AppProvider"
   ],
-  "aceProviders": [
-    "@adonisjs/repl"
-  ],
+  "aceProviders": ["@adonisjs/repl"],
   "metaFiles": [
     {
       "pattern": "public",

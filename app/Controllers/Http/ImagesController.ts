@@ -4,6 +4,8 @@ import { extname } from 'path'
 import Image from 'App/Models/Image'
 import Space from 'App/Services/SpaceService'
 import ImageUploadValidator from 'App/Validators/ImageUploadValidator'
+import { cuid } from '@ioc:Adonis/Core/Helpers'
+import { Queue } from 'App/Queue'
 
 export default class ImagesController {
   public async index({ request }: HttpContextContract) {
@@ -39,13 +41,20 @@ export default class ImagesController {
   public async upload({ request }: HttpContextContract) {
     const { file, ...data } = await request.validate(ImageUploadValidator)
 
-    await file.moveToDisk('./')
+    const filename = cuid() + extname(file.clientName)
 
-    const src = file.fileName
+    Queue.addJob({
+      queue: 'upload',
+      jobId: `upload:${filename}`,
+      args: {
+        filename: filename,
+        file,
+      },
+    })
 
-    return await Space.emit<Image>('image:store', {
+    return Space.emit<Image>('image:store', {
       ...data,
-      src,
+      src: filename,
       source: 'local',
     })
   }

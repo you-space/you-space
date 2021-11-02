@@ -58,24 +58,6 @@
 
                       <q-step
                         :name="2"
-                        title="Redis connection"
-                        icon="settings"
-                        :error="!redisDone && step > 2"
-                        :done='redisDone && step > 2'
-                        @keyup.enter='step++'
-                      >
-                        <q-input v-model='redis.host' :rules='[rule]' filled label='Host' />
-                        <q-input v-model='redis.port' type='number' :rules='[rule]' filled label='Port' />
-                        <q-input v-model='redis.password' type='password' filled label='Password' />
-
-                        <q-stepper-navigation>
-                          <q-btn color="primary" label="Continue" @click='step++' />
-                          <q-btn flat color="primary" label="Back" class='q-ml-md' @click='step--' />
-                        </q-stepper-navigation>
-                      </q-step>
-
-                      <q-step
-                        :name="3"
                         title="Admin user"
                         icon="settings"
                       >
@@ -104,12 +86,6 @@
             password: '',
           })
 
-          const redis = Vue.ref({
-            host: 'localhost',
-            port: 6379,
-            password: '',
-          })
-
           const user = Vue.ref({})
 
           const step = Vue.ref(1)
@@ -117,14 +93,12 @@
           const databaseDone = Vue.computed(() =>
             Object.values(database.value).reduce((result, v) => result && !!v)
           )
-          const redisDone = Vue.computed(() => !!redis.value.host && !!redis.value.port)
 
           async function submit() {
             try {
               await axios.post('/setup', {
                 database: database.value,
                 user: user.value,
-                redis: redis.value,
               })
 
               window.location.replace('/ys-admin/login')
@@ -142,12 +116,10 @@
 
           return {
             database,
-            redis,
             user,
             rule,
             step,
             databaseDone,
-            redisDone,
 
             submit,
           }

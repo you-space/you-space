@@ -24,7 +24,7 @@ export default class SetupsController {
   public async store({ request, response }: HttpContextContract) {
     const envPath = Application.makePath('.env')
 
-    const { database, user, redis } = await request.validate(SetupValidator)
+    const { database, user } = await request.validate(SetupValidator)
 
     if (fs.existsSync(envPath)) {
       return response.badRequest({
@@ -63,9 +63,6 @@ export default class SetupsController {
       ['PG_USER', database.user],
       ['PG_PASSWORD', database.password],
       ['PG_DB_NAME', database.database],
-      ['REDIS_HOST', redis.host],
-      ['REDIS_PORT', redis.port],
-      ['REDIS_PASSWORD', redis.password || ''],
     ]
 
     variables.forEach(([name, value]) => Env.set(name, value))
