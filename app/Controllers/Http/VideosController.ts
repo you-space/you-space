@@ -5,6 +5,8 @@ import Drive from '@ioc:Adonis/Core/Drive'
 import Video from 'App/Models/Video'
 import Space from 'App/Services/SpaceService'
 import VideoUploadValidator from 'App/Validators/VideoUploadValidator'
+import { Queue } from 'App/Queue'
+import { cuid } from '@ioc:Adonis/Core/Helpers'
 
 export default class VideosController {
   public async index({ request }: HttpContextContract) {
@@ -40,15 +42,26 @@ export default class VideosController {
   public async upload({ request }: HttpContextContract) {
     const { file, ...data } = await request.validate(VideoUploadValidator)
 
-    await file.moveToDisk('./')
+    const filename = cuid() + extname(file.clientName)
 
-    const src = file.fileName
+    const src = filename
 
-    return await Space.emit('video:store', {
+    Queue.addJob({
+      queue: 'upload',
+      jobId: `upload:${filename}`,
+      args: {
+        filename: filename,
+        file,
+      },
+    })
+
+    const video = await Space.emit<Video>('video:store', {
       ...data,
       src,
       source: 'local',
     })
+
+    return video
   }
 
   public async embed({ params, response }: HttpContextContract) {
