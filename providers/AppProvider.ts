@@ -21,15 +21,5 @@ export default class AppProvider {
     await Content.start()
 
     await import('../start/space-events')
-
-    await this.registerQueues()
-  }
-
-  public async registerQueues() {
-    const Queue = (await import('App/Queue')).default
-
-    const queue = new Queue()
-
-    this.app.container.singleton('Queue', () => queue)
   }
 }

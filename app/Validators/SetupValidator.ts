@@ -12,11 +12,6 @@ export default class SetupValidator {
       user: schema.string(),
       password: schema.string(),
     }),
-    redis: schema.object().members({
-      host: schema.string(),
-      port: schema.number(),
-      password: schema.string.optional(),
-    }),
     user: schema.object().members({
       username: schema.string(),
       password: schema.string({}, [rules.confirmed()]),
