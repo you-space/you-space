@@ -13,13 +13,17 @@ export default class AppProvider {
   public async boot() {}
 
   public async ready() {
-    const Content = (await import('App/Services/ContentService')).default
     const { BaseModel } = await import('@ioc:Adonis/Lucid/Orm')
-
     BaseModel.namingStrategy = new CamelCaseNamingStrategy()
+
+    const Content = (await import('App/Services/ContentService')).default
 
     await Content.start()
 
     await import('../start/space-events')
+
+    const { Queue } = await import('App/Queue')
+
+    Queue.start()
   }
 }
