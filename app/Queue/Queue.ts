@@ -14,27 +14,24 @@ interface JobOptions {
 export class QueueService {
   public queues: Map<string, fastq.queueAsPromised> = new Map()
   public jobs: Map<string, Job> = new Map()
+  public booted = false
 
   public start() {
+    if (this.booted) {
+      return
+    }
+
     Logger.info(`[queue] queue service started`)
 
     this.addQueue('upload', UploadWorker)
     this.addQueue('import', ImportWorker)
 
-    Array.from({ length: 2 }).forEach((_, i) => {
-      this.addJob({
-        queue: 'import',
-        args: {
-          id: i,
-        },
-      })
-    })
+    this.booted = true
   }
 
   public addQueue(name: string, worker: fastq.asyncWorker<any>) {
     if (this.queues.has(name)) {
-      Logger.error(`[queue] queue ${name} already exists`)
-      return
+      throw new Error(`Queue ${name} already exists`)
     }
 
     const queue = fastq.promise(this.workerMiddleware(worker), 1)
@@ -42,6 +39,8 @@ export class QueueService {
     this.queues.set(name, queue)
 
     Logger.info(`[queue] queue ${name} added`)
+
+    return queue
   }
 
   public workerMiddleware(worker: fastq.asyncWorker<any>) {
@@ -63,11 +62,11 @@ export class QueueService {
     const queue = this.queues.get(options.queue)
 
     if (this.jobs.has(jobId)) {
-      throw new Error(`[queue] job ${jobId} already exists`)
+      throw new Error(`Job ${jobId} already exists`)
     }
 
     if (!queue) {
-      throw new Error(`[queue] queue ${options.queue} does not exist`)
+      throw new Error(`Queue ${options.queue} does not exist`)
     }
 
     const job = new Job({
