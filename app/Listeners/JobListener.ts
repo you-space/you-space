@@ -26,7 +26,7 @@ export default class JobListener {
     }
 
     if (job.status === 'active') {
-      throw new Error('Cannot delete active job')
+      throw new Error('Cannot delete active jobs')
     }
 
     Queue.jobs.delete(id)
