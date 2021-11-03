@@ -9,3 +9,5 @@ const files = listDirectoryFiles(__dirname, Application.appRoot, [
 files.forEach((file) => {
   require(Application.makePath(file))
 })
+
+import './client'
