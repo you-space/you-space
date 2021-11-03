@@ -1,10 +1,10 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import User from 'App/Models/User'
+
 import Space from './SpaceService'
 import { UserSpace } from './UserSpace'
 
 export class ThemeContext {
-  private user?: ReturnType<User['serialize']>
+  public user?: Record<string, any>
   public response: HttpContextContract['response']
   public space: UserSpace
   public path: string
