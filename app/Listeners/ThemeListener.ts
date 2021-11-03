@@ -1,11 +1,15 @@
 import fs from 'fs'
 import path from 'path'
-import { uniq } from 'lodash'
-import Drive from '@ioc:Adonis/Core/Drive'
-import SystemMeta from 'App/Models/SystemMeta'
-import { isGitUrl } from 'App/Helpers'
 import execa from 'execa'
+import { pick, uniq } from 'lodash'
+
+import Drive from '@ioc:Adonis/Core/Drive'
+import { validator } from '@ioc:Adonis/Core/Validator'
+
+import SystemMeta from 'App/Models/SystemMeta'
 import Content from 'App/Services/ContentService'
+import { findConfig, isGitUrl } from 'App/Helpers'
+import ThemeConfigValidator from 'App/Validators/ThemeConfigValidator'
 
 export interface Theme {
   id: string
@@ -29,13 +33,20 @@ export default class ThemeListener {
       folders
         .filter((f) => f.isDirectory())
         .filter((f) => !filter?.id || f.name === filter.id)
-        .map(async (folder) => ({
-          id: folder.name,
-          name: folder.name,
-          active: active.includes(folder.name),
-          filename: Content.makePath('themes', folder.name),
-          makePath: (...args: string[]) => Content.makePath('themes', folder.name, ...args),
-        }))
+        .map(async (folder) => {
+          const theme: any = {
+            id: folder.name,
+            active: active.includes(folder.name),
+            filename: Content.makePath('themes', folder.name),
+            makePath: (...args: string[]) => Content.makePath('themes', folder.name, ...args),
+          }
+
+          const config = await findConfig(theme.filename)
+
+          Object.assign(theme, pick(config, ['name', 'description']))
+
+          return theme
+        })
     )
 
     return themes as Theme[]
@@ -88,16 +99,39 @@ export default class ThemeListener {
 
     const activeThemes = await SystemMeta.firstOrCreateMetaArray<string>('themes:active')
 
-    if (active) {
-      await SystemMeta.updateOrCreateMetaArray('themes:active', uniq([...activeThemes, id]))
-    }
-
     if (!active) {
       await SystemMeta.updateOrCreateMetaArray(
         'themes:active',
         activeThemes.filter((t) => t !== id)
       )
+      return
     }
+
+    const config = await validator.validate({
+      ...new ThemeConfigValidator(),
+      data: await findConfig(theme.filename),
+    })
+
+    const checkFiles = ['index.js']
+
+    if (config.dashboard?.pages?.length) {
+      checkFiles.push(...config.dashboard.pages.map((f) => f.path))
+    }
+
+    const filesValid = await Promise.all(
+      checkFiles.map(async (file) => ({
+        file,
+        exist: await Drive.exists(theme.makePath(file)),
+      }))
+    )
+
+    const notExist = filesValid.find((f) => !f.exist)
+
+    if (notExist) {
+      throw new Error(`File ${notExist.file} not found`)
+    }
+
+    await SystemMeta.updateOrCreateMetaArray('themes:active', uniq([...activeThemes, id]))
   }
 
   public async runScript(data: { name: string; script: string }) {
