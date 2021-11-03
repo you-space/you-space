@@ -26,12 +26,7 @@ export class ThemeContext {
 
   private async setSpace() {
     const allEvents = Array.from(Space.events.keys())
-    const allowedEvents: string[] = []
-    const isAdmin = await this.user?.haveRoles(['admin'])
-
-    if (isAdmin) {
-      allowedEvents.push(...allEvents)
-    }
+    const allowedEvents: string[] = allEvents
 
     this.space = new UserSpace(allowedEvents)
   }

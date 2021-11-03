@@ -11,12 +11,22 @@ import Content from 'App/Services/ContentService'
 import { findConfig, isGitUrl } from 'App/Helpers'
 import ThemeConfigValidator from 'App/Validators/ThemeConfigValidator'
 
+interface ThemePage {
+  title: string
+  path: string
+}
 export interface Theme {
   id: string
   name: string
   active: boolean
   description?: string
-  scripts?: Record<string, string>
+  author?: {
+    name: string
+    email: string
+  }
+  dashboard?: {
+    pages: ThemePage[]
+  }
   filename: string
   makePath: (...args: string[]) => string
 }
@@ -43,7 +53,7 @@ export default class ThemeListener {
 
           const config = await findConfig(theme.filename)
 
-          Object.assign(theme, pick(config, ['name', 'description']))
+          Object.assign(theme, pick(config, ['name', 'description', 'dashboard']))
 
           return theme
         })
@@ -134,21 +144,21 @@ export default class ThemeListener {
     await SystemMeta.updateOrCreateMetaArray('themes:active', uniq([...activeThemes, id]))
   }
 
-  public async runScript(data: { name: string; script: string }) {
-    const theme = await this.show(data.name)
+  // public async runScript(data: { name: string; script: string }) {
+  //   const theme = await this.show(data.name)
 
-    if (!theme) {
-      throw new Error('Theme not found')
-    }
+  //   if (!theme) {
+  //     throw new Error('Theme not found')
+  //   }
 
-    if (!theme.scripts || !theme.scripts[data.script]) {
-      throw new Error('Theme script not found')
-    }
+  //   if (!theme.scripts || !theme.scripts[data.script]) {
+  //     throw new Error('Theme script not found')
+  //   }
 
-    const [file, ...args] = theme.scripts[data.script].split(' ')
+  //   const [file, ...args] = theme.scripts[data.script].split(' ')
 
-    await execa(file, args, {
-      cwd: theme.filename,
-    })
-  }
+  //   await execa(file, args, {
+  //     cwd: theme.filename,
+  //   })
+  // }
 }
