@@ -8,7 +8,7 @@ export default class ClientController {
   public async index(context: HttpContextContract) {
     const themeId = await SystemMeta.firstOrCreateMetaArray<string>('themes:active')
 
-    if (!themeId) {
+    if (!themeId.length) {
       return context.response.internalServerError({
         message: 'Theme not defined',
       })
