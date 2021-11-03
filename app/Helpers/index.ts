@@ -38,9 +38,12 @@ export async function readIfExist(path: string) {
 }
 
 export async function isGitUrl(url: string) {
-  return execa('git', ['ls-remote', url])
-    .catch(() => false)
-    .then(() => true)
+  try {
+    await execa('git', ['ls-remote', url])
+    return true
+  } catch (error) {
+    return false
+  }
 }
 
 export async function listFolder(path: string): Promise<string[]> {

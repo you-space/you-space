@@ -15,7 +15,7 @@ async function createFakeTheme(name: string) {
 }
 
 test.group('ThemeListener (int)', (group) => {
-  group.afterEach(async () => {
+  group.beforeEach(async () => {
     const themes = await listFolder(Content.makePath('themes'))
 
     await Promise.all(
@@ -28,9 +28,9 @@ test.group('ThemeListener (int)', (group) => {
   })
 
   test('[theme:index] should return list of themes', async (assert) => {
-    const name = string.dashCase(faker.name.title())
+    const id = string.dashCase(faker.name.title())
 
-    await createFakeTheme(name)
+    await createFakeTheme(id)
 
     const themes = await Space.emit<Theme[]>('theme:index')
 
@@ -39,22 +39,22 @@ test.group('ThemeListener (int)', (group) => {
       return
     }
 
-    assert.equal(themes[0].name, name)
+    assert.equal(themes[0].id, id)
   })
 
-  test('[theme:show] should return a theme by name', async (assert) => {
-    const name = string.dashCase(faker.name.title())
+  test('[theme:show] should return a theme by id', async (assert) => {
+    const id = string.dashCase(faker.name.title())
 
-    await createFakeTheme(name)
+    await createFakeTheme(id)
 
-    const theme = await Space.emit<Theme>('theme:show', name)
+    const theme = await Space.emit<Theme>('theme:show', id)
 
     if (!theme) {
       assert.fail('event should return a value')
       return
     }
 
-    assert.equal(theme.name, name)
+    assert.equal(theme.id, id)
   })
 
   test('[theme:store] should download a theme', async (assert) => {
@@ -67,7 +67,7 @@ test.group('ThemeListener (int)', (group) => {
       return
     }
 
-    assert.equal(theme.name, 'awake-theme')
+    assert.equal(theme.id, 'awake-theme')
   })
 
   test('[theme:store] should throw a error when is a invalid git url', async (assert) => {
