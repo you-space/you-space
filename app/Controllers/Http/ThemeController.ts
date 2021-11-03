@@ -38,12 +38,6 @@ export default class ThemeController {
   }
 
   public async update({ request, params }: HttpContextContract) {
-    const theme = await Space.emit<Theme>('theme:show', params.id)
-
-    if (!theme) {
-      throw new Error('Theme not found')
-    }
-
     const { active } = await request.validate({
       schema: schema.create({
         active: schema.boolean(),
@@ -51,12 +45,12 @@ export default class ThemeController {
     })
 
     await Space.emit('theme:update', {
-      name: theme.name,
+      id: params.id,
       active,
     })
 
     return {
-      message: 'Current theme updated',
+      message: 'Theme updated',
     }
   }
 }
