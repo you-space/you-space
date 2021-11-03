@@ -1,8 +1,7 @@
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import { string } from '@ioc:Adonis/Core/Helpers'
 import View from 'App/Models/View'
 
-const columns = Array.from(View.$columnsDefinitions.keys()).map(string.snakeCase)
+const columns = Array.from(View.$columnsDefinitions.keys())
 
 export default class ViewIndexValidator {
   public schema = schema.create({
