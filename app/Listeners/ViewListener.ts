@@ -1,4 +1,5 @@
 import { validator } from '@ioc:Adonis/Core/Validator'
+import { string } from '@ioc:Adonis/Core/Helpers'
 import View from 'App/Models/View'
 import ViewIndexValidator from 'App/Validators/ViewIndexValidator'
 import ViewShowValidator from 'App/Validators/ViewShowValidator'
@@ -15,10 +16,12 @@ export default class ViewListener {
     const query = View.query()
 
     if (filters.fields) {
-      query.select(filters.fields)
+      query.select(filters.fields.map(string.snakeCase))
     }
-
-    query.orderBy(filters.orderBy || 'created_at', filters.orderDesc ? 'desc' : 'asc')
+    query.orderBy(
+      string.snakeCase(filters.orderBy || 'created_at'),
+      filters.orderDesc ? 'desc' : 'asc'
+    )
 
     const pagination = await query.paginate(filters.page || 1, filters.limit || 20)
 

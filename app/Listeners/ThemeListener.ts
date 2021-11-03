@@ -1,23 +1,38 @@
 import fs from 'fs'
 import path from 'path'
-import { pick, uniq } from 'lodash'
-import Drive from '@ioc:Adonis/Core/Drive'
-import SystemMeta from 'App/Models/SystemMeta'
-import { isGitUrl } from 'App/Helpers'
 import execa from 'execa'
-import Content from 'App/Services/ContentService'
+import { pick, uniq } from 'lodash'
 
+import Drive from '@ioc:Adonis/Core/Drive'
+import { validator } from '@ioc:Adonis/Core/Validator'
+
+import SystemMeta from 'App/Models/SystemMeta'
+import Content from 'App/Services/ContentService'
+import { findConfig, isGitUrl } from 'App/Helpers'
+import ThemeConfigValidator from 'App/Validators/ThemeConfigValidator'
+
+interface ThemePage {
+  title: string
+  path: string
+}
 export interface Theme {
+  id: string
   name: string
   active: boolean
   description?: string
-  scripts?: Record<string, string>
+  author?: {
+    name: string
+    email: string
+  }
+  dashboard?: {
+    pages: ThemePage[]
+  }
   filename: string
   makePath: (...args: string[]) => string
 }
 
 export default class ThemeListener {
-  public async index(filter?: string[]) {
+  public async index(filter?: { id?: string }) {
     const folders = await fs.promises.readdir(Content.makePath('themes'), {
       withFileTypes: true,
     })
@@ -27,25 +42,18 @@ export default class ThemeListener {
     const themes = await Promise.all(
       folders
         .filter((f) => f.isDirectory())
-        .filter((t) => !filter || filter.includes(t.name))
+        .filter((f) => !filter?.id || f.name === filter.id)
         .map(async (folder) => {
-          const theme = {
+          const theme: any = {
             id: folder.name,
-            name: folder.name,
             active: active.includes(folder.name),
             filename: Content.makePath('themes', folder.name),
             makePath: (...args: string[]) => Content.makePath('themes', folder.name, ...args),
           }
 
-          const exist = await Drive.exists(theme.makePath('space.json'))
+          const config = await findConfig(theme.filename)
 
-          if (exist) {
-            const content = await Drive.get(theme.makePath('space.json'))
-            Object.assign(
-              theme,
-              pick(JSON.parse(content.toString()), ['name', 'description', 'scripts'])
-            )
-          }
+          Object.assign(theme, pick(config, ['name', 'description', 'dashboard']))
 
           return theme
         })
@@ -54,8 +62,8 @@ export default class ThemeListener {
     return themes as Theme[]
   }
 
-  public async show(name: string) {
-    const theme = await this.index([name])
+  public async show(id: string) {
+    const theme = await this.index({ id })
 
     return theme[0] || null
   }
@@ -92,82 +100,65 @@ export default class ThemeListener {
     await execa('rm', ['-rf', theme.filename])
   }
 
-  public async start(name: string) {
-    const theme = await this.show(name)
+  public async update({ id, active }: Theme) {
+    const theme = await this.show(id)
 
     if (!theme) {
       throw new Error('Theme not found')
     }
 
-    const { start } = await import(theme.filename)
-
-    if (start) {
-      await start()
-    }
-
-    const active = await SystemMeta.firstOrCreateMetaArray<string>('themes:active')
-
-    await SystemMeta.updateOrCreateMetaArray('themes:active', uniq([...active, name]))
-  }
-
-  public async stop(name: string) {
-    const theme = await this.show(name)
-
-    if (!theme) {
-      throw new Error('Theme not found')
-    }
-
-    const { stop } = await import(theme.filename)
-
-    if (stop) {
-      await stop()
-    }
-
-    const active = await SystemMeta.firstOrCreateMetaArray<string>('themes:active')
-
-    await SystemMeta.updateOrCreateMetaArray(
-      'themes:active',
-      active.filter((t) => t !== name)
-    )
-  }
-
-  public async update({ name, active }: Theme) {
-    const theme = await this.show(name)
-
-    if (!theme) {
-      throw new Error('Theme not found')
-    }
-
-    const activeThemeName = await SystemMeta.firstOrCreateMetaArray<string>('themes:active')
-
-    if (active && activeThemeName[0]) {
-      await this.stop(activeThemeName[0])
-    }
-
-    if (active) {
-      await this.start(theme.name)
-    }
+    const activeThemes = await SystemMeta.firstOrCreateMetaArray<string>('themes:active')
 
     if (!active) {
-      await this.stop(theme.name)
-    }
-  }
-
-  public async runScript(data: { name: string; script: string }) {
-    const theme = await this.show(data.name)
-
-    if (!theme) {
-      throw new Error('Theme not found')
+      await SystemMeta.updateOrCreateMetaArray(
+        'themes:active',
+        activeThemes.filter((t) => t !== id)
+      )
+      return
     }
 
-    if (!theme.scripts || !theme.scripts[data.script]) {
-      throw new Error('Theme script not found')
-    }
-
-    const [file, ...args] = theme.scripts[data.script].split(' ')
-
-    await execa(file, args, {
-      cwd: theme.filename,
+    const config = await validator.validate({
+      ...new ThemeConfigValidator(),
+      data: await findConfig(theme.filename),
     })
+
+    const checkFiles = ['index.js']
+
+    if (config.dashboard?.pages?.length) {
+      checkFiles.push(...config.dashboard.pages.map((f) => f.path))
+    }
+
+    const filesValid = await Promise.all(
+      checkFiles.map(async (file) => ({
+        file,
+        exist: await Drive.exists(theme.makePath(file)),
+      }))
+    )
+
+    const notExist = filesValid.find((f) => !f.exist)
+
+    if (notExist) {
+      throw new Error(`File ${notExist.file} not found`)
+    }
+
+    await SystemMeta.updateOrCreateMetaArray('themes:active', uniq([...activeThemes, id]))
   }
+
+  // public async runScript(data: { name: string; script: string }) {
+  //   const theme = await this.show(data.name)
+
+  //   if (!theme) {
+  //     throw new Error('Theme not found')
+  //   }
+
+  //   if (!theme.scripts || !theme.scripts[data.script]) {
+  //     throw new Error('Theme script not found')
+  //   }
+
+  //   const [file, ...args] = theme.scripts[data.script].split(' ')
+
+  //   await execa(file, args, {
+  //     cwd: theme.filename,
+  //   })
+  // }
 }

@@ -1,9 +1,8 @@
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import { string } from '@ioc:Adonis/Core/Helpers'
 
 import Video from 'App/Models/Video'
 
-const columns = Array.from(Video.$columnsDefinitions.keys()).map(string.snakeCase)
+const columns = Array.from(Video.$columnsDefinitions.keys())
 
 export default class VideoIndexValidator {
   public schema = schema.create({

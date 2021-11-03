@@ -18,12 +18,11 @@ interface Observer {
 }
 
 export class SpaceService {
-  private observers: Observer[] = []
-  private onAnyObservers: OnAnyCallback[] = []
-  private events: Map<string, Handler> = new Map()
+  public observers: Observer[] = []
+  public onAnyObservers: OnAnyCallback[] = []
+  public events: Map<string, Handler> = new Map()
 
   constructor() {
-    global.space = this
     Logger.info('[space] service started')
   }
 

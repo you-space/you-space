@@ -1,4 +1,5 @@
 import { validator } from '@ioc:Adonis/Core/Validator'
+import { string } from '@ioc:Adonis/Core/Helpers'
 import Video from 'App/Models/Video'
 import VideoIndexValidator from 'App/Validators/VideoIndexValidator'
 import VideoShowValidator from 'App/Validators/VideoShowValidator'
@@ -15,7 +16,7 @@ export default class VideoListener {
     const query = Video.query()
 
     if (filters.fields) {
-      query.select([...filters.fields, 'id'].map((f) => `videos.${f}`))
+      query.select(filters.fields.map(string.snakeCase))
     }
 
     if (filters.include?.includes('images')) {
@@ -30,7 +31,10 @@ export default class VideoListener {
       query.preload('comments')
     }
 
-    query.orderBy(filters.orderBy || 'created_at', filters.orderDesc ? 'desc' : 'asc')
+    query.orderBy(
+      string.snakeCase(filters.orderBy || 'created_at'),
+      filters.orderDesc ? 'desc' : 'asc'
+    )
 
     const result = await query.paginate(filters.page || 1, filters.limit)
 
@@ -46,7 +50,7 @@ export default class VideoListener {
     const query = Video.query()
 
     if (filters.fields) {
-      query.select(filters.fields)
+      query.select(filters.fields.map(string.snakeCase))
     }
 
     const video = await query.where('id', filters.id).firstOrFail()

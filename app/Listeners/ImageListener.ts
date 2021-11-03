@@ -1,4 +1,5 @@
 import { validator } from '@ioc:Adonis/Core/Validator'
+import { string } from '@ioc:Adonis/Core/Helpers'
 import Image from 'App/Models/Image'
 import ImageIndexValidator from 'App/Validators/ImageIndexValidator'
 import ImageShowValidator from 'App/Validators/ImageShowValidator'
@@ -18,7 +19,10 @@ export default class ImageListener {
       query.select(filters.fields)
     }
 
-    query.orderBy(filters.orderBy || 'created_at', filters.orderDesc ? 'desc' : 'asc')
+    query.orderBy(
+      string.snakeCase(filters.orderBy || 'created_at'),
+      filters.orderDesc ? 'desc' : 'asc'
+    )
 
     const result = await query.paginate(filters.page || 1, filters.limit)
 
@@ -34,7 +38,7 @@ export default class ImageListener {
     const query = Image.query()
 
     if (filters.fields) {
-      query.select(filters.fields)
+      query.select(filters.fields.map(string.snakeCase))
     }
 
     const image = await query.where('id', filters.id).firstOrFail()

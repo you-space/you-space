@@ -1,5 +1,8 @@
 import execa from 'execa'
 import fs from 'fs'
+import path from 'path'
+
+import Drive from '@ioc:Adonis/Core/Drive'
 
 import Logger from '@ioc:Adonis/Core/Logger'
 
@@ -21,14 +24,17 @@ export function requireIfExist(path: string) {
 }
 
 export async function importIfExist(path: string) {
-  try {
-    const file = await import(path)
+  return import(path).then((m) => m.default).catch(() => null)
+}
 
-    return file.default || file
-  } catch (error) {
-    Logger.error(error)
-    return null
+export async function readIfExist(path: string) {
+  const exists = await Drive.exists(path)
+
+  if (exists) {
+    return fs.readFileSync(path, 'utf8')
   }
+
+  return null
 }
 
 export async function isGitUrl(url: string) {
@@ -48,4 +54,14 @@ export async function listFolder(path: string): Promise<string[]> {
       Logger.error(error)
       return []
     })
+}
+
+export async function findConfig(folderPath: string) {
+  const jsonConfig = await readIfExist(path.join(folderPath, 'space.config.json'))
+
+  if (jsonConfig && isJson(jsonConfig)) {
+    return JSON.parse(jsonConfig)
+  }
+
+  return {}
 }

@@ -1,8 +1,7 @@
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import { string } from '@ioc:Adonis/Core/Helpers'
 import Image from 'App/Models/Image'
 
-const columns = Array.from(Image.$columnsDefinitions.keys()).map(string.snakeCase)
+const columns = Array.from(Image.$columnsDefinitions.keys())
 export default class ImageIndexValidator {
   constructor() {}
 

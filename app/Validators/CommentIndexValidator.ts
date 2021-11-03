@@ -1,8 +1,7 @@
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import { string } from '@ioc:Adonis/Core/Helpers'
 import Comment from 'App/Models/Comment'
 
-const columns = Array.from(Comment.$columnsDefinitions.keys()).map(string.snakeCase)
+const columns = Array.from(Comment.$columnsDefinitions.keys())
 
 export default class CommentIndexValidator {
   public schema = schema.create({

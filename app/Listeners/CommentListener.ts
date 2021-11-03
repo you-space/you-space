@@ -1,4 +1,6 @@
 import { validator } from '@ioc:Adonis/Core/Validator'
+import { string } from '@ioc:Adonis/Core/Helpers'
+
 import CommentIndexValidator from 'App/Validators/CommentIndexValidator'
 import Comment from 'App/Models/Comment'
 import CommentStoreValidator from 'App/Validators/CommentStoreValidator'
@@ -14,7 +16,10 @@ export default class CommentListener {
 
     const query = Comment.query()
 
-    query.orderBy(filters.orderBy || 'created_at', filters.orderDesc ? 'desc' : 'asc')
+    query.orderBy(
+      string.snakeCase(filters.orderBy || 'created_at'),
+      filters.orderDesc ? 'desc' : 'asc'
+    )
 
     const result = await query.paginate(filters.page || 1, filters.limit)
 
