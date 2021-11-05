@@ -7,17 +7,42 @@ import Space from 'App/Services/SpaceService'
 import VideoUploadValidator from 'App/Validators/VideoUploadValidator'
 import { Queue } from 'App/Queue'
 import { cuid } from '@ioc:Adonis/Core/Helpers'
+import VideoListener from 'App/Listeners/VideoListener'
 
 export default class VideosController {
-  public async index({ request }: HttpContextContract) {
-    return Space.emit('video:index', request.qs())
+  public async index({ request, auth }: HttpContextContract) {
+    let permissions: string[] = []
+
+    if (auth.user) {
+      permissions = (await auth.user.findPermissions()).map((p) => p.name)
+    }
+
+    const listener = new VideoListener(permissions)
+
+    return listener.index(request.qs())
   }
 
-  public async show({ request, params }: HttpContextContract) {
-    return Space.emit('video:show', {
+  public async show({ request, response, auth, params }: HttpContextContract) {
+    let permissions: string[] = []
+
+    if (auth.user) {
+      permissions = (await auth.user.findPermissions()).map((p) => p.name)
+    }
+
+    const listener = new VideoListener(permissions)
+
+    const video = await listener.show({
       ...request.qs(),
-      id: params.id,
+      id: Number(params.id),
     })
+
+    if (!video) {
+      return response.notFound({
+        message: 'Video not found',
+      })
+    }
+
+    return video
   }
 
   public async store({ request }: HttpContextContract) {

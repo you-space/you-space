@@ -1,22 +1,12 @@
 import BaseSchema from '@ioc:Adonis/Lucid/Schema'
-import Visibility from 'App/Models/Visibility'
-
 export default class Videos extends BaseSchema {
   protected tableName = 'videos'
 
   public async up() {
-    const visibility = await Visibility.firstOrCreate({
-      name: 'private',
-    })
-
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
 
-      table
-        .integer('visibility_id')
-        .references('visibilities.id')
-        .notNullable()
-        .defaultTo(visibility.id)
+      table.integer('permission_id').references('permissions.id').notNullable()
       table.string('source_id')
 
       table.string('source').notNullable().defaultTo('unknown')

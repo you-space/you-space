@@ -6,10 +6,11 @@ export default class UserRoles extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
+
       table.integer('role_id').references('roles.id')
       table.integer('user_id').references('users.id')
 
-      table.timestamps(true, true)
+      table.unique(['role_id', 'user_id'])
     })
   }
 

@@ -91,10 +91,8 @@ export default class SetupsController {
       filename: Application.resourcesPath('space.js'),
     })
 
-    response.json({
+    return response.json({
       message: 'setup ready',
     })
-
-    process.exit(1)
   }
 }

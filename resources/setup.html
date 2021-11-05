@@ -101,7 +101,7 @@
                 user: user.value,
               })
 
-              window.location.replace('/ys-admin/login')
+              window.location.replace('/ys-admin')
             } catch (axiosError) {
               const errors = _.get(axiosError, 'response.data.errors', [])
               errors.forEach((error) => {

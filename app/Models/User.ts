@@ -11,6 +11,7 @@ import {
 } from '@ioc:Adonis/Lucid/Orm'
 import Role from './Role'
 import UserRole from './UserRole'
+import Permission from './Permission'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -83,5 +84,13 @@ export default class User extends BaseModel {
     }
 
     return rolesNames.every((rn) => this.roles.some((r) => r.name === rn))
+  }
+
+  public async findPermissions() {
+    const roles = await (this as User).related('roles').query().preload('permissions')
+
+    return roles
+      .map((r) => r.permissions)
+      .reduce<Permission[]>((all, current) => all.concat(current), [])
   }
 }

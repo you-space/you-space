@@ -24,8 +24,7 @@ async function runMigrations() {
 async function runSeeds() {
   console.log('[seeds] running...')
 
-  await execa.node('ace', ['db:seed', '-f', './database/seeders/RoleSeeder.ts'])
-  await execa.node('ace', ['db:seed', '-f', './database/seeders/VisibilitySeeder.ts'])
+  await execa.node('ace', ['db:seed'])
 }
 
 async function rollbackMigrations() {

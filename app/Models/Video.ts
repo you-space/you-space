@@ -9,13 +9,15 @@ import {
   hasMany,
   ModelQueryBuilderContract,
   scope,
+  beforeCreate,
 } from '@ioc:Adonis/Lucid/Orm'
 import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
+
 import Image from './Image'
 import View from './View'
 import Comment from './Comment'
-import Visibility from './Visibility'
+import Permission from './Permission'
 
 function serializeSrc({ source, src, id }: Video) {
   if (source === 'local') {
@@ -30,7 +32,7 @@ export default class Video extends BaseModel {
   public id: number
 
   @column()
-  public visibilityId: number
+  public permissionId: number
 
   @column()
   public sourceId: string | null
@@ -73,21 +75,38 @@ export default class Video extends BaseModel {
   @hasMany(() => Comment)
   public comments: HasMany<typeof Comment>
 
-  @belongsTo(() => Visibility)
-  public visibility: BelongsTo<typeof Visibility>
+  @belongsTo(() => Permission)
+  public permission: BelongsTo<typeof Permission>
 
-  public static havePermissions = scope(
-    (query: ModelQueryBuilderContract<typeof Video>, permissions: string[]) => {
-      query.whereHas('visibility', (q) =>
-        q.whereHas('permissions', (q) => q.whereIn('name', permissions)).orWhere('name', 'public')
-      )
+  public static isVisibleTo = scope(
+    (query: ModelQueryBuilderContract<typeof Video>, permission: string[]) => {
+      query.whereHas('permission', (q) => q.whereIn('name', permission))
     }
   )
 
+  @beforeCreate()
+  public static async beforeCreate(video: Video) {
+    if (video.permissionId) {
+      return
+    }
+
+    const { id } = await Permission.findByOrFail('name', 'visibility:private')
+
+    video.permissionId = id
+  }
+
   @beforeDelete()
   public static async deleteFile(video: Video) {
-    if (video.source === 'local') {
-      await Drive.delete(video.src)
+    if (video.source !== 'local') {
+      return
     }
+
+    const exists = await Drive.exists(video.src)
+
+    if (!exists) {
+      return
+    }
+
+    await Drive.delete(video.src)
   }
 }
