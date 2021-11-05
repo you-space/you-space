@@ -7,7 +7,7 @@ import VideoStoreValidator from 'App/Validators/VideoStoreValidator'
 import VideoUpdateValidator from 'App/Validators/VideoUpdateValidator'
 
 export default class VideoListener {
-  constructor(public permissions?: string[]) {}
+  constructor(private permissions?: string[]) {}
 
   public async index(payload: any) {
     const filters = await validator.validate({
@@ -16,12 +16,6 @@ export default class VideoListener {
     })
 
     const query = Video.query()
-
-    if (this.permissions && !this.permissions.includes('admin')) {
-      query.withScopes((s) =>
-        s.isVisibleTo([...(this.permissions as string[]), 'visibility:public'])
-      )
-    }
 
     if (filters.id) {
       query.whereIn('id', filters.id)
@@ -47,6 +41,12 @@ export default class VideoListener {
       string.snakeCase(filters.orderBy || 'created_at'),
       filters.orderDesc ? 'desc' : 'asc'
     )
+
+    if (this.permissions && !this.permissions.includes('admin')) {
+      query.withScopes((s) =>
+        s.isVisibleTo([...(this.permissions as string[]), 'visibility:public'])
+      )
+    }
 
     const result = await query.paginate(filters.page || 1, filters.limit)
 
