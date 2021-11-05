@@ -7,15 +7,13 @@ import {
   column,
   HasMany,
   hasMany,
-  ModelQueryBuilderContract,
-  scope,
 } from '@ioc:Adonis/Lucid/Orm'
 import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
 import Image from './Image'
 import View from './View'
 import Comment from './Comment'
-import Visibility from './Visibility'
+import Permission from './Permission'
 
 function serializeSrc({ source, src, id }: Video) {
   if (source === 'local') {
@@ -73,16 +71,8 @@ export default class Video extends BaseModel {
   @hasMany(() => Comment)
   public comments: HasMany<typeof Comment>
 
-  @belongsTo(() => Visibility)
-  public visibility: BelongsTo<typeof Visibility>
-
-  public static havePermissions = scope(
-    (query: ModelQueryBuilderContract<typeof Video>, permissions: string[]) => {
-      query.whereHas('visibility', (q) =>
-        q.whereHas('permissions', (q) => q.whereIn('name', permissions)).orWhere('name', 'public')
-      )
-    }
-  )
+  @belongsTo(() => Permission)
+  public permission: BelongsTo<typeof Permission>
 
   @beforeDelete()
   public static async deleteFile(video: Video) {

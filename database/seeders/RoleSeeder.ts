@@ -5,21 +5,13 @@ import RolePermission from 'App/Models/RolePermission'
 
 export default class PermissionSeeder extends BaseSeeder {
   public async run() {
-    const permissions = await Permission.updateOrCreateMany('name', [
-      { name: 'admin' },
-      { name: 'view-private-items' },
-    ])
+    const permission = await Permission.findByOrFail('name', 'admin')
 
-    const role = await Role.firstOrCreate({
-      name: 'admin',
+    const role = await Role.firstOrCreate({ name: 'admin' })
+
+    await RolePermission.firstOrCreate({
+      permissionId: permission.id,
+      roleId: role.id,
     })
-
-    await RolePermission.updateOrCreateMany(
-      ['roleId', 'permissionId'],
-      permissions.map((p) => ({
-        permissionId: p.id,
-        roleId: role.id,
-      }))
-    )
   }
 }
