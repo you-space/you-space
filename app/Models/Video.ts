@@ -28,7 +28,7 @@ export default class Video extends BaseModel {
   public id: number
 
   @column()
-  public visibilityId: number
+  public permissionId: number
 
   @column()
   public sourceId: string | null

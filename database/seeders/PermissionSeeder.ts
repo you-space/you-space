@@ -9,8 +9,12 @@ export default class PermissionSeederSeeder extends BaseSeeder {
         description: 'Administrator',
       },
       {
-        name: 'basic',
-        description: 'Basic user',
+        name: 'visibility:public',
+        description: 'Used to define visibility of videos',
+      },
+      {
+        name: 'visibility:private',
+        description: 'Used to define visibility of videos',
       },
     ])
   }
