@@ -9,6 +9,7 @@ import {
   hasMany,
   ModelQueryBuilderContract,
   scope,
+  beforeCreate,
 } from '@ioc:Adonis/Lucid/Orm'
 import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
@@ -82,6 +83,17 @@ export default class Video extends BaseModel {
       query.whereHas('permission', (q) => q.whereIn('name', permission))
     }
   )
+
+  @beforeCreate()
+  public static async beforeCreate(video: Video) {
+    if (video.permissionId) {
+      return
+    }
+
+    const { id } = await Permission.findByOrFail('name', 'visibility:private')
+
+    video.permissionId = id
+  }
 
   @beforeDelete()
   public static async deleteFile(video: Video) {
