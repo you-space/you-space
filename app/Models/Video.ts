@@ -7,9 +7,12 @@ import {
   column,
   HasMany,
   hasMany,
+  ModelQueryBuilderContract,
+  scope,
 } from '@ioc:Adonis/Lucid/Orm'
 import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
+
 import Image from './Image'
 import View from './View'
 import Comment from './Comment'
@@ -74,10 +77,24 @@ export default class Video extends BaseModel {
   @belongsTo(() => Permission)
   public permission: BelongsTo<typeof Permission>
 
+  public static isVisibleTo = scope(
+    (query: ModelQueryBuilderContract<typeof Video>, permission: string[]) => {
+      query.whereHas('permission', (q) => q.whereIn('name', permission))
+    }
+  )
+
   @beforeDelete()
   public static async deleteFile(video: Video) {
-    if (video.source === 'local') {
-      await Drive.delete(video.src)
+    if (video.source !== 'local') {
+      return
     }
+
+    const exists = await Drive.exists(video.src)
+
+    if (!exists) {
+      return
+    }
+
+    await Drive.delete(video.src)
   }
 }

@@ -1,12 +1,14 @@
-import { validator } from '@ioc:Adonis/Core/Validator'
+import { schema, validator } from '@ioc:Adonis/Core/Validator'
 import { string } from '@ioc:Adonis/Core/Helpers'
+
 import Video from 'App/Models/Video'
 import VideoIndexValidator from 'App/Validators/VideoIndexValidator'
-import VideoShowValidator from 'App/Validators/VideoShowValidator'
 import VideoStoreValidator from 'App/Validators/VideoStoreValidator'
 import VideoUpdateValidator from 'App/Validators/VideoUpdateValidator'
 
 export default class VideoListener {
+  constructor(public permissions?: string[]) {}
+
   public async index(payload: any) {
     const filters = await validator.validate({
       ...new VideoIndexValidator(),
@@ -14,6 +16,16 @@ export default class VideoListener {
     })
 
     const query = Video.query()
+
+    if (this.permissions && !this.permissions.includes('admin')) {
+      query.withScopes((s) =>
+        s.isVisibleTo([...(this.permissions as string[]), 'visibility:public'])
+      )
+    }
+
+    if (filters.id) {
+      query.whereIn('id', filters.id)
+    }
 
     if (filters.fields) {
       query.select(filters.fields.map(string.snakeCase))
@@ -42,20 +54,19 @@ export default class VideoListener {
   }
 
   public async show(payload: any) {
-    const filters = await validator.validate({
-      ...new VideoShowValidator(),
+    const { id } = await validator.validate({
+      schema: schema.create({
+        id: schema.number(),
+      }),
       data: payload || {},
     })
 
-    const query = Video.query()
+    const { data } = await this.index({
+      ...payload,
+      id: [id],
+    })
 
-    if (filters.fields) {
-      query.select(filters.fields.map(string.snakeCase))
-    }
-
-    const video = await query.where('id', filters.id).firstOrFail()
-
-    return video.serialize()
+    return data[0] || null
   }
 
   public async store(payload: any) {

@@ -8,10 +8,13 @@ export default class VideoIndexValidator {
   public schema = schema.create({
     page: schema.number.optional(),
     limit: schema.number.optional([rules.range(1, 40)]),
-    fields: schema.array.optional().members(schema.enum(columns)),
-    include: schema.array.optional().members(schema.enum(['images', 'views', 'comments'])),
     orderBy: schema.enum.optional(columns),
     orderDesc: schema.boolean.optional(),
+
+    fields: schema.array.optional().members(schema.enum(columns)),
+    include: schema.array.optional().members(schema.enum(['images', 'views', 'comments'])),
+
+    id: schema.array.optional().members(schema.number()),
   })
 
   public messages = {}
