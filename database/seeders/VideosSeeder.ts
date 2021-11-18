@@ -8,7 +8,9 @@ export default class VideoSeederSeeder extends BaseSeeder {
     const { id: publicId } = await Permission.findByOrFail('name', 'visibility:public')
     const { id: privateId } = await Permission.findByOrFail('name', 'visibility:private')
 
-    const factory = VideoFactory.with('images', 1, (fac) => fac.merge({ name: 'default' }))
+    const factory = VideoFactory.with('images', 1, (fac) =>
+      fac.merge({ name: 'thumbnail:default' })
+    )
       .with('views', 3)
       .with('comments', 5)
 
