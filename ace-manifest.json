@@ -1,5 +1,17 @@
 {
   "commands": {
+    "check:local-dependencies": {
+      "settings": {
+        "loadApp": false,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/CheckLocalDependencies",
+      "commandName": "check:local-dependencies",
+      "description": "Check if package.json have some local package installed",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "generate:release_notes": {
       "settings": {
         "loadApp": false,
