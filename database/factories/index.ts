@@ -34,8 +34,6 @@ export const CommentFactory = Factory.define(Comment, ({ faker }) => {
   }
 }).build()
 
-let videoCount = 0
-
 export const VideoFactory = Factory.define(Video, ({ faker }) => {
   const youtubeId = faker.random.arrayElement([
     '6stlCkUDG_s',
@@ -52,15 +50,13 @@ export const VideoFactory = Factory.define(Video, ({ faker }) => {
 
   const title = faker.name.title()
 
-  videoCount++
-
   return {
     src: `https://www.youtube.com/embed/${youtubeId}`,
     sourceId: youtubeId,
     title,
     source: 'unknown',
     description: faker.lorem.sentence(),
-    slug: `video-${videoCount}`,
+    slug: faker.datatype.uuid(),
     publishedAt: DateTime.fromJSDate(faker.date.past()),
     raw: {},
   }
