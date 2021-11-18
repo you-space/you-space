@@ -22,28 +22,19 @@ export default class Plugin {
       .filter((f) => f.isDirectory())
       .map((f) => Content.makePath('plugins', f.name))
       .map((filename) => ({
+        id: path.basename(filename),
+        title: path.basename(filename),
         filename,
-        name: path.basename(filename),
         active: pluginsActive.includes(path.basename(filename)),
       }))
   }
 
   public async show(name: string) {
-    const filename = Content.makePath('plugins', name)
+    const all = await this.index()
 
-    const exist = await Drive.exists(filename)
+    const plugin = all.find((p) => p.id === name)
 
-    if (!exist) {
-      return null
-    }
-
-    const pluginsActive = await this.findActive()
-
-    return {
-      filename,
-      name: path.basename(filename),
-      active: pluginsActive.includes(path.basename(filename)),
-    }
+    return plugin || null
   }
 
   public async store(gitUrl: string) {
