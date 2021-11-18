@@ -1,6 +1,7 @@
 import Route from '@ioc:Adonis/Core/Route'
+import { createDashboard } from '@you-space/dashboard'
 
-Route.group(() => {
-  Route.get('/', 'DashboardController.show')
-  Route.get('*', 'DashboardController.show')
-}).prefix('ys-admin')
+const dashboard = createDashboard('ys-admin')
+
+Route.get('ys-admin', dashboard.render)
+Route.get('ys-admin/*', dashboard.render)
