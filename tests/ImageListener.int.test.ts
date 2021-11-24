@@ -67,9 +67,7 @@ test.group('ImageListener (int)', (group) => {
 
     const alt = 'change image alt title'
 
-    await Space.emit<Image>('image:update', { id: image.id, alt }).catch((err) =>
-      console.log({ err })
-    )
+    await Space.emit<Image>('image:update', { id: image.id, alt })
 
     await image.refresh()
 

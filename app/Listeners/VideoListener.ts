@@ -15,7 +15,7 @@ export default class VideoListener {
       data: payload || {},
     })
 
-    const query = Video.query()
+    const query = Video.query().preload('permission')
 
     if (filters.id) {
       query.whereIn('id', filters.id)
@@ -48,9 +48,17 @@ export default class VideoListener {
       )
     }
 
-    const result = await query.paginate(filters.page || 1, filters.limit)
+    const pagination = await query.paginate(filters.page || 1, filters.limit)
 
-    return result.serialize()
+    const data = pagination.all().map((v) => ({
+      ...v.serialize(),
+      visibility: v.permission?.name.replace('visibility:', ''),
+    }))
+
+    return {
+      meta: pagination.getMeta(),
+      data,
+    }
   }
 
   public async show(payload: any) {

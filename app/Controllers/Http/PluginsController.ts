@@ -4,14 +4,15 @@ import Space from 'App/Services/SpaceService'
 
 export default class PluginsController {
   public async index() {
-    const plugins = await Space.emit<any[]>('plugin:index')
+    const plugins = (await Space.emit<any[]>('plugin:index')) || []
 
-    if (!plugins) return []
-
-    return plugins.map((p) => ({
-      name: p.name,
+    const data = plugins.map((p) => ({
+      id: p.id,
+      title: p.title,
       active: p.active,
     }))
+
+    return { data }
   }
 
   public async store({ request }: HttpContextContract) {

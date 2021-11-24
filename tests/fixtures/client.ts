@@ -49,7 +49,7 @@ export function createClient() {
     const { headers } = await client
       .post('/api/v1/auth/login')
       .send({
-        emailOrUsername: 'admin',
+        uuid: 'admin',
         password: 'ys-123',
       })
       .expect(200)

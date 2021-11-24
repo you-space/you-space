@@ -1,7 +1,6 @@
 import Factory from '@ioc:Adonis/Lucid/Factory'
 import Image from 'App/Models/Image'
 import Video from 'App/Models/Video'
-import { string } from '@ioc:Adonis/Core/Helpers'
 import { DateTime } from 'luxon'
 import View from 'App/Models/View'
 import Comment from 'App/Models/Comment'
@@ -57,7 +56,7 @@ export const VideoFactory = Factory.define(Video, ({ faker }) => {
     title,
     source: 'unknown',
     description: faker.lorem.sentence(),
-    slug: string.dashCase(title),
+    slug: faker.datatype.uuid(),
     publishedAt: DateTime.fromJSDate(faker.date.past()),
     raw: {},
   }

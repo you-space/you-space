@@ -7,7 +7,7 @@ import { VideoFactory } from 'Database/factories'
 
 interface IndexResult {
   meta: any
-  data: Video[]
+  data: any[]
 }
 
 test.group('VideoListener (int)', (group) => {
@@ -20,7 +20,7 @@ test.group('VideoListener (int)', (group) => {
   test('[video:index] should return a list of videos', async (assert) => {
     await VideoFactory.createMany(10)
 
-    const videos = await Video.query().orderBy('created_at', 'asc')
+    const videos = await Video.query().preload('permission').orderBy('created_at', 'asc')
 
     const result = await Space.emit<IndexResult>('video:index')
 
@@ -31,7 +31,10 @@ test.group('VideoListener (int)', (group) => {
 
     assert.deepEqual(
       result.data,
-      videos.map((video) => video.serialize())
+      videos.map((v) => ({
+        ...v.serialize(),
+        visibility: v.permission?.name.replace('visibility:', ''),
+      }))
     )
   })
 
@@ -40,7 +43,9 @@ test.group('VideoListener (int)', (group) => {
 
     await video.refresh()
 
-    const result = await Space.emit<Video>('video:show', {
+    await video.load('permission')
+
+    const result = await Space.emit('video:show', {
       id: video.id,
     })
 
@@ -49,7 +54,10 @@ test.group('VideoListener (int)', (group) => {
       return
     }
 
-    assert.deepEqual(result, video.toJSON())
+    assert.deepEqual(result, {
+      ...video.serialize(),
+      visibility: video.permission?.name.replace('visibility:', ''),
+    })
   })
 
   test('[video:store] should create a video', async (assert) => {

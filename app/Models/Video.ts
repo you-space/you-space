@@ -75,7 +75,7 @@ export default class Video extends BaseModel {
   @hasMany(() => Comment)
   public comments: HasMany<typeof Comment>
 
-  @belongsTo(() => Permission)
+  @belongsTo(() => Permission, { serializeAs: 'visibility' })
   public permission: BelongsTo<typeof Permission>
 
   public static isVisibleTo = scope(
