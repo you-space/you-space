@@ -1,18 +1,14 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema, rules } from '@ioc:Adonis/Core/Validator'
-import Space from 'App/Services/SpaceService'
+import PluginRepository from 'App/Repositories/PluginRepository'
 
 export default class PluginsController {
+  constructor(public repository = PluginRepository) {}
+
   public async index() {
-    const plugins = (await Space.emit<any[]>('plugin:index')) || []
+    const plugins = await this.repository.index()
 
-    const data = plugins.map((p) => ({
-      id: p.id,
-      title: p.title,
-      active: p.active,
-    }))
-
-    return { data }
+    return plugins
   }
 
   public async store({ request }: HttpContextContract) {
@@ -26,7 +22,7 @@ export default class PluginsController {
       }),
     })
 
-    await Space.emit('plugin:store', gitUrl)
+    await this.repository.store(gitUrl)
 
     return {
       message: 'Plugin downloaded',
@@ -34,32 +30,21 @@ export default class PluginsController {
   }
 
   public async update({ request, params }: HttpContextContract) {
-    const name = params.id
-
     const { active } = await request.validate({
       schema: schema.create({
         active: schema.boolean(),
       }),
     })
 
-    if (active) {
-      await Space.emit('plugin:start', name)
-    }
-
-    if (!active) {
-      await Space.emit('plugin:stop', name)
-    }
+    await this.repository.update(params.id, active)
 
     return {
-      status: 200,
-      message: 'Plugin ' + (active ? 'activated' : 'deactivated'),
+      message: 'Plugin updated',
     }
   }
 
   public async destroy({ params }: HttpContextContract) {
-    const name = params.id
-
-    await Space.emit('plugin:delete', name)
+    await this.repository.destroy(params.id)
 
     return {
       message: 'Plugin deleted',
