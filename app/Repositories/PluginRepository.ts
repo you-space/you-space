@@ -6,6 +6,7 @@ import Drive from '@ioc:Adonis/Core/Drive'
 import { findConfig, listFolder, isGitUrl } from 'App/Helpers'
 import SystemMeta from 'App/Models/SystemMeta'
 import Content from 'App/Services/ContentService'
+import Plugin from 'App/Models/Plugin'
 
 export class PluginRepository {
   public async index() {
@@ -17,12 +18,13 @@ export class PluginRepository {
       folders.map(async (folder) => {
         const config = await findConfig(Content.makePath('plugins', folder))
 
-        return {
+        return new Plugin({
           id: folder,
           name: config.name || folder,
           description: config.description || '',
           active: pluginsActive.includes(folder),
-        }
+          providers: config.providers || {},
+        })
       })
     )
   }

@@ -8,7 +8,11 @@ export default class PluginsController {
   public async index() {
     const plugins = await this.repository.index()
 
-    return plugins
+    const data = plugins.map((plugin) => plugin.serialize(['id', 'name', 'description', 'active']))
+
+    return {
+      data,
+    }
   }
 
   public async store({ request }: HttpContextContract) {
