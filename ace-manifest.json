@@ -76,6 +76,18 @@
       "aliases": [],
       "flags": []
     },
+    "make:user": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/MakeUser",
+      "commandName": "make:user",
+      "description": "create a user in database",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "start": {
       "settings": {
         "loadApp": false,
