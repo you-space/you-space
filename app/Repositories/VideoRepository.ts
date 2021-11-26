@@ -6,6 +6,9 @@ import VideoIndexValidator from 'App/Validators/VideoIndexValidator'
 import BaseRepository from './BaseRepository'
 import VideoStoreValidator from 'App/Validators/VideoStoreValidator'
 import VideoUpdateValidator from 'App/Validators/VideoUpdateValidator'
+import VideoCreateManyValidator from 'App/Validators/VideoCreateManyValidator'
+import VideoThumbnailsValidator from 'App/Validators/VideoThumbnailsValidator'
+import Image from 'App/Models/Image'
 
 export class VideoRepository extends BaseRepository {
   public async index(payload: any) {
@@ -95,6 +98,45 @@ export class VideoRepository extends BaseRepository {
     await Promise.all(images.map((image) => image.delete()))
 
     await video.delete()
+  }
+
+  public async createMany(payload: string) {
+    const { videos } = await validator.validate({
+      ...new VideoCreateManyValidator(),
+      data: { videos: payload },
+    })
+
+    await Video.updateOrCreateMany(
+      ['sourceId', 'source'],
+      videos.map((v) => ({
+        sourceId: v.videoId,
+        source: v.source,
+        title: v.title,
+        description: v.description,
+        src: v.src,
+      }))
+    )
+  }
+
+  public async createThumbnails(payload: any) {
+    const { images } = await validator.validate({
+      ...new VideoThumbnailsValidator(),
+      data: { images: payload },
+    })
+
+    const videoIds = images.map((image) => image.videoId)
+
+    const videos = await Video.query().whereIn('sourceId', videoIds)
+
+    const imagesWithVideo = images
+      .filter((img) => videos.find((v) => v.sourceId === img.videoId))
+      .map((img) => ({
+        ...img,
+        videoId: videos.find((v) => v.sourceId === img.videoId)?.id,
+        name: `thumbnail:${img.name}`,
+      }))
+
+    await Image.updateOrCreateMany(['source', 'videoId', 'name'], imagesWithVideo)
   }
 }
 
