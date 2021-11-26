@@ -1,5 +1,6 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema } from '@ioc:Adonis/Core/Validator'
+import { Queue } from 'App/Queue'
 
 import ProviderRepository from 'App/Repositories/ProviderRepository'
 
@@ -9,7 +10,9 @@ export default class ProvidersController {
   public async index() {
     const providers = await this.repository.index()
 
-    const data = providers.map((p) => p.serialize(['id', 'name', 'description', 'active']))
+    const data = providers.map((p) =>
+      p.serialize(['id', 'name', 'description', 'plugin', 'active'])
+    )
 
     return {
       data,
@@ -28,7 +31,7 @@ export default class ProvidersController {
     await provider.loadFieldValues()
     await provider.loadImport()
 
-    return provider.serialize(['id', 'name', 'description', 'import', 'active', 'fields'])
+    return provider.serialize(['id', 'name', 'description', 'plugin', 'import', 'active', 'fields'])
   }
 
   public async update({ response, request, params }: HttpContextContract) {
@@ -62,6 +65,28 @@ export default class ProvidersController {
 
     return {
       message: 'Provider updated',
+    }
+  }
+
+  public async import({ response, params }: HttpContextContract) {
+    const provider = await this.repository.show(params.id)
+
+    if (!provider) {
+      return response.notFound({
+        message: 'Provider not found',
+      })
+    }
+
+    Queue.addJob({
+      queue: 'import',
+      args: {
+        id: provider.id,
+      },
+      jobId: provider.id,
+    })
+
+    return {
+      message: 'Import started',
     }
   }
 }

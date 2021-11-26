@@ -4,10 +4,11 @@ interface PluginProviderField {
   name: string
   type: string
 }
-interface PluginProvider {
+export interface PluginProviderDefinition {
   name?: string
   description?: string
   fields?: PluginProviderField[]
+  files?: Record<string, string>
 }
 
 export default class Plugin {
@@ -15,7 +16,7 @@ export default class Plugin {
   public name: string
   public description: string
   public active: boolean
-  public providers: Record<string, PluginProvider> = {}
+  public providers: Record<string, PluginProviderDefinition> = {}
 
   constructor(data: any) {
     this.id = data.id

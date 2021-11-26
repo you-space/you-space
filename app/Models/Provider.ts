@@ -11,19 +11,23 @@ interface Field {
 export default class Provider {
   public id: string
   public name: string
+  public plugin: string
   public description: string
   public active: boolean
 
   public fields: Field[] = []
+  public files: Record<string, any> = {}
 
   public import = 'none' as 'none' | 'daily' | 'weekly' | 'monthly'
 
   constructor(data: any) {
     this.id = data.id
     this.name = data.name
+    this.plugin = data.plugin
     this.description = data.description
     this.active = data.active
     this.fields = data.fields
+    this.files = data.files
   }
 
   public serialize(keys = ['id']) {

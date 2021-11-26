@@ -1,3 +1,4 @@
+import { PluginProviderDefinition } from 'App/Models/Plugin'
 import Provider from 'App/Models/Provider'
 import SystemMeta from 'App/Models/SystemMeta'
 import PluginRepository from './PluginRepository'
@@ -12,16 +13,20 @@ class ProviderRepository {
 
     return plugins
       .filter((p) => p.active)
-      .map((p) => Object.entries(p.providers || {}))
+      .map<[string, PluginProviderDefinition, string][]>((p) =>
+        Object.entries(p.providers).map(([key, value]) => [key, value, p.id])
+      )
       .reduce((all, current) => all.concat(current), [])
       .map(
-        ([id, provider]) =>
+        ([id, provider, p]) =>
           new Provider({
             id,
             name: provider.name || id,
+            plugin: p,
             description: provider.description || '',
             active: active.includes(id),
             fields: provider.fields || [],
+            files: provider.files || {},
           })
       )
   }
