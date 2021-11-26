@@ -3,13 +3,14 @@ import { extname } from 'path'
 import Drive from '@ioc:Adonis/Core/Drive'
 
 import Video from 'App/Models/Video'
-import Space from 'App/Services/SpaceService'
 import VideoUploadValidator from 'App/Validators/VideoUploadValidator'
 import { Queue } from 'App/Queue'
 import { cuid } from '@ioc:Adonis/Core/Helpers'
-import VideoListener from 'App/Listeners/VideoListener'
+import VideoRepository from 'App/Repositories/VideoRepository'
 
 export default class VideosController {
+  constructor(public repository = VideoRepository) {}
+
   public async index({ request, auth }: HttpContextContract) {
     let permissions: string[] = []
 
@@ -17,9 +18,7 @@ export default class VideosController {
       permissions = (await auth.user.findPermissions()).map((p) => p.name)
     }
 
-    const listener = new VideoListener(permissions)
-
-    return listener.index(request.qs())
+    return this.repository.withPermissions(permissions).index(request.qs())
   }
 
   public async show({ request, response, auth, params }: HttpContextContract) {
@@ -29,12 +28,7 @@ export default class VideosController {
       permissions = (await auth.user.findPermissions()).map((p) => p.name)
     }
 
-    const listener = new VideoListener(permissions)
-
-    const video = await listener.show({
-      ...request.qs(),
-      id: Number(params.id),
-    })
+    const video = await this.repository.withPermissions(permissions).show(params.id, request.qs())
 
     if (!video) {
       return response.notFound({
@@ -46,18 +40,15 @@ export default class VideosController {
   }
 
   public async store({ request }: HttpContextContract) {
-    return Space.emit('video:store', request.body())
+    return this.repository.store(request.body())
   }
 
   public async update({ request, params }: HttpContextContract) {
-    return Space.emit('video:update', {
-      ...request.body(),
-      id: params.id,
-    })
+    return this.repository.update(params.id, request.body())
   }
 
   public async destroy({ params }: HttpContextContract) {
-    await Space.emit('video:destroy', params.id)
+    await this.repository.destroy(params.id)
 
     return {
       message: 'Video deleted ',
@@ -80,13 +71,11 @@ export default class VideosController {
       },
     })
 
-    const video = await Space.emit<Video>('video:store', {
+    return await this.repository.store({
       ...data,
       src,
       source: 'local',
     })
-
-    return video
   }
 
   public async embed({ params, response }: HttpContextContract) {

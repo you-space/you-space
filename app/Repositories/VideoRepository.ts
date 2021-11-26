@@ -1,14 +1,13 @@
-import { schema, validator } from '@ioc:Adonis/Core/Validator'
+import { validator } from '@ioc:Adonis/Core/Validator'
 import { string } from '@ioc:Adonis/Core/Helpers'
 
 import Video from 'App/Models/Video'
 import VideoIndexValidator from 'App/Validators/VideoIndexValidator'
+import BaseRepository from './BaseRepository'
 import VideoStoreValidator from 'App/Validators/VideoStoreValidator'
 import VideoUpdateValidator from 'App/Validators/VideoUpdateValidator'
 
-export default class VideoListener {
-  constructor(private permissions?: string[]) {}
-
+export class VideoRepository extends BaseRepository {
   public async index(payload: any) {
     const filters = await validator.validate({
       ...new VideoIndexValidator(),
@@ -50,27 +49,12 @@ export default class VideoListener {
 
     const pagination = await query.paginate(filters.page || 1, filters.limit)
 
-    const data = pagination.all().map((v) => ({
-      ...v.serialize(),
-      visibility: v.permission?.name.replace('visibility:', ''),
-    }))
-
-    return {
-      meta: pagination.getMeta(),
-      data,
-    }
+    return pagination.serialize()
   }
 
-  public async show(payload: any) {
-    const { id } = await validator.validate({
-      schema: schema.create({
-        id: schema.number(),
-      }),
-      data: payload || {},
-    })
-
+  public async show(id: number, filters?: any) {
     const { data } = await this.index({
-      ...payload,
+      ...filters,
       id: [id],
     })
 
@@ -88,8 +72,8 @@ export default class VideoListener {
     return video.serialize()
   }
 
-  public async update(payload: any) {
-    const { id, ...data } = await validator.validate({
+  public async update(id: number, payload: any) {
+    const data = await validator.validate({
       ...new VideoUpdateValidator(),
       data: payload || {},
     })
@@ -113,3 +97,5 @@ export default class VideoListener {
     await video.delete()
   }
 }
+
+export default new VideoRepository()

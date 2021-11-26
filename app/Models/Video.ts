@@ -54,7 +54,7 @@ export default class Video extends BaseModel {
   @column()
   public description: string
 
-  @column()
+  @column({ serialize: (date) => String(date) })
   public publishedAt: DateTime
 
   @column()
@@ -108,5 +108,12 @@ export default class Video extends BaseModel {
     }
 
     await Drive.delete(video.src)
+  }
+
+  public serialize() {
+    return {
+      ...super.serialize(),
+      visibility: this.permission?.name.replace('visibility:', ''),
+    }
   }
 }
