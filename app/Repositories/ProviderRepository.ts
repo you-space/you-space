@@ -1,4 +1,3 @@
-import { PluginProviderDefinition } from 'App/Models/Plugin'
 import Provider from 'App/Models/Provider'
 import SystemMeta from 'App/Models/SystemMeta'
 import PluginRepository from './PluginRepository'
@@ -13,27 +12,20 @@ class ProviderRepository {
 
     return plugins
       .filter((p) => p.active)
-      .map<[string, PluginProviderDefinition, string][]>((p) =>
-        Object.entries(p.providers).map(([key, value]) => [key, value, p.id])
+      .map((plugin) =>
+        plugin.providers.map((p, index) => ({
+          ...p,
+          id: `${plugin.id}-providers-${p.id || index}`,
+          plugin: plugin.serialize(['id', 'name']),
+          active: active.includes(p.id),
+        }))
       )
       .reduce((all, current) => all.concat(current), [])
-      .map(
-        ([id, provider, p]) =>
-          new Provider({
-            id,
-            name: provider.name || id,
-            plugin: p,
-            description: provider.description || '',
-            active: active.includes(id),
-            fields: provider.fields || [],
-            files: provider.files || {},
-          })
-      )
+      .map((p) => new Provider(p))
   }
 
   public async show(id: string) {
     const all = await this.index()
-
     const provider = all.find((p) => p.id === id)
 
     if (!provider) {

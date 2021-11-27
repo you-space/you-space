@@ -8,6 +8,7 @@ interface PluginProviderField {
   type: string
 }
 export interface ProviderDefinition {
+  id?: string
   name?: string
   description?: string
   fields?: PluginProviderField[]

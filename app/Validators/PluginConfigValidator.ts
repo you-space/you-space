@@ -8,6 +8,7 @@ export default class PluginConfigValidator {
     description: schema.string.optional(),
     providers: schema.array.optional().members(
       schema.object().members({
+        id: schema.string({}),
         name: schema.string(),
         description: schema.string.optional(),
         files: schema.object.optional().members({

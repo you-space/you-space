@@ -1,4 +1,5 @@
 import { pick } from 'lodash'
+import Plugin from './Plugin'
 import SystemMeta from './SystemMeta'
 
 interface Field {
@@ -11,7 +12,7 @@ interface Field {
 export default class Provider {
   public id: string
   public name: string
-  public plugin: string
+  public plugin: Pick<Plugin, 'id' | 'name'>
   public description: string
   public active: boolean
 
