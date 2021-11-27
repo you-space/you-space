@@ -1,10 +1,11 @@
 import Drive from '@ioc:Adonis/Core/Drive'
-import { importIfExist } from 'App/Helpers'
 
+import { importIfExist } from 'App/Helpers'
 import { Job } from 'App/Queue/Job'
+import { ProviderContext } from 'App/Services/ProviderContext'
+
 import ProviderRepository from 'App/Repositories/ProviderRepository'
 import Content from 'App/Services/ContentService'
-import { ProviderContext } from 'App/Services/ProviderContext'
 
 interface Args {
   id: string
@@ -23,7 +24,7 @@ async function worker(job: Job<Args>) {
     throw new Error('Import file not defined')
   }
 
-  const filename = Content.makePath('plugins', provider.plugin, provider.files.import)
+  const filename = Content.makePath('plugins', provider.plugin.id, provider.files.import)
 
   const exist = await Drive.exists(filename)
 

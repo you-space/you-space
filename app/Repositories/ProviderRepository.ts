@@ -10,7 +10,7 @@ class ProviderRepository {
 
     const active = await SystemMeta.firstOrCreateMetaArray('providers:active')
 
-    return plugins
+    const providers = plugins
       .filter((p) => p.active)
       .map((plugin) =>
         plugin.providers.map((p, index) => ({
@@ -22,6 +22,10 @@ class ProviderRepository {
       )
       .reduce((all, current) => all.concat(current), [])
       .map((p) => new Provider(p))
+
+    await Promise.all(providers.map((p) => p.load()))
+
+    return providers
   }
 
   public async show(id: string) {

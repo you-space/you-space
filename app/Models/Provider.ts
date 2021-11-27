@@ -7,6 +7,7 @@ interface Field {
   type?: string
   value?: any
   encrypted?: boolean
+  required?: boolean
 }
 
 export default class Provider {
@@ -33,6 +34,11 @@ export default class Provider {
 
   public serialize(keys = ['id']) {
     return pick(this, keys || [])
+  }
+
+  public async load() {
+    await this.loadImport()
+    await this.loadFieldValues()
   }
 
   public async loadImport() {
@@ -91,7 +97,7 @@ export default class Provider {
 
       return {
         name: field.name,
-        value: value?.value || field.value,
+        value: value?.value || null,
         encrypted: value ? !!value?.encrypted : field.encrypted,
       }
     })

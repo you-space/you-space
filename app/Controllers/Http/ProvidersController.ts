@@ -1,8 +1,9 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { schema } from '@ioc:Adonis/Core/Validator'
+import { schema, validator } from '@ioc:Adonis/Core/Validator'
 import { Queue } from 'App/Queue'
 
 import ProviderRepository from 'App/Repositories/ProviderRepository'
+import ProviderConfigImportValidator from 'App/Validators/ProviderConfigImportValidator'
 
 export default class ProvidersController {
   constructor(public repository = ProviderRepository) {}
@@ -76,6 +77,19 @@ export default class ProvidersController {
         message: 'Provider not found',
       })
     }
+
+    const config = provider.fields.reduce(
+      (all, field) => ({
+        ...all,
+        [field.name]: field.value,
+      }),
+      {}
+    )
+
+    await validator.validate({
+      ...new ProviderConfigImportValidator(provider.fields),
+      data: config,
+    })
 
     Queue.addJob({
       queue: 'import',

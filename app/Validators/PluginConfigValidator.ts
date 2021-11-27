@@ -16,6 +16,13 @@ export default class PluginConfigValidator {
             rules.fileExist(Content.makePath('plugins', this.id)),
           ]),
         }),
+        fields: schema.array.optional().members(
+          schema.object().members({
+            name: schema.string(),
+            type: schema.enum(['string']),
+            required: schema.boolean.optional(),
+          })
+        ),
       })
     ),
   })
