@@ -65,3 +65,10 @@ export async function findConfig(folderPath: string) {
 
   return {}
 }
+
+export async function fileExists(filename: string) {
+  return fs.promises
+    .stat(filename)
+    .then(() => true)
+    .catch(() => false)
+}
