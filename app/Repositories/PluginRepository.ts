@@ -3,7 +3,7 @@ import execa from 'execa'
 
 import Drive from '@ioc:Adonis/Core/Drive'
 
-import { findConfig, listFolder, isGitUrl } from 'App/Helpers'
+import { listFolder, isGitUrl } from 'App/Helpers'
 import SystemMeta from 'App/Models/SystemMeta'
 import Content from 'App/Services/ContentService'
 import Plugin from 'App/Models/Plugin'
@@ -12,21 +12,11 @@ export class PluginRepository {
   public async index() {
     const folders = await listFolder(Content.makePath('plugins'))
 
-    const pluginsActive = await SystemMeta.firstOrCreateMetaArray('plugins:active')
+    const plugins = folders.map((folder) => new Plugin(folder))
 
-    return await Promise.all(
-      folders.map(async (folder) => {
-        const config = await findConfig(Content.makePath('plugins', folder))
+    await Promise.all(plugins.map((plugin) => plugin.load()))
 
-        return new Plugin({
-          id: folder,
-          name: config.name || folder,
-          description: config.description || '',
-          active: pluginsActive.includes(folder),
-          providers: config.providers || {},
-        })
-      })
-    )
+    return plugins
   }
 
   public async show(id: string) {

@@ -1,6 +1,7 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { schema, rules } from '@ioc:Adonis/Core/Validator'
+import { schema, rules, validator } from '@ioc:Adonis/Core/Validator'
 import PluginRepository from 'App/Repositories/PluginRepository'
+import PluginConfigValidator from 'App/Validators/PluginConfigValidator'
 
 export default class PluginsController {
   constructor(public repository = PluginRepository) {}
@@ -33,12 +34,29 @@ export default class PluginsController {
     }
   }
 
-  public async update({ request, params }: HttpContextContract) {
+  public async update({ request, response, params }: HttpContextContract) {
     const { active } = await request.validate({
       schema: schema.create({
         active: schema.boolean(),
       }),
     })
+
+    const plugin = await this.repository.show(params.id)
+
+    if (!plugin) {
+      return response.notFound({
+        message: 'Plugin not found',
+      })
+    }
+
+    const config = await plugin.findConfig()
+
+    if (active) {
+      await validator.validate({
+        ...new PluginConfigValidator(plugin.id),
+        data: config,
+      })
+    }
 
     await this.repository.update(params.id, active)
 
