@@ -8,8 +8,15 @@ import { createClient } from './fixtures/client'
 
 async function createFakePlugin(name: string) {
   const path = Content.makePath('plugins', name)
+  const configFile = Content.makePath('plugins', name, 'space.config.json')
+
+  const config = {
+    name: name,
+  }
 
   await fs.promises.mkdir(path, { recursive: true })
+
+  await fs.promises.writeFile(configFile, JSON.stringify(config, null, 2))
 }
 
 test.group('PluginsController (int)', (group) => {
@@ -78,9 +85,7 @@ test.group('PluginsController (int)', (group) => {
       .send({ gitUrl: 'invalid-url' })
       .expect(422)
 
-    const errors = [{ rule: 'url', field: 'gitUrl', message: 'url validation failed' }]
-
-    assert.deepEqual(body, { errors })
+    assert.deepEqual(body.message, 'Validation failure')
   })
 
   test('should activate a plugin', async (assert) => {
