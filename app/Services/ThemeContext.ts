@@ -1,5 +1,4 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import VideoListener from 'App/Listeners/VideoListener'
 
 export class ThemeContext {
   public user?: Record<string, any>
@@ -23,13 +22,6 @@ export class ThemeContext {
     if (auth.user) {
       instance.user = auth.user.serialize()
       instance.permissions = (await auth.user.findPermissions()).map((p) => p.name)
-    }
-
-    const listener = new VideoListener(instance.permissions)
-
-    instance.videos = {
-      index: listener.index.bind(listener),
-      show: listener.show.bind(listener),
     }
 
     return instance

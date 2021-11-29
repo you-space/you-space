@@ -96,7 +96,6 @@ export default class ProvidersController {
       args: {
         id: provider.id,
       },
-      jobId: provider.id,
     })
 
     return {

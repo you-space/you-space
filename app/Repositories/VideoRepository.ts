@@ -9,6 +9,8 @@ import VideoUpdateValidator from 'App/Validators/VideoUpdateValidator'
 import VideoCreateManyValidator from 'App/Validators/VideoCreateManyValidator'
 import VideoThumbnailsValidator from 'App/Validators/VideoThumbnailsValidator'
 import Image from 'App/Models/Image'
+import VideoViewValidator from 'App/Validators/VideoViewValidator'
+import View from 'App/Models/View'
 
 export class VideoRepository extends BaseRepository {
   public async index(payload: any) {
@@ -137,6 +139,27 @@ export class VideoRepository extends BaseRepository {
       }))
 
     await Image.updateOrCreateMany(['source', 'videoId', 'name'], imagesWithVideo)
+  }
+
+  public async createViews(payload: any) {
+    const { views } = await validator.validate({
+      ...new VideoViewValidator(),
+      data: { views: payload },
+    })
+
+    const videoIds = views.map((image) => image.videoId)
+
+    const videos = await Video.query().whereIn('sourceId', videoIds)
+
+    const viewsWithVideo = views
+      .filter((view) => videos.find((v) => v.sourceId === view.videoId))
+      .map((view) => ({
+        source: view.source,
+        videoId: videos.find((v) => v.sourceId === view.videoId)?.id,
+        count: view.count,
+      }))
+
+    await View.updateOrCreateMany(['source', 'videoId'], viewsWithVideo)
   }
 }
 
