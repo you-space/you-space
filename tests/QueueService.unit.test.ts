@@ -116,6 +116,6 @@ test.group('QueueService (unit)', (group) => {
     const job = Queue.jobs.get(id)
 
     assert.equal(job?.status, 'failed')
-    assert.equal(job?.error, 'error in job')
+    assert.equal(job?.error.message, 'error in job')
   })
 })
