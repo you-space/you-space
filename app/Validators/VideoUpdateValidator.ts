@@ -2,7 +2,6 @@ import { schema, rules } from '@ioc:Adonis/Core/Validator'
 
 export default class VideoUpdateValidator {
   public schema = schema.create({
-    id: schema.number(),
     visibilityId: schema.number.optional([rules.exists({ table: 'visibilities', column: 'id' })]),
     sourceId: schema.string.optional(),
     source: schema.string.optional(),

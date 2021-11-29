@@ -23,12 +23,17 @@ export default class ExceptionHandler extends HttpExceptionHandler {
   }
 
   public async report(error: any) {
-    Logger.error(error)
+    Logger.child({ error }).error(error.message)
   }
 
   public async handle(error: any, { response }: HttpContextContract) {
     if (error.code === 'E_VALIDATION_FAILURE') {
-      return response.status(422).send(error.messages)
+      return response.status(422).send({
+        message: 'Validation failure',
+        errors: error.messages,
+        code: error.code,
+        stack: Env.get('NODE_ENV') === 'development' ? error.stack : undefined,
+      })
     }
 
     const status = error.status || 500

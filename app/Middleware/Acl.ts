@@ -23,6 +23,7 @@ export default class Acl {
     if (!permissions.every((p) => userPermissions.includes(p))) {
       throw new UnAuthorizedException('Not allowed')
     }
+
     await next()
   }
 }

@@ -41,6 +41,8 @@ test.group('ImageController (int)', (group) => {
   test('should remove image file when delete a local image ', async (assert) => {
     const { body } = await client.post('/api/v1/images/upload').attach('file', filename)
 
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
     const image = await Image.findOrFail(body.id)
 
     await image.delete()

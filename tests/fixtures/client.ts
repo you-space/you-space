@@ -13,7 +13,7 @@ export function createClient() {
     logout: async () => Promise.resolve(),
   }
 
-  const methods = ['get', 'post', 'put', 'delete']
+  const methods = ['get', 'post', 'patch', 'put', 'delete']
 
   methods.forEach((method) => {
     client[method] = (path: string) => {

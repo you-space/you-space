@@ -1,4 +1,7 @@
+import path from 'path'
+
 import { validator } from '@ioc:Adonis/Core/Validator'
+import { fileExists } from 'App/Helpers'
 
 validator.rule('numberArray', (value, _, options) => {
   if (typeof value !== 'string') {
@@ -18,3 +21,30 @@ validator.rule('numberArray', (value, _, options) => {
     )
   }
 })
+
+validator.rule(
+  'fileExist',
+  async (value, [basePath], options) => {
+    if (typeof value !== 'string') {
+      return
+    }
+
+    let filePath = value
+
+    if (basePath) {
+      filePath = path.join(basePath, value)
+    }
+
+    const exist = await fileExists(filePath)
+
+    if (!exist) {
+      options.errorReporter.report(
+        options.pointer,
+        'fileExist',
+        'fileExist validation failed',
+        options.arrayExpressionPointer
+      )
+    }
+  },
+  () => ({ async: true })
+)

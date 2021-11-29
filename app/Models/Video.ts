@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+
 import {
   BaseModel,
   beforeDelete,
@@ -11,8 +12,10 @@ import {
   scope,
   beforeCreate,
 } from '@ioc:Adonis/Lucid/Orm'
+
 import Env from '@ioc:Adonis/Core/Env'
 import Drive from '@ioc:Adonis/Core/Drive'
+import { cuid } from '@ioc:Adonis/Core/Helpers'
 
 import Image from './Image'
 import View from './View'
@@ -54,7 +57,7 @@ export default class Video extends BaseModel {
   @column()
   public description: string
 
-  @column()
+  @column({ serialize: (date) => String(date) })
   public publishedAt: DateTime
 
   @column()
@@ -86,6 +89,14 @@ export default class Video extends BaseModel {
 
   @beforeCreate()
   public static async beforeCreate(video: Video) {
+    if (!video.slug) {
+      video.slug = cuid()
+    }
+
+    if (!video.publishedAt) {
+      video.publishedAt = DateTime.now()
+    }
+
     if (video.permissionId) {
       return
     }
@@ -108,5 +119,12 @@ export default class Video extends BaseModel {
     }
 
     await Drive.delete(video.src)
+  }
+
+  public serialize() {
+    return {
+      ...super.serialize(),
+      visibility: this.permission?.name.replace('visibility:', ''),
+    }
   }
 }

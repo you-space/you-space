@@ -14,7 +14,7 @@ export default class Videos extends BaseSchema {
       table.string('src').notNullable()
 
       table.string('title').notNullable()
-      table.string('description').notNullable()
+      table.text('description').notNullable().defaultTo('')
       table.dateTime('published_at').notNullable()
 
       table.jsonb('raw').notNullable().defaultTo('{}')

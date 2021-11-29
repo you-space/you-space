@@ -83,7 +83,10 @@ export class QueueService {
       .then(() => (job.status = 'done'))
       .catch((err) => {
         job.status = 'failed'
-        job.error = err.message
+        job.error = {
+          message: err.message,
+          errors: err.messages,
+        }
       })
 
     return jobId
