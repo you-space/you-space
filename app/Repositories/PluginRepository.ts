@@ -60,6 +60,23 @@ export class PluginRepository {
   }
 
   public async destroy(id: string) {
+    const plugin = await this.show(id)
+
+    if (!plugin) {
+      throw new Error('plugin not found')
+    }
+
+    if (plugin.active) {
+      throw new Error('plugin is active')
+    }
+
+    const metas: SystemMeta[] = []
+
+    metas.push(...(await SystemMeta.fetchByName(`plugins:${id}:*`)))
+    metas.push(...(await SystemMeta.fetchByName(`providers:${id}-*`)))
+
+    await Promise.all(metas.map((meta) => meta.delete()))
+
     const filename = Content.makePath('plugins', id)
 
     await execa('rm', ['-rf', filename])
